@@ -4,18 +4,17 @@
 
 ## Approach
 
-The eight cask files already live on `forwardimpact/homebrew-tap/main` in the
+The seven cask files already live on `forwardimpact/homebrew-tap/main` in the
 shape the design prescribes (single `fit-gear` shared bundle, `Forward Impact/`
-app subdirectory, `:github_releases` livecheck with anchored per-cask regex,
-`fit-basecamp` deprecated alias). Three monorepo-side gaps remain before the
-spec's success criteria pass: `publish-brew.yml` and `justfile` still build,
-sign, and publish under the legacy `services@v*` / `utilities@v*` tag pair, so
-the `tap-pr` job's sed contract targets cask filenames that no longer exist;
-the conventions document the spec's SC6 names is missing; and no end-to-end
-check has confirmed the seeded casks survive the workflow's sed contract. This
-plan closes those three gaps in two parallel strands and ends with a
-verification pass that also reconciles any drift between the seeded cask bodies
-and the design tables.
+app subdirectory, `:github_releases` livecheck with anchored per-cask regex).
+Three monorepo-side gaps remain before the spec's success criteria pass:
+`publish-brew.yml` and `justfile` still build, sign, and publish under the
+legacy `services@v*` / `utilities@v*` tag pair, so the `tap-pr` job's sed
+contract targets cask filenames that no longer exist; the conventions document
+the spec's SC5 names is missing; and no end-to-end check has confirmed the
+seeded casks survive the workflow's sed contract. This plan closes those three
+gaps in two parallel strands and ends with a verification pass that also
+reconciles any drift between the seeded cask bodies and the design tables.
 
 ## Files at a glance
 
@@ -27,7 +26,7 @@ and the design tables.
 | Create | `macos/gear/entitlements.plist`                                                                | Codesign entitlements for `fit-gear.app` (byte-copy of the existing services plist) |
 | Delete | `macos/services/Info.plist`, `macos/services/entitlements.plist`                               | Replaced by `macos/gear/`                                               |
 | Delete | `macos/libraries/Info.plist`, `macos/libraries/entitlements.plist`                             | Replaced by `macos/gear/`                                               |
-| Create | `websites/fit/docs/internals/release/index.md`                                                 | Conventions document (spec § In scope, SC6)                             |
+| Create | `websites/fit/docs/internals/release/index.md`                                                 | Conventions document (spec § In scope, SC5)                             |
 | Modify | `websites/fit/docs/internals/index.md`                                                         | Add `release` card to the internals hub grid                            |
 
 ## Steps
@@ -136,10 +135,9 @@ File modified: `.github/workflows/publish-brew.yml` (lines 205–208). Replace w
 
 ```yaml
 # Only the version and sha256 lines are updated per release. The rest of the
-# cask body — binary stanzas, livecheck regex, deprecate! on fit-basecamp — is
-# human-edited in the tap repo and survives releases unchanged. The casks
-# declare no inter-cask dependencies, so each release rewrites exactly one
-# cask file.
+# cask body — binary stanzas, livecheck regex — is human-edited in the tap
+# repo and survives releases unchanged. The casks declare no inter-cask
+# dependencies, so each release rewrites exactly one cask file.
 ```
 
 Verify: `git grep -nE 'depends_on graph' -- .github` returns no matches across the repo (catches the same outdated phrase if it migrated to any other workflow file).
@@ -313,18 +311,17 @@ Body sections (one section per cross-cutting decision named in spec § In scope;
 | --- | --- |
 | `## Overview` | The tap repo's role; the `publish-brew.yml` workflow's role; where each authored field lives. Two paragraphs. |
 | `## Sed contract` | The two fields the workflow rewrites (`version`, `sha256`); literal `sed -i` invocation; required two-space indent + double-quoted shape; what survives unchanged across releases. |
-| `## Cask topology` | No inter-cask `depends_on`; six product casks each expose one CLI; `fit-gear` exposes 25 CLIs; `fit-basecamp` is a deprecated alias. Reproduce the Mermaid diagram from design § Cask Topology — the conventions doc is the long-lived reference for tap reviewers and stands on its own without a hop to the design. |
+| `## Cask topology` | No inter-cask `depends_on`; six product casks each expose one CLI; `fit-gear` exposes 25 CLIs. Reproduce the Mermaid diagram from design § Cask Topology — the conventions doc is the long-lived reference for tap reviewers and stands on its own without a hop to the design. |
 | `## Binary stanza mapping` | Authoritative table — same rows as design § Binary Stanza Mapping. |
 | `## Livecheck regex pattern` | `:github_releases` strategy with the cask's own download URL; per-cask `^{name}@v(\d+(?:\.\d+)+)$` regex anchoring; rationale for `^...$` against the multi-bundle releases page. |
 | `## App install path` | `Forward Impact/` subdirectory under `/Applications/`; how `app` and `binary` stanzas reference it; why grouping (vs. flat install) was chosen. |
 | `## Zap and uninstall paths` | `~/Library/Preferences/team.forwardimpact.{name}.plist` per cask; one row per cask. |
 | `## Verification commands` | `brew style Casks/*.rb` and `brew audit --new-cask Casks/{cask}.rb`; what a human reviewer runs before merging a tap PR; how to dry-run the workflow's sed locally. |
-| `## Deprecation precedent` | `fit-basecamp` rationale; date `2026-04-30`; rename target `fit-outpost`; reference to the storage-path migration command from #625 phase 8d. |
 | `## What's next` | Partial-card grid (`<!-- part:card:... -->` only — no markdown link cards per `websites/CLAUDE.md`). Targets: `../operations`, `../kata`. Maximum four cards. |
 
 Tables in the doc are denormalized from the design so editing one cask's conventions doesn't require touching the design. The conventions doc is the long-lived reference for tap reviewers; once it lands, the tap README's existing link to `https://www.forwardimpact.team/docs/internals/release/` resolves (the README already targets this URL — no monorepo edit to the tap README is needed).
 
-Verify: `bunx fit-doc build --src=websites/fit` exits 0 and produces `dist/docs/internals/release/index.html`; `grep -c '^## ' websites/fit/docs/internals/release/index.md` returns exactly `10` (one per row of the table above — Overview, Sed contract, Cask topology, Binary stanza mapping, Livecheck regex pattern, App install path, Zap and uninstall paths, Verification commands, Deprecation precedent, What's next).
+Verify: `bunx fit-doc build --src=websites/fit` exits 0 and produces `dist/docs/internals/release/index.html`; `grep -c '^## ' websites/fit/docs/internals/release/index.md` returns exactly `9` (one per row of the table above — Overview, Sed contract, Cask topology, Binary stanza mapping, Livecheck regex pattern, App install path, Zap and uninstall paths, Verification commands, What's next).
 
 ### 9. Add the release card to the internals hub
 
@@ -336,13 +333,12 @@ Verify: `grep -c 'part:card:release' websites/fit/docs/internals/index.md` retur
 
 ### 10. Audit the seeded tap casks against the design
 
-No files created or modified inside the monorepo. The eight cask files exist on `forwardimpact/homebrew-tap/main` (verified 2026-05-04 via `gh api repos/forwardimpact/homebrew-tap/git/trees/main?recursive=1`): `fit-pathway.rb`, `fit-map.rb`, `fit-guide.rb`, `fit-landmark.rb`, `fit-summit.rb`, `fit-outpost.rb`, `fit-gear.rb`, `fit-basecamp.rb`. Run a structural audit:
+No files created or modified inside the monorepo. The seven cask files exist on `forwardimpact/homebrew-tap/main` (verified 2026-05-04 via `gh api repos/forwardimpact/homebrew-tap/git/trees/main?recursive=1`): `fit-pathway.rb`, `fit-map.rb`, `fit-guide.rb`, `fit-landmark.rb`, `fit-summit.rb`, `fit-outpost.rb`, `fit-gear.rb`. Run a structural audit:
 
-- For each live cask, confirm the stanzas design § Cask Anatomy prescribes are present in the prescribed shape: `version`, `sha256`, `url`, `name`, `desc`, `homepage`, `depends_on arch: :arm64`, `app … target: "Forward Impact/…"`, `binary` stanzas referencing `#{appdir}/Forward Impact/…`, `livecheck` block with `:github_releases` strategy and anchored regex, `zap trash:` clause.
-- For `fit-basecamp.rb`, confirm `deprecate! date: "2026-04-30", because: …` matches design § Deprecated Cask. The cask carries `url`/`sha256` but no `app`, `binary`, or `livecheck`. **Also** confirm the `desc` field names the storage-path manual-migration command from #625 phase 8d as spec § In scope requires — the seeded cask's `desc` reads "Renamed to fit-outpost — install forwardimpact/tap/fit-outpost instead", which does **not** name the migration command and is therefore expected to fail this row of the audit.
+- For each cask, confirm the stanzas design § Cask Anatomy prescribes are present in the prescribed shape: `version`, `sha256`, `url`, `name`, `desc`, `homepage`, `depends_on arch: :arm64`, `app … target: "Forward Impact/…"`, `binary` stanzas referencing `#{appdir}/Forward Impact/…`, `livecheck` block with `:github_releases` strategy and anchored regex, `zap trash:` clause.
 - Cross-check binary stanzas against design § Binary Stanza Mapping — exact name match, no extras, no omissions: 25 entries for `fit-gear.rb`, one entry per product cask.
 
-Reconciliation: the staff-engineer cannot push to `forwardimpact/homebrew-tap` (no `HOMEBREW_TAP_PAT`). For each failing row, file a comment on this plan's PR with the deviation and open a tap-side issue at `forwardimpact/homebrew-tap` titled `spec/740: <cask> drift — <criterion>`, assigning the release-engineer. SC4 ("executable names match … performed at seed time") passes for the live casks whose audit row is clean, and is conditionally pending for any failing row until the tap-side reconciliation issue closes. The basecamp `desc` row above is the known expected failure.
+Reconciliation: the staff-engineer cannot push to `forwardimpact/homebrew-tap` (no `HOMEBREW_TAP_PAT`). For each failing row, file a comment on this plan's PR with the deviation and open a tap-side issue at `forwardimpact/homebrew-tap` titled `spec/740: <cask> drift — <criterion>`, assigning the release-engineer. SC3 ("executable names match … performed at seed time") passes for the casks whose audit row is clean, and is conditionally pending for any failing row until the tap-side reconciliation issue closes.
 
 Verify: a written audit log enumerates each cask with a pass/fail row per criterion; every failing row carries a tap-side issue link assigned to `release-engineer` (no failing row is left unowned).
 
@@ -381,7 +377,7 @@ for CASK in fit-pathway fit-map fit-guide fit-landmark fit-summit fit-outpost fi
 done
 ```
 
-Verify: every iteration of the loop produces a clean `brew style` (exit 0) with no `FAIL` line emitted; the loop exits 0 overall. `fit-basecamp.rb` is excluded — the workflow's case statement maps `outpost@v*` to `fit-outpost`, never `fit-basecamp`, so `fit-basecamp.rb` is not sed-rewritten and the dry-run does not apply.
+Verify: every iteration of the loop produces a clean `brew style` (exit 0) with no `FAIL` line emitted; the loop exits 0 overall.
 
 ## Libraries used: none.
 
@@ -391,21 +387,16 @@ How each spec § Success criterion is verified by this plan, and which carry con
 
 | Spec SC | Verified by | At plan close-out |
 | --- | --- | --- |
-| SC1 (every bundle has a cask in the tap) | Tap state already satisfies (8 cask files on `forwardimpact/homebrew-tap/main`); step 10's audit re-confirms | Pass |
+| SC1 (every bundle has a cask in the tap) | Tap state already satisfies (7 cask files on `forwardimpact/homebrew-tap/main`); step 10's audit re-confirms | Pass |
 | SC2 (sed contract succeeds against every live cask) | Step 11 dry-run | Pass on macOS-arm64 / gnu-sed or Linux/Linuxbrew; **deferred to release-engineer's first `gear@v*` rehearsal** if no compatible host is available |
 | SC3 (each live cask passes `brew style` / `brew audit --new-cask`) | Step 11 (`brew style`) | Pass; same host caveat as SC2 |
-| SC4 (executable names match bundle source) | Step 10 audit | Pass for clean rows; **conditionally pending for any failing audit row** until the matching tap-side reconciliation issue closes (the basecamp `desc` storage-path migration row is the known expected fail) |
-| SC5 (`fit-basecamp` is `brew search`-discoverable and visibly deprecated) | Manual `brew search` against the published tap | Pass; not gated by this plan |
-| SC6 (conventions doc covers every cross-cutting decision) | Step 8 (10-section heading check) | Pass |
+| SC4 (executable names match bundle source) | Step 10 audit | Pass for clean rows; **conditionally pending for any failing audit row** until the matching tap-side reconciliation issue closes |
+| SC5 (conventions doc covers every cross-cutting decision) | Step 8 (9-section heading check) | Pass |
 
 ## Risks
 
 - **`HOMEBREW_TAP_PAT` not yet provisioned on the monorepo.** The `tap-pr` job at line 190 authenticates against `forwardimpact/homebrew-tap` via `secrets.HOMEBREW_TAP_PAT`. State-of audit § Must-have item 5 flags this secret as not yet set on `forwardimpact/monorepo`. This plan does not add the secret — a repo admin (release-engineer) creates it out-of-band (classic PAT scoped `repo` to `forwardimpact/homebrew-tap` only, ≤ 1-year expiry) before the first `gear@v*` or product tag is pushed, or `tap-pr` will fail at checkout. Owner: `release-engineer`. Verification gate: secret presence audit during the first `kata-release-cut` rehearsal that follows this plan's merge.
-- **Cask drift from design.** The tap was seeded externally (commit "feat: seed tap with initial casks", state-of.md § Step 3). Step 10 audits each cask against the design tables before this plan's verification gate closes; the basecamp `desc`-vs-spec row is a known expected fail. Reconciliation requires a `HOMEBREW_TAP_PAT` holder, so the staff-engineer files an issue per failing row at `forwardimpact/homebrew-tap` (title pattern `spec/740: <cask> drift — <criterion>`) and assigns `release-engineer`. SC4 conditionally passes for clean rows and remains pending for failing rows until each tap-side issue closes.
-
-## Known limitations (visible from this plan; surface as follow-up, not blocking)
-
-- **`fit-basecamp.rb` placeholder URL resolves to a 404 after the first `outpost@v*` release.** The workflow's case statement maps `outpost@v*` to `CASK=fit-outpost`, never `fit-basecamp`; the sed step never updates `fit-basecamp.rb`. The basecamp cask's `url` interpolates `outpost@v#{version}` against the cask's own placeholder `version "0.0.0"`, resolving to a non-existent release. A user who runs `brew install --cask fit-basecamp` after deprecation sees a 404 rather than the cleaner deprecation error. The cask has no `app` or `binary` so install was never the intended path — `brew search` discoverability is the contract — but the failure mode is worth tracking. Owner: `release-engineer` files a follow-up issue at `forwardimpact/homebrew-tap` titled `fit-basecamp: replace placeholder url with versionless deprecated stub` after this plan merges.
+- **Cask drift from design.** The tap was seeded externally (commit "feat: seed tap with initial casks", state-of.md § Step 3). Step 10 audits each cask against the design tables before this plan's verification gate closes. Reconciliation requires a `HOMEBREW_TAP_PAT` holder, so the staff-engineer files an issue per failing row at `forwardimpact/homebrew-tap` (title pattern `spec/740: <cask> drift — <criterion>`) and assigns `release-engineer`. SC4 conditionally passes for clean rows and remains pending for failing rows until each tap-side issue closes.
 
 ## Execution
 
@@ -415,7 +406,7 @@ Three strands. The two PR-shipping strands (steps 1–7 and 8–9) and the verif
 | --- | --- | --- | --- |
 | 1, 2, 3, 4, 5, 6, 7 | `staff-engineer` | `feat(740): consolidate gear bundle into publish-brew + justfile` | All monorepo edits in one branch. Steps 1–5 are workflow YAML; step 6 is the justfile; step 7 is plist creation/deletion. |
 | 8, 9 | `technical-writer` | `docs(740): homebrew cask conventions` | Conventions doc + internals card in one branch. Step 8 lands first within the PR's commit history so step 9's `part:card:release` partial resolves at build time. Independent of the consolidation PR; can land in either order. |
-| 10, 11 | `staff-engineer` (audit) + macOS host (sed dry-run) | (verification only — no monorepo PR) | Audit log filed as a comment on this plan's PR. Step 11's `brew style` dry-run requires a macOS arm64 host with Homebrew installed; if the runner is Linux-only, defer step 11 to the release-engineer's first `gear@v*` rehearsal. Tap-side reconciliation issues, if any, are opened separately at `forwardimpact/homebrew-tap` and assigned to the release-engineer. |
+| 10, 11 | `staff-engineer` (audit) + macOS host (sed dry-run) | (verification only — no monorepo PR) | Audit log filed as a comment on this plan's PR. Step 11's `brew style` dry-run requires a macOS arm64 host with Homebrew installed; if the runner is Linux-only, defer step 11 to the release-engineer's first `gear@v*` rehearsal. |
 
 Sequencing: 1–7 ‖ 8–9 (parallel); 10–11 follows the consolidation PR merge for context, but does not block on it (the audit can run against tap main any time).
 
