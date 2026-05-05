@@ -249,7 +249,7 @@ async function main() {
       format: ctx.format,
     });
 
-    if (result.meta) {
+    if (result.meta && command === "health") {
       result.meta.verbose = values.verbose === true;
     }
 
