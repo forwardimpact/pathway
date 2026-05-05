@@ -65,8 +65,8 @@ summaries. Bias product selection toward products not interviewed recently.
 
 ### Step 1: Pick the Product
 
-If the task includes `Product:`, use it. Otherwise pick one of: **Guide**,
-**Map**, **Landmark**, **Summit**, **Outpost**, **Pathway**.
+If the task includes `Product:`, use it. Otherwise pick one of the products
+under `products/` that has a `<job>` entry in `JTBD.md`.
 
 ### Step 2: Pick the Job
 
