@@ -25,31 +25,31 @@
       "user": "Empowered Engineers",
       "goal": "Find Growth Areas",
       "trigger": "The promotion conversation ended with 'not yet' but no specifics — unclear what evidence would change the answer.",
-      "bigHire": "get career guidance grounded in my organization's standards, not generic advice.",
-      "littleHire": "ask a specific growth question and get advice grounded in my actual standard.",
-      "competesWith": "annual review feedback; mentor conversations; LinkedIn Learning; hoping the next project makes readiness obvious; not pursuing promotion at all",
+      "bigHire": "get guidance and evidence grounded in my organization's standard, not impressions or generic advice.",
+      "littleHire": "ask a growth question and check whether recent work shows progress.",
+      "competesWith": "annual reviews; mentor conversations; hoping the next project makes readiness obvious",
       "forces": {
         "push": "Career conversations feel subjective with no shared evidence base.",
         "pull": "A clear picture of what's needed to close the gap, grounded in evidence.",
         "habit": "Waiting for annual feedback rather than continuously self-assessing.",
         "anxiety": "Structured analysis might confirm being further behind than assumed."
       },
-      "firedWhen": "gap analysis recommends areas disconnected from actual promotion decisions; or a reorg changes what gets promoted, making the standard feel like last regime's artifact."
+      "firedWhen": "gap analysis disconnects from promotion decisions; or a reorg makes the standard feel irrelevant."
     },
     {
       "user": "Empowered Engineers",
       "goal": "Trust Agent Output",
-      "trigger": "Reviewing agent output line by line because there's no objective way to tell whether it meets the organization's quality bar without reading everything.",
-      "bigHire": "verify agent work against the organization's standard, not my subjective impression of quality.",
-      "littleHire": "get a second opinion on a specific deliverable before approving it.",
-      "competesWith": "reviewing every line agents produce; accepting slower delivery as the cost of using agents; trusting output uncritically and catching issues later; not using agents for substantive work",
+      "trigger": "Reviewing agent output line by line because there's no way to tell whether it meets the quality bar.",
+      "bigHire": "verify agent work against the standard so I review by exception, not by default.",
+      "littleHire": "check expected output and get a second opinion before approving a deliverable.",
+      "competesWith": "reviewing every line; accepting slower delivery; trusting uncritically; not using agents for substantive work",
       "forces": {
-        "push": "Full review of every agent deliverable negates the productivity gain of using agents.",
-        "pull": "Confident delegation — knowing when agent output meets the standard without reading every line.",
+        "push": "Full review of every deliverable negates the productivity gain.",
+        "pull": "Confident delegation — knowing output meets the standard without reading every line.",
         "habit": "Reviewing everything because that's how quality has always been caught.",
-        "anxiety": "Delegating quality judgment to a standard might miss context-specific issues a review would catch."
+        "anxiety": "Delegating quality judgment might miss context-specific issues."
       },
-      "firedWhen": "standards-based verification catches fewer real issues than full review; or the team stops using agents for substantive work."
+      "firedWhen": "verification catches fewer issues than full review; or the team stops using agents."
     }
   ],
   "type": "module",

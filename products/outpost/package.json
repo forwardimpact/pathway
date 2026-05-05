@@ -14,17 +14,17 @@
     {
       "user": "Empowered Engineers",
       "goal": "Be Prepared and Productive",
-      "trigger": "Walking into a meeting cold because the context was buried across email threads, a Slack channel, and last week's notes.",
+      "trigger": "Walking into a meeting cold because context was scattered across email, Slack, and last week's notes.",
       "bigHire": "keep track of people, projects, and threads without depending on memory.",
-      "littleHire": "walk into every meeting already oriented without the morning scramble.",
-      "competesWith": "morning email scan; re-reading calendar invites; personal notes and TODO lists; asking colleagues for context; accepting that some threads will be dropped",
+      "littleHire": "walk into every meeting already oriented.",
+      "competesWith": "morning email scan; re-reading calendar invites; personal notes; asking colleagues for context",
       "forces": {
         "push": "Context-switching compounds; starting cold wastes everyone's time.",
-        "pull": "Continuous awareness without continuous effort — context assembled and maintained.",
-        "habit": "Manual morning prep routines and personal tracking systems that feel 'good enough.'",
+        "pull": "Continuous awareness without continuous effort — context assembled.",
+        "habit": "Morning routines and tracking systems that feel 'good enough.'",
         "anxiety": "Delegating awareness to a system feels like losing control."
       },
-      "firedWhen": "the briefing becomes noise; or simpler tools absorb enough of the preparation and tracking."
+      "firedWhen": "the briefing becomes noise; or simpler tools absorb the preparation."
     }
   ],
   "type": "module",

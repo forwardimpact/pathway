@@ -15,12 +15,11 @@ hero:
       secondary: true
 ---
 
-The quarterly review is due and the only data available is ticket counts —
-which single out individuals rather than illuminate the system. Career
-conversations feel subjective with no shared evidence base. Landmark resolves
-both by surfacing marker evidence — assessed by Guide against your engineering
-standard — alongside developer-experience outcomes, presented without blaming
-individuals.
+Quarterly review is due and the only data is ticket counts — singling out
+individuals, not illuminating the system. Career conversations feel subjective
+with no shared evidence base. Landmark resolves both by surfacing marker
+evidence — assessed by Guide against your engineering standard — alongside
+developer-experience outcomes, presented without blaming individuals.
 
 ## What becomes possible
 
@@ -37,9 +36,9 @@ evidence rather than impressions.
 
 ### For Empowered Engineers
 
-Show concrete evidence of growth, not just a manager's impression. Ground
-career conversations in facts and know exactly where you stand against the
-standard.
+Get guidance and evidence grounded in the organization's standard, not
+impressions or generic advice. Ask a growth question and check whether recent
+work shows progress.
 
 - Marker evidence linking GitHub artifacts to skill definitions
 - Promotion readiness and growth timeline views

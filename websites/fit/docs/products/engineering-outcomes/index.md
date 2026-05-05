@@ -3,8 +3,8 @@ title: Demonstrate Engineering Progress
 description: Walk into a quarterly review with system-level trends, marker evidence, and engineer voice — demonstrating progress without singling out individuals.
 ---
 
-The quarterly review is due and the only data available is ticket counts --
-which single out individuals rather than illuminate the system. This guide walks
+Quarterly review is due and the only data is ticket counts -- singling out
+individuals, not illuminating the system. This guide walks
 you through preparing a quarterly presentation with Landmark: system-level
 trends, marker evidence, and engineer voice that show direction without naming
 individuals.

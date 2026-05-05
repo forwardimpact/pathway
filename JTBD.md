@@ -6,17 +6,14 @@
 
 ## Engineering Leaders: Define the Engineering Standard
 
-**Trigger:** A promotion decision stalls because two managers disagree on what
-'senior' means — neither can point to a written definition.
+**Trigger:** Two managers disagree on what 'senior' means — neither can point to
+a written definition.
 
-**Big Hire:** Help me turn 'good engineering' into an operational definition the
-organization trusts and follows; give specialized roles coherent expectations
-from a shared foundation so evaluations feel fair rather than arbitrary. →
-**Map, Pathway**
+**Big Hire:** Help me define what good engineering means so roles have clear,
+defensible expectations. → **Map, Pathway**
 
-**Little Hire:** Help me update the standard knowing structural mistakes get
-caught before they ship; define what a new role requires without starting from a
-blank page. → **Map, Pathway**
+**Little Hire:** Help me define or update a role's expectations knowing
+structural mistakes get caught. → **Map, Pathway**
 
 **Competes With:** tribal knowledge; borrowed frameworks; per-manager intuition;
 tolerating the ambiguity.
@@ -27,8 +24,7 @@ tolerating the ambiguity.
 - **Habit:** Each manager carries a private mental model of what 'good' means.
 - **Anxiety:** Getting definitions wrong feels worse than having none.
 
-**Fired When:** definitions drift from practice; or a reorg removes the mandate
-to maintain them.
+**Fired When:** definitions drift from practice; or a reorg removes the mandate.
 
 </job>
 
@@ -36,8 +32,8 @@ to maintain them.
 
 ## Engineering Leaders: Measure Engineering Outcomes
 
-**Trigger:** The quarterly review is due and the only data available is ticket
-counts — which single out individuals rather than illuminate the system.
+**Trigger:** Quarterly review is due and the only data is ticket counts —
+singling out individuals, not illuminating the system.
 
 **Big Hire:** Help me demonstrate engineering progress without making
 individuals feel surveilled. → **Landmark**
@@ -46,7 +42,7 @@ individuals feel surveilled. → **Landmark**
 next budget cycle. → **Landmark**
 
 **Competes With:** sprint velocity; ticket counts; annual reviews; asking
-managers 'how's the team doing?'; not measuring at all.
+managers 'how's the team doing?'; not measuring.
 
 **Forces:**
 - **Push:** Pressure to show ROI with no way to separate signal from noise.
@@ -64,15 +60,13 @@ deprioritizes measurement.
 ## Engineering Leaders: Staff Teams to Succeed
 
 **Trigger:** A post-mortem surfaces the same skill gap that caused the last
-incident — nobody had a way to see it before staffing the team.
+incident — nobody saw it before staffing.
 
-**Big Hire:** Help me see what each role on the team actually requires so
-staffing isn't guesswork; make staffing decisions I can defend with evidence,
-not intuition. → **Pathway, Summit**
+**Big Hire:** Help me make staffing decisions I can defend by seeing what each
+role requires. → **Pathway, Summit**
 
-**Little Hire:** Help me check whether a candidate fills the team's actual gap,
-not just the job description; spot capability gaps before someone gets set up to
-fail. → **Pathway, Summit**
+**Little Hire:** Help me spot capability gaps and check whether a candidate
+fills them. → **Pathway, Summit**
 
 **Competes With:** résumé screening; gut feel; copying a team that seems to
 work; accepting gaps as inevitable.
@@ -84,7 +78,7 @@ work; accepting gaps as inevitable.
 - **Anxiety:** Modeling human capability feels reductive.
 
 **Fired When:** the skill taxonomy drifts from actual roles; or a hiring freeze
-removes the pressure to staff analytically.
+removes staffing pressure.
 
 </job>
 
@@ -92,29 +86,25 @@ removes the pressure to staff analytically.
 
 ## Empowered Engineers: Be Prepared and Productive
 
-**Trigger:** Walking into a meeting cold because the context was buried across
-email threads, a Slack channel, and last week's notes.
+**Trigger:** Walking into a meeting cold because context was scattered across
+email, Slack, and last week's notes.
 
 **Big Hire:** Help me keep track of people, projects, and threads without
 depending on memory. → **Outpost**
 
-**Little Hire:** Help me walk into every meeting already oriented without the
-morning scramble. → **Outpost**
+**Little Hire:** Help me walk into every meeting already oriented. → **Outpost**
 
 **Competes With:** morning email scan; re-reading calendar invites; personal
-notes and TODO lists; asking colleagues for context; accepting that some threads
-will be dropped.
+notes; asking colleagues for context.
 
 **Forces:**
 - **Push:** Context-switching compounds; starting cold wastes everyone's time.
-- **Pull:** Continuous awareness without continuous effort — context assembled
-  and maintained.
-- **Habit:** Manual morning prep routines and personal tracking systems that
-  feel 'good enough.'
+- **Pull:** Continuous awareness without continuous effort — context assembled.
+- **Habit:** Morning routines and tracking systems that feel 'good enough.'
 - **Anxiety:** Delegating awareness to a system feels like losing control.
 
-**Fired When:** the briefing becomes noise; or simpler tools absorb enough of
-the preparation and tracking.
+**Fired When:** the briefing becomes noise; or simpler tools absorb the
+preparation.
 
 </job>
 
@@ -122,31 +112,29 @@ the preparation and tracking.
 
 ## Empowered Engineers: Equip Aligned Agent Teams
 
-**Trigger:** An agent delivered work the team rejected because it followed
-generic best practices instead of the organization's actual standards.
+**Trigger:** An agent's work was rejected because it followed generic practices
+instead of the organization's standards.
 
-**Big Hire:** Help me configure agents to meet the same expectations the
-organization holds for human contributors. → **Pathway**
+**Big Hire:** Help me configure agents to meet the expectations the organization
+holds for humans. → **Pathway**
 
-**Little Hire:** Help me give agents organizational context without writing
-bespoke prompts for every task. → **Pathway**
+**Little Hire:** Help me give agents organizational context without bespoke
+prompts. → **Pathway**
 
-**Competes With:** writing custom system prompts; copying another team's agent
-config; hoping generic instructions produce aligned output; not configuring
-agents at all.
+**Competes With:** custom system prompts; copying another team's config; hoping
+generic instructions work.
 
 **Forces:**
-- **Push:** Agent output gets rejected or reworked because generic configuration
-  doesn't match what the organization expects.
-- **Pull:** Agents that reflect organizational standards without bespoke prompt
-  engineering for each task.
-- **Habit:** Treating agent configuration as a one-time setup rather than
-  something that evolves with standards.
-- **Anxiety:** Over-constraining agents might make them less useful for novel or
-  unexpected tasks.
+- **Push:** Generic configuration misses what the organization expects.
+- **Pull:** Agents that reflect organizational standards without bespoke
+  prompts.
+- **Habit:** Treating agent configuration as a one-time setup, not something
+  that evolves.
+- **Anxiety:** Over-constraining agents might limit their usefulness on novel
+  tasks.
 
-**Fired When:** configuration overhead exceeds the quality gain; or a policy
-change bans custom agent configuration.
+**Fired When:** configuration overhead exceeds the quality gain; or policy bans
+custom configuration.
 
 </job>
 
@@ -157,17 +145,14 @@ change bans custom agent configuration.
 **Trigger:** The promotion conversation ended with 'not yet' but no specifics —
 unclear what evidence would change the answer.
 
-**Big Hire:** Help me get career guidance grounded in my organization's
-standards, not generic advice; show concrete evidence of growth, not just my
-manager's impression. → **Guide, Landmark**
+**Big Hire:** Help me get guidance and evidence grounded in my organization's
+standard, not impressions or generic advice. → **Guide, Landmark**
 
-**Little Hire:** Help me ask a specific growth question and get advice grounded
-in my actual standard; check whether recent work shows visible progress toward
-the next level. → **Guide, Landmark**
+**Little Hire:** Help me ask a growth question and check whether recent work
+shows progress. → **Guide, Landmark**
 
-**Competes With:** annual review feedback; mentor conversations; LinkedIn
-Learning; hoping the next project makes readiness obvious; not pursuing
-promotion at all.
+**Competes With:** annual reviews; mentor conversations; hoping the next project
+makes readiness obvious.
 
 **Forces:**
 - **Push:** Career conversations feel subjective with no shared evidence base.
@@ -178,9 +163,8 @@ promotion at all.
 - **Anxiety:** Structured analysis might confirm being further behind than
   assumed.
 
-**Fired When:** gap analysis recommends areas disconnected from actual promotion
-decisions; or a reorg changes what gets promoted, making the standard feel like
-last regime's artifact.
+**Fired When:** gap analysis disconnects from promotion decisions; or a reorg
+makes the standard feel irrelevant.
 
 </job>
 
@@ -188,34 +172,28 @@ last regime's artifact.
 
 ## Empowered Engineers: Trust Agent Output
 
-**Trigger:** Reviewing agent output line by line because there's no objective
-way to tell whether it meets the organization's quality bar without reading
-everything.
+**Trigger:** Reviewing agent output line by line because there's no way to tell
+whether it meets the quality bar.
 
-**Big Hire:** Help me verify agent work against the organization's standard, not
-my subjective impression of quality; know what to expect from agent output so I
-can review by exception, not by default. → **Guide, Pathway**
+**Big Hire:** Help me verify agent work against the standard so I review by
+exception, not by default. → **Guide, Pathway**
 
-**Little Hire:** Help me get a second opinion on a specific deliverable before
-approving it; check the role's expected output before reviewing so I know what
-to look for. → **Guide, Pathway**
+**Little Hire:** Help me check expected output and get a second opinion before
+approving a deliverable. → **Guide, Pathway**
 
-**Competes With:** reviewing every line agents produce; accepting slower
-delivery as the cost of using agents; trusting output uncritically and catching
-issues later; not using agents for substantive work.
+**Competes With:** reviewing every line; accepting slower delivery; trusting
+uncritically; not using agents for substantive work.
 
 **Forces:**
-- **Push:** Full review of every agent deliverable negates the productivity gain
-  of using agents.
-- **Pull:** Confident delegation — knowing when agent output meets the standard
-  without reading every line.
+- **Push:** Full review of every deliverable negates the productivity gain.
+- **Pull:** Confident delegation — knowing output meets the standard without
+  reading every line.
 - **Habit:** Reviewing everything because that's how quality has always been
   caught.
-- **Anxiety:** Delegating quality judgment to a standard might miss
-  context-specific issues a review would catch.
+- **Anxiety:** Delegating quality judgment might miss context-specific issues.
 
-**Fired When:** standards-based verification catches fewer real issues than full
-review; or the team stops using agents for substantive work.
+**Fired When:** verification catches fewer issues than full review; or the team
+stops using agents.
 
 </job>
 
@@ -223,17 +201,17 @@ review; or the team stops using agents for substantive work.
 
 ## Empowered Engineers: Understand Expectations
 
-**Trigger:** Starting a new role and realizing that 'meets expectations' on the
-review form has no definition anyone can point to.
+**Trigger:** 'Meets expectations' on the review form has no definition anyone
+can point to.
 
 **Big Hire:** Help me see exactly what's expected at my level so I stop guessing
 during reviews. → **Pathway**
 
-**Little Hire:** Help me understand the autonomy and scope my level implies so I
-can self-assess honestly. → **Pathway**
+**Little Hire:** Help me understand the autonomy and scope my level implies. →
+**Pathway**
 
 **Competes With:** asking peers; inferring from manager comments; browsing
-LinkedIn postings for similar titles; living with the ambiguity.
+LinkedIn; living with ambiguity.
 
 **Forces:**
 - **Push:** Ambiguous expectations create anxiety about reviews and readiness.
@@ -251,34 +229,27 @@ reorganization makes the framework feel irrelevant.
 
 ## Platform Builders: Build Agent-Capable Systems
 
-**Trigger:** Building an agent that needs structured knowledge, typed service
-contracts, or self-documenting CLIs — and the alternative is reimplementing
-retrieval, transport, and interface plumbing from scratch.
+**Trigger:** Building an agent that needs structured knowledge or typed
+contracts — and the alternative is reimplementing plumbing from scratch.
 
 **Big Hire:** Help me give humans and agents shared capabilities through the
-same interface, with tooling to prove changes actually improved outcomes. →
-**Gear**
+same interface, with tooling to prove changes improved outcomes. → **Gear**
 
-**Little Hire:** Help me query RDF graphs, run vector search, or expose a gRPC
-service as MCP tools without building retrieval or transport from scratch. →
-**Gear**
+**Little Hire:** Help me query graphs, run vector search, or expose services as
+MCP tools without building infrastructure. → **Gear**
 
-**Competes With:** hand-rolled retrieval; bespoke gRPC wrappers; ad-hoc CLI
-frameworks; monolithic agent platforms that bundle everything.
+**Competes With:** hand-rolled retrieval; bespoke wrappers; ad-hoc frameworks;
+monolithic platforms.
 
 **Forces:**
-- **Push:** Every new agent project rebuilds the same retrieval, transport, and
-  interface plumbing.
-- **Pull:** Focused, interoperable libraries that work standalone or together —
-  humans and agents on the same docs.
-- **Habit:** Copy-pasting infrastructure from the last project rather than using
-  shared, tested primitives.
-- **Anxiety:** Depending on shared libraries means losing control over the
-  interface contract.
+- **Push:** Every agent project rebuilds retrieval, transport, and interface
+  plumbing.
+- **Pull:** Interoperable libraries that work standalone or together.
+- **Habit:** Copy-pasting infrastructure rather than using shared primitives.
+- **Anxiety:** Shared libraries mean losing control over the interface contract.
 
-**Fired When:** the libraries diverge from how agents actually consume them; or
-a monolithic framework absorbs enough of the surface that individual libraries
-feel like overhead.
+**Fired When:** the libraries diverge from how agents consume them; or a
+monolithic framework absorbs the surface.
 
 </job>
 
@@ -286,26 +257,23 @@ feel like overhead.
 
 ## Platform Builders: Evaluate and Improve Agents
 
-**Trigger:** An agent change shipped but nobody can tell whether it actually
-improved outcomes — the only evidence is anecdotal.
+**Trigger:** An agent change shipped but nobody can tell whether it improved
+outcomes — the only evidence is anecdotal.
 
 **Big Hire:** Help me prove whether agent changes improved outcomes with
 reproducible evidence. → **Gear**
 
-**Little Hire:** Help me generate deterministic test data from a DSL and chart
-agent metrics with XmR control charts to distinguish signal from noise. →
-**Gear**
+**Little Hire:** Help me generate test data and chart agent metrics to
+distinguish signal from noise. → **Gear**
 
-**Competes With:** manual spot-checking; anecdotal feedback; shipping without
-measuring; building custom eval harnesses per project.
+**Competes With:** spot-checking; anecdotal feedback; shipping without
+measuring; custom eval harnesses.
 
 **Forces:**
 - **Push:** Agent improvements are claimed but never measured — regressions hide
   until users complain.
-- **Pull:** Reproducible eval datasets and control charts that make real
-  improvement visible.
-- **Habit:** Shipping agent changes and assuming they helped because the prompt
-  looks better.
+- **Pull:** Reproducible evals and control charts that make improvement visible.
+- **Habit:** Assuming changes helped because the prompt looks better.
 - **Anxiety:** Rigorous evaluation might reveal that recent changes made things
   worse.
 

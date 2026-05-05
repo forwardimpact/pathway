@@ -3,10 +3,9 @@ title: "Make Staffing Decisions You Can Defend"
 description: "Replace staffing intuition with evidence — coverage heatmaps, structural risks, and what-if scenarios that show what each role requires."
 ---
 
-A post-mortem surfaces the same skill gap that caused the last incident. Nobody
-had a way to see the gap before staffing the team. You need to understand what
-each role actually requires and make staffing decisions you can defend with
-evidence, not intuition. This guide walks through the full workflow: defining
+A post-mortem surfaces the same skill gap that caused the last incident —
+nobody saw it before staffing. You need to make staffing decisions you can
+defend by seeing what each role requires. This guide walks through the full workflow: defining
 role requirements with Pathway, modeling team composition with Summit, and
 simulating changes before committing to them.
 
