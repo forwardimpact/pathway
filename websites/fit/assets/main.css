@@ -860,15 +860,35 @@ pre code {
   align-items: center;
 }
 
-.footer-brand {
+.footer-column {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: var(--space-2);
+}
+
+.footer-column-left {
+  align-items: flex-start;
+}
+
+.footer-column-right {
+  align-items: flex-end;
+}
+
+.footer-heading {
   font-family: var(--font-sans);
   font-weight: 700;
   font-size: 0.9375rem;
   color: var(--text-on-dark);
-  text-decoration: none;
+}
+
+.footer-column a {
+  color: var(--gray-300);
+  font-size: var(--text-small-size);
+  text-decoration-color: var(--gray-500);
+}
+
+.footer-column a:hover {
+  text-decoration-color: var(--gray-300);
 }
 
 .footer-social {
@@ -893,21 +913,6 @@ pre code {
   width: 24px;
   height: 24px;
   display: block;
-}
-
-.footer-license {
-  color: var(--gray-300);
-  font-size: var(--text-small-size);
-  text-align: right;
-}
-
-.footer-license a {
-  color: var(--gray-300);
-  text-decoration-color: var(--gray-500);
-}
-
-.footer-license a:hover {
-  text-decoration-color: var(--gray-300);
 }
 
 /* ── Mermaid Diagrams ──────────────────────────────────────────── */
@@ -1111,11 +1116,7 @@ pre:has(.language-mermaid) {
     text-align: center;
   }
 
-  .footer-brand {
-    justify-content: center;
-  }
-
-  .footer-license {
-    text-align: center;
+  .footer-column {
+    align-items: center;
   }
 }

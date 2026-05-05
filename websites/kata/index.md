@@ -9,6 +9,10 @@ daily Plan-Do-Study-Act cycle. Agents use spec-driven development to plan and
 ship, then study their own traces and act on findings — closing the loop every
 day.
 
+Kata is an implementation of two upstream standards: the
+[Monorepo](https://www.monorepo.team/) repository structure and the
+[Co-Aligned](https://www.coaligned.team/) instruction architecture.
+
 ## Learn more
 
 - [Kata Internals](https://www.forwardimpact.team/docs/internals/kata/)

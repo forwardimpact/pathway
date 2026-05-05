@@ -17,6 +17,10 @@ workflows (five scheduled agent runs across three shifts, a daily storyboard, an
 on-demand coaching session, an event-driven conversation responder), six agent
 personas, and fifteen skills form this cycle.
 
+Kata is an implementation of two upstream standards: the repository structure
+in [MONOREPO.md](MONOREPO.md) and the instruction architecture in
+[COALIGNED.md](COALIGNED.md). Everything below assumes both.
+
 ## Architecture
 
 ```mermaid
@@ -284,11 +288,9 @@ for the full permission and event subscription reference.
 
 ## Authoring
 
-Instruction architecture, length limits, skill structure, checklist design,
-publishing gates, recursion-safe review, and shared-wording rules — including
-the eight-layer model that governs where new instructions belong — live in
-[CO-ALIGNED.md](CO-ALIGNED.md). It is the design manifest for creating aligned
-coding agents, derived from Jobs To Be Done and The Checklist Manifesto.
+Instruction architecture, length limits, skill structure, checklist design, and
+the seven-layer model that governs where new instructions belong live in
+[COALIGNED.md](COALIGNED.md).
 
 ## Invariants
 
