@@ -160,7 +160,6 @@ Append to the current week's log (see agent profile for the file path):
 - **Stale memos** — Inbox entries >2 weeks old with no response
 - **MEMORY.md changes** — What was added/updated
 - **Memos sent** — Specific callouts dispatched via `fit-wiki memo`
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{skill}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.

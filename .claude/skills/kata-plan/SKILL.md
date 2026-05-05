@@ -9,10 +9,11 @@ description: >
 
 # Write and Review Plans
 
-A plan defines HOW to implement and WHEN to sequence changes. Pair with the
-[`kata-spec`](../kata-spec/SKILL.md) and
-[`kata-design`](../kata-design/SKILL.md) skills — the spec captures WHAT/WHY,
-the design captures WHICH/WHERE, the plan captures HOW/WHEN.
+A plan defines HOW to implement and WHEN to sequence changes. Plan sits in the
+[spec](../kata-spec/SKILL.md) → [design](../kata-design/SKILL.md) → plan →
+[implement](../kata-implement/SKILL.md) pipeline: the spec captures WHAT/WHY,
+the design captures WHICH/WHERE, the plan captures HOW/WHEN, and implementation
+executes the plan.
 
 **A plan requires an existing approved design.** Without an approved design
 there is no architectural direction to translate into implementation steps.
@@ -127,8 +128,8 @@ The plan translates an approved design into concrete implementation steps.
   `Libraries used: none.` No section heading, no paragraph.
 - **Risks.** List risks the implementer cannot see from reading the plan. If the
   mitigation is "do the plan correctly", it is not a risk.
-- **Execution recommendation.** Route parts to matching agents —
-  `staff-engineer` for code, `technical-writer` for docs. For decomposed plans,
+- **Execution recommendation.** Route parts to the most suitable agent —
+  engineering agents for code, `technical-writer` for docs. For decomposed plans,
   state which parts can run in parallel vs sequentially.
 
 **Form follows content.** Prefer tables for shared-structure lists, bullets for
@@ -159,24 +160,41 @@ When multiple variants exist, note which is recommended (plan-a is the default).
 ### Step 0: Read Memory
 
 Read memory per the agent profile. Extract specs previously planned and any
-deferred work from prior `staff-engineer` entries.
+deferred work from prior entries.
 
-### Steps
+### Step 1: Find the design
 
-1. **Find the design.** Run `git fetch origin main`, then require
-   `specs/NNN/design-a.md` on `origin/main`; otherwise stop. An open design PR
-   with `design:approved` does not satisfy this — wait for the merge.
-2. **Study the spec and design.** Read both end to end.
-3. **Research the codebase.** Read the files the plan will target.
-4. **Write the plan.** Create `plan-a.md`. Each step independently verifiable.
-   Decompose into parts if large (see § Large plan decomposition).
-5. **Open a `plan(NNN): …` PR.** The PR title carries the spec id.
-6. **Clean sub-agent review panel.** Follow the
-   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
-   Tell each reviewer not to invoke `kata-plan`. Address every confirmed
-   blocker/high/medium finding before advancing.
-7. **Apply approval signal.** When the panel passes, run
-   `gh pr edit <number> --add-label plan:approved`.
+Run `git fetch origin main`, then confirm `specs/NNN/design-a.md` exists on
+`origin/main`. An open PR with a `design:approved` label is not sufficient —
+wait for the merge.
+
+### Step 2: Study the spec and design
+
+Read both end to end.
+
+### Step 3: Research the codebase
+
+Read the files the plan will target.
+
+### Step 4: Write the plan
+
+Create `plan-a.md`. Each step independently verifiable. Decompose into parts if
+large (see § Large plan decomposition).
+
+### Step 5: Open a plan PR
+
+The PR title carries the spec id: `plan(NNN): …`.
+
+### Step 6: Clean sub-agent review panel
+
+Follow the [`kata-review` caller
+protocol](../kata-review/references/caller-protocol.md). Tell each reviewer not
+to invoke `kata-plan`. Address every confirmed blocker/high/medium finding
+before advancing.
+
+### Step 7: Apply approval signal
+
+When the panel passes, run `gh pr edit <number> --add-label plan:approved`.
 
 ## Memory: what to record
 
@@ -187,5 +205,6 @@ Append to the current week's log (see agent profile for the file path):
   context)
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
 
-No metrics — plans are work-in-progress; see KATA.md § Metrics for recording
-eligibility.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.

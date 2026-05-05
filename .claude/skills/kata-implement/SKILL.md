@@ -64,12 +64,12 @@ apply alongside the skill-specific ones below.
 
 Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Extract specs previously implemented and any blockers
-from prior `staff-engineer` entries.
+from prior entries.
 
 > **Writing under `.claude/`:** If the plan targets files there, follow
 > [self-improvement.md](../../agents/references/self-improvement.md).
 
-### 1. Study the spec deeply
+### Step 1: Study the spec deeply
 
 Read every file in the spec directory — `spec.md`, all `plan-*.md` files, and
 any supporting documents. Understand the **problem** (the gap and its
@@ -78,7 +78,7 @@ out of scope), and the **success criteria** (what "done" looks like and how it
 is verified). Do not start coding until you can explain the problem and its
 boundaries without referring back to the spec.
 
-### 2. Select and study the plan
+### Step 2: Select and study the plan
 
 **Default rule: implement plan-a.** When multiple plan variants exist
 (`plan-a.md`, `plan-b.md`, etc.), implement `plan-a.md` unless the user or the
@@ -94,7 +94,7 @@ Read the selected plan thoroughly. Understand:
   what?
 - **Design decisions.** Why were non-obvious choices made?
 - **Execution recommendation.** How does the plan recommend executing — single
-  agent, or parallel `staff-engineer` agents for independent parts?
+  agent, or parallel engineering agents for independent parts?
 
 **Multi-part plans.** If the plan is decomposed into parts (`plan-a.md` +
 `plan-a-01.md`, `plan-a-02.md`, etc.), start by reading the overview in
@@ -102,10 +102,10 @@ Read the selected plan thoroughly. Understand:
 work through parts in numbered order. Each part is independently executable —
 complete and verify each part before moving to the next. When the plan
 recommends parallel execution for independent parts, the caller is responsible
-for launching concurrent `staff-engineer` agents — a single agent implements one
+for launching concurrent engineering agents — a single agent implements one
 part at a time.
 
-### 3. Research the current codebase
+### Step 3: Research the current codebase
 
 Before making any change, read the files that the plan targets. Verify:
 
@@ -118,7 +118,7 @@ If the codebase has diverged from the plan's assumptions, flag the discrepancies
 to the user before proceeding. Adapt the implementation to the current state —
 the plan describes intent, not a script to replay blindly.
 
-### 4. Build a task list
+### Step 4: Build a task list
 
 Break the plan into ordered, atomic tasks. Each task should:
 
@@ -132,7 +132,7 @@ Use TodoWrite to track progress. Group related changes that must land together
 For multi-part plans, organize tasks by part — complete all tasks for part 01
 before starting part 02, unless the plan explicitly allows parallel execution.
 
-### 5. Implement step by step
+### Step 5: Implement step by step
 
 For each task:
 
@@ -146,19 +146,16 @@ For each task:
    following the repository's git workflow (`type(scope): subject`). Commit
    after each verified step — do not batch unrelated changes.
 
-### 6. Final verification
+### Step 6: Final verification
 
 After all tasks are complete, run the DO-CONFIRM checklist above.
 
-### 7. Clean sub-agent review panel
+### Step 7: Clean sub-agent review panel
 
-Follow the
-[`kata-review` caller protocol](../kata-review/references/caller-protocol.md) to
-launch a parallel panel of fresh sub-agents that each grade the full diff
-(`git diff origin/main...HEAD`). Provide each reviewer with spec path, design
-path, plan path, and branch name so they can act independently. Tell each
-reviewer not to invoke `kata-implement`. Merge panel findings per the protocol,
-verify, and address all confirmed blocker/high/medium issues before pushing.
+Follow the [`kata-review` caller
+protocol](../kata-review/references/caller-protocol.md). Tell each reviewer not
+to invoke `kata-implement`. Address every confirmed blocker/high/medium finding
+before advancing.
 
 Push all commits to the remote branch only after the panel review is clean.
 
@@ -185,5 +182,6 @@ Append to the current week's log (see agent profile for the file path):
 - **Blockers encountered** — Plan deviations, codebase divergences, test
   failures, and how they were resolved
 - **Deferred specs** — Specs skipped and why (not ready, missing plan, etc.)
-- **Metrics** — Record at least one measurement per
-  KATA.md § Metrics.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.

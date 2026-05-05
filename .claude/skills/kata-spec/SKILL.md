@@ -10,11 +10,11 @@ description: >
 
 # Write and Review Specs
 
-A spec defines WHAT to build and WHY. Pair with the
-[`kata-design`](../kata-design/SKILL.md) and
-[`kata-plan`](../kata-plan/SKILL.md) skills — once a spec is approved, the staff
-engineer shapes it into an architectural design (WHICH/WHERE) and then a
-concrete plan (HOW/WHEN).
+A spec defines WHAT to build and WHY. Spec sits in the spec →
+[design](../kata-design/SKILL.md) → [plan](../kata-plan/SKILL.md) →
+[implement](../kata-implement/SKILL.md) pipeline: the spec captures WHAT/WHY,
+the design captures WHICH/WHERE, the plan captures HOW/WHEN, and implementation
+executes the plan.
 
 **Spec and plan are independent deliverables.** Only produce the one the user
 asked for. If they ask for a spec, write the spec and stop.
@@ -109,20 +109,35 @@ label.
 
 ## Process
 
-1. **Clarify first.** Ask about motivation, scope, constraints, and success
-   before writing.
-2. **Research.** Read relevant code, data, and existing specs.
-3. **Write the spec.** WHAT and WHY only.
-4. **Open a `spec(NNN): …` PR.** The PR title carries the spec id; merge of that
-   PR is what advances the phase.
-5. **Clean sub-agent review panel.** Follow the
-   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
-   Tell each reviewer not to invoke `kata-spec`. Address every confirmed
-   blocker/high/medium finding before advancing.
-6. **Apply approval signal.** When the panel passes and the DO-CONFIRM checks
-   are met, run `gh pr edit <number> --add-label spec:approved` so
-   `kata-release-merge` lets the PR through. Stop at the spec — the plan is the
-   staff engineer's job.
+### Step 1: Clarify
+
+Ask about motivation, scope, constraints, and success before writing.
+
+### Step 2: Research
+
+Read relevant code, data, and existing specs.
+
+### Step 3: Write the spec
+
+WHAT and WHY only.
+
+### Step 4: Open a spec PR
+
+The PR title carries the spec id: `spec(NNN): …`. Merge of that PR is what
+advances the phase.
+
+### Step 5: Clean sub-agent review panel
+
+Follow the [`kata-review` caller
+protocol](../kata-review/references/caller-protocol.md). Tell each reviewer not
+to invoke `kata-spec`. Address every confirmed blocker/high/medium finding
+before advancing.
+
+### Step 6: Apply approval signal
+
+When the panel passes and the DO-CONFIRM checks are met, run
+`gh pr edit <number> --add-label spec:approved` so `kata-release-merge` lets
+the PR through.
 
 ## Memory: what to record
 
@@ -131,7 +146,6 @@ Append to the current week's log (see agent profile for the file path):
 - **Specs written** — Spec number, name, and status
 - **Review results** — Specs reviewed and disposition (approved/changes needed)
 - **Deferred work** — Findings not yet captured as specs
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{skill}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.
