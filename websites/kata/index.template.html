@@ -7,15 +7,38 @@
     <meta name="description" content="{{description}}" />
     {{/description}}
     <title>Kata – {{title}}</title>
+    <link rel="stylesheet" href="/assets/base.css" />
+    <link rel="stylesheet" href="/assets/layout.css" />
+    <link rel="stylesheet" href="/assets/components.css" />
+    <link rel="stylesheet" href="/assets/main.css" />
     <link rel="alternate" type="text/markdown" href="{{markdownUrl}}" />
     {{#canonicalUrl}}
     <link rel="canonical" href="{{canonicalUrl}}" />
     {{/canonicalUrl}}
   </head>
   <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="/">
+          <span class="brand-text">Kata</span>
+        </a>
+      </div>
+    </header>
     <main>
-      <h1>{{title}}</h1>
-      {{{content}}}
+      <div class="page-content">
+        <h1 class="page-title">{{{title}}}</h1>
+        {{{content}}}
+      </div>
     </main>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-column footer-column-left">
+          <span class="footer-heading">Kata</span>
+        </div>
+        <div class="footer-column footer-column-right">
+          <span class="footer-heading">Copyright 2026</span>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

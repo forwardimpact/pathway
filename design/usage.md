@@ -1,8 +1,9 @@
 # Using the Design Language
 
-> How to apply the [shared design language](index.md): the layered checklist for
-> producing illustrations, and the contract for deriving a brand that stays
-> recognizable as a sibling.
+> How to apply the [shared design language](index.md): the layered checklist
+> for producing illustrations, the contract for deriving a brand that stays
+> recognizable as a sibling, and the four-layer CSS architecture that
+> realizes the language in code.
 
 This document is about _use_. The language itself — philosophy, characters,
 scene grammar, base scenes, color, typography, spacing, components, motion, and
@@ -110,6 +111,16 @@ brand's docs and worked examples) **and** under the family alias
 
 ### File structure
 
+The `design/` folder layers shared specification, shared assets, and
+per-brand implementations:
+
+- `index.md` — the abstract design language ([§ 1–10](index.md))
+- `usage.md` — this file (how to apply)
+- `assets/{base,layout,components}.css` — shared, brand-agnostic
+  stylesheets that every site copies in at build time (see
+  [§ 3](#3-css-architecture))
+- `<brand>/` — per-brand implementations
+
 A brand lives in `design/<brand>/`:
 
 - `index.md` — premise, products, palette, typography, layout patterns, product
@@ -117,6 +128,7 @@ A brand lives in `design/<brand>/`:
   `../index.md`.
 - `scenes.md` — product scenes and the scene usage matrix.
 - `icons.md` — product icons, icon system rules, and any combined suite mark.
+- `assets/` — brand-specific SVG illustrations and icons.
 
 Visual artifact files (`scenes.md`, `icons.md`) sit alongside `index.md` to keep
 the brand entry point short and the artifact catalogues easy to scan
@@ -124,6 +136,90 @@ side-by-side.
 
 Add the brand to the "Brand implementations" list at the top of
 [index.md](index.md). See [`fit/`](fit/index.md) as a worked example.
+
+---
+
+## 3. CSS Architecture
+
+The design language ships as four layered stylesheets. Three brand-agnostic
+layers live in `design/assets/`; the brand layer lives in each site's
+`<site>/assets/main.css`. Every site's `justfile` copies the shared layers
+into its own `assets/` folder at build time, so a site only authors and
+versions its brand layer.
+
+### Layers
+
+| File                         | Provides                                                                                                                                                                                                                                                                          |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `design/assets/base.css`     | Reset, body defaults, prose typography (`h1`–`h4`, `p`, `strong`, `a`, `.text-hero`, `.text-subtitle`), `:focus-visible`, `prefers-reduced-motion`. Implements [§ 6 Typography](index.md#6-typography-pattern) and [§ 10 Accessibility](index.md#10-accessibility).                |
+| `design/assets/layout.css`   | Page chrome — `.site-header` + `.nav-*`, `.site-footer`, `.page-container`, `.content-product`, `.page-content` prose (lists, blockquote, hr, img, tables), `.layout-{home,product}`, `.hero` + `fadeUp`, `.section` + `.section-warm`, `.with-toc` + `.toc-nav`, structural responsive. Implements [§ 7 Spacing](index.md#7-spacing-system) plus the dark footer from [§ 8 Components](index.md#8-components). |
+| `design/assets/components.css` | In-page widgets — `.btn-{primary,secondary,ghost}`, `.grid` + `.product-card` (with `iconWiggle`), `code` / `pre`, mermaid stripping, `.reveal`. Implements the Buttons, Cards, and Terminal/Code Blocks from [§ 8 Components](index.md#8-components) and the motion defaults from [§ 9 Motion](index.md#9-motion--interaction). |
+| `<site>/assets/main.css`     | Font `@import`, the `:root` token block, brand-only motifs (e.g. fit's `.section-contour` contour texture, kata's `.section-rail` kanban-rail equivalent), brand-only sections (e.g. fit's `.section-philosophy`), responsive token overrides. Realizes [§ 5 Color](index.md#5-color-philosophy) and the brand-specific pieces of [§ 6 Typography](index.md#6-typography-pattern). |
+
+The shared layers reference only family tokens — semantic
+surface/text/border tokens (`--bg-page`, `--text-primary`,
+`--border-strong`, …), the warm-signal alias
+`--accent-warm-{50,100,200,400,600}`, the gray ramp (`--gray-50`
+through `--gray-900`), and the spacing/radius/typography ramps. They
+never reference brand-specific palette names like `--sand-200` or
+`--ink-400` (see [§ 2 Cross-brand component
+contract](#cross-brand-component-contract)).
+
+### Cascade order
+
+Stylesheets are linked in the site template in this order so brand rules
+override shared defaults without `!important`:
+
+```html
+<link rel="stylesheet" href="/assets/base.css" />
+<link rel="stylesheet" href="/assets/layout.css" />
+<link rel="stylesheet" href="/assets/components.css" />
+<link rel="stylesheet" href="/assets/main.css" />
+```
+
+### Build-time copy
+
+A site's `justfile` copies `design/assets/*.css` into its own `assets/`
+folder, alongside the brand SVGs copied from `design/<brand>/assets/`:
+
+```just
+brand_assets  := "../../design/<brand>/assets"
+shared_assets := "../../design/assets"
+
+build:
+    mkdir -p assets
+    cp {{brand_assets}}/*.svg assets/
+    cp {{shared_assets}}/*.css assets/
+```
+
+The site repo tracks only its brand `main.css`; the copied shared layers
+and SVGs are gitignored.
+
+### Brand `:root` contract
+
+Each brand `main.css` must define every token the shared layers consume.
+See the canonical realizations in
+[`fit/index.md § 10 Design Tokens`](fit/index.md#10-design-tokens) and
+[`kata/index.md § 10 Design Tokens`](kata/index.md#10-design-tokens).
+The contract:
+
+- **Surfaces** — `--bg-page`, `--bg-warm`, `--bg-elevated`, `--bg-hover`,
+  `--bg-inverted`
+- **Text** — `--text-primary`, `--text-heading`, `--text-body`,
+  `--text-secondary`, `--text-tertiary`, `--text-on-dark`
+- **Borders** — `--border-default`, `--border-strong`
+- **Gray ramp** — `--gray-50` through `--gray-900`, plus `--black`
+- **Warm signal** — both the brand-specific palette (e.g. `--sand-*`,
+  `--ink-*`) **and** the family alias
+  `--accent-warm-{50,100,200,400,600}`
+- **Spacing** — `--space-1` through `--space-32`
+- **Radii** — `--radius-{sm,md,lg,pill}`
+- **Typography** — `--font-{display,sans,mono}`,
+  `--text-{hero,display,h1,h2,h3,body,small,badge}-size`, and
+  `--text-hero-weight` (brands set this per voice — fit's serif display
+  reads at 400, kata's slab display reads at 700)
+- **Transitions** — `--ease-default`,
+  `--duration-{fast,normal,slow}`
 
 ---
 
