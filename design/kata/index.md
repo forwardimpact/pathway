@@ -494,6 +494,7 @@ Each agent shares the core design system with subtle differentiators:
                "Liberation Mono", monospace;
 
   --text-hero-size: 4rem;
+  --text-hero-weight: 700;
   --text-display-size: 2.75rem;
   --text-h1-size: 2rem;
   --text-h2-size: 1.5rem;
