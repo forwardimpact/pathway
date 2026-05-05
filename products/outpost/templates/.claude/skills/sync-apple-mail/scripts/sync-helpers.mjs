@@ -1,10 +1,4 @@
 import { execFileSync } from "node:child_process";
-import { createRequire } from "node:module";
-
-// node:sqlite is loaded lazily via createRequire so this module can be imported
-// in test environments (bun, older node) that lack the built-in. The only call
-// site is openDb below; production runs on Node 22+ where node:sqlite resolves.
-const requireModule = createRequire(import.meta.url);
 import {
   copyFileSync,
   existsSync,
@@ -12,9 +6,15 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
+import { createRequire } from "node:module";
 import { basename, join, resolve, sep } from "node:path";
 import { homedir } from "node:os";
 import { globSync } from "node:fs";
+
+// node:sqlite is loaded lazily via createRequire so this module can be imported
+// in test environments (bun, older node) that lack the built-in. The only call
+// site is openDb below; production runs on Node 22+ where node:sqlite resolves.
+const requireModule = createRequire(import.meta.url);
 
 const HOME = homedir();
 export const OUTDIR = join(HOME, ".cache/fit/outpost/apple_mail");
