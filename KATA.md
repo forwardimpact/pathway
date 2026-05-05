@@ -132,7 +132,7 @@ for utilities). An agent's skill list reveals its phase coverage.
 | `kata-release-cut`        | Do      | Version bumps, tagging, publish verification  |
 | `kata-security-audit`     | Study   | Seven-area security review                    |
 | `kata-product-issue`      | Study   | Issue triage against product vision           |
-| `kata-product-evaluation` | Study   | User testing sessions                         |
+| `kata-interview`          | Study   | JTBD switching interviews                     |
 | `kata-documentation`      | Study   | One topic deep per run                        |
 | `kata-wiki-curate`        | Study   | Agent memory hygiene                          |
 | `kata-spec`               | Act     | Write specs capturing WHAT/WHY                |
