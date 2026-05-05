@@ -23,6 +23,17 @@
         "@forwardimpact/libharness": "^0.1.14",
       },
     },
+    "libraries/libcoaligned": {
+      "name": "@forwardimpact/libcoaligned",
+      "version": "0.1.0",
+      "bin": {
+        "coaligned": "./bin/coaligned.js",
+      },
+      "dependencies": {
+        "@forwardimpact/libcli": "^0.1.9",
+        "prettier": "^3.0.0",
+      },
+    },
     "libraries/libcodegen": {
       "name": "@forwardimpact/libcodegen",
       "version": "0.1.50",
@@ -906,6 +917,8 @@
     "@forwardimpact/landmark": ["@forwardimpact/landmark@workspace:products/landmark"],
 
     "@forwardimpact/libcli": ["@forwardimpact/libcli@workspace:libraries/libcli"],
+
+    "@forwardimpact/libcoaligned": ["@forwardimpact/libcoaligned@workspace:libraries/libcoaligned"],
 
     "@forwardimpact/libcodegen": ["@forwardimpact/libcodegen@workspace:libraries/libcodegen"],
 

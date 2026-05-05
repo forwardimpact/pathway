@@ -314,7 +314,7 @@ build-apps: build-binaries
 
 # Enforce instruction layer limits (KATA.md § Instruction length)
 check-instructions:
-    node scripts/check-instructions.mjs
+    bunx coaligned instructions
 
 # Enforce that every fit-terrain invocation names a verb (spec 750)
 check-terrain-callers:

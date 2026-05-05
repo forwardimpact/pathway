@@ -1,30 +1,6 @@
-#!/usr/bin/env node
-// Validate and render Jobs To Be Done entries.
-// Source of truth: each package's package.json (.jobs array).
-//
-// - products/README.md, services/README.md, libraries/README.md — per-directory catalog + jobs
-// - JTBD.md — Big Hires from products (with forces and fired-when)
-// - <dir>/<pkg>/README.md — description block from each package's package.json
-//
-// Usage: check-jtbd.mjs [--fix]
-
-import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
-import { resolve, join } from "node:path";
+import { existsSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import * as prettier from "prettier";
-
-const ROOT = resolve(import.meta.dirname, "..");
-
-const prettierConfig = await prettier.resolveConfig(join(ROOT, "JTBD.md"));
-
-async function formatMarkdown(text) {
-  const formatted = await prettier.format(text, {
-    ...prettierConfig,
-    parser: "markdown",
-  });
-  // Prettier inserts a blank line between bold labels and bullet lists;
-  // remove it to match the hand-written JTBD.md style.
-  return formatted.replace(/\*\*\n\n(- )/g, "**\n$1").trimEnd();
-}
 
 const VALID_USERS = [
   "Engineering Leaders",
@@ -34,32 +10,35 @@ const VALID_USERS = [
 
 const USER_ORDER = new Map(VALID_USERS.map((u, i) => [u, i]));
 
-const DIRS = [
-  {
-    name: "products",
-    dir: join(ROOT, "products"),
-    readme: join(ROOT, "products", "README.md"),
-    filter: (name) => !name.startsWith(".") && name !== "node_modules",
-    column: "Product",
-    skipUniqueHires: true,
-  },
-  {
-    name: "services",
-    dir: join(ROOT, "services"),
-    readme: join(ROOT, "services", "README.md"),
-    filter: (name) => !name.startsWith(".") && name !== "node_modules",
-    column: "Service",
-  },
-  {
-    name: "libraries",
-    dir: join(ROOT, "libraries"),
-    readme: join(ROOT, "libraries", "README.md"),
-    filter: (name) => name.startsWith("lib"),
-    column: "Library",
-  },
-];
+function catalogs(root) {
+  return [
+    {
+      name: "products",
+      dir: join(root, "products"),
+      readme: join(root, "products", "README.md"),
+      filter: (name) => !name.startsWith(".") && name !== "node_modules",
+      column: "Product",
+      skipUniqueHires: true,
+    },
+    {
+      name: "services",
+      dir: join(root, "services"),
+      readme: join(root, "services", "README.md"),
+      filter: (name) => !name.startsWith(".") && name !== "node_modules",
+      column: "Service",
+    },
+    {
+      name: "libraries",
+      dir: join(root, "libraries"),
+      readme: join(root, "libraries", "README.md"),
+      filter: (name) => name.startsWith("lib"),
+      column: "Library",
+    },
+  ];
+}
 
 function loadPackages(dir, filter) {
+  if (!existsSync(dir)) return [];
   const out = [];
   for (const name of readdirSync(dir)) {
     if (!filter(name)) continue;
@@ -77,25 +56,16 @@ function loadPackages(dir, filter) {
 
 function validateEntry(entry, prefix) {
   const errors = [];
-
   if (!(entry.user && VALID_USERS.includes(entry.user))) {
     errors.push(
       `${prefix}: invalid user "${entry.user}". Must be one of: ${VALID_USERS.join(", ")}`,
     );
   }
-
-  if (!entry.goal || typeof entry.goal !== "string") {
-    errors.push(`${prefix}: goal is required and must be a string`);
+  for (const field of ["goal", "trigger", "competesWith"]) {
+    if (!entry[field] || typeof entry[field] !== "string") {
+      errors.push(`${prefix}: ${field} is required and must be a string`);
+    }
   }
-
-  if (!entry.trigger || typeof entry.trigger !== "string") {
-    errors.push(`${prefix}: trigger is required and must be a string`);
-  }
-
-  if (!entry.competesWith || typeof entry.competesWith !== "string") {
-    errors.push(`${prefix}: competesWith is required and must be a string`);
-  }
-
   for (const field of ["bigHire", "littleHire"]) {
     if (!entry[field] || typeof entry[field] !== "string") {
       errors.push(`${prefix}: ${field} is required and must be a string`);
@@ -103,7 +73,6 @@ function validateEntry(entry, prefix) {
       errors.push(`${prefix}: ${field} must end with ".": "${entry[field]}"`);
     }
   }
-
   return errors;
 }
 
@@ -125,16 +94,13 @@ function checkHireUniqueness(entry, prefix, allHires, loc) {
 function validate(packages, dirName, { skipUniqueHires = false } = {}) {
   const allHires = new Map();
   const errors = [];
-
   for (const { dir, pkg } of packages) {
     const jobs = pkg.jobs;
     if (!jobs) continue;
-
     if (!Array.isArray(jobs)) {
       errors.push(`${dir}/package.json: .jobs must be an array`);
       continue;
     }
-
     for (let i = 0; i < jobs.length; i++) {
       const entry = jobs[i];
       const prefix = `${dirName}/${dir}/package.json .jobs[${i}]`;
@@ -146,7 +112,6 @@ function validate(packages, dirName, { skipUniqueHires = false } = {}) {
       }
     }
   }
-
   return errors;
 }
 
@@ -181,56 +146,12 @@ function replaceBlock(content, beginTag, endTag, body) {
   );
 }
 
-async function buildCatalog(content, packages, column) {
-  const beginTag = "BEGIN:catalog";
-  const endTag = "END:catalog";
-
-  const rows = packages
-    .filter(({ pkg }) => pkg.description)
-    .map(({ dir, pkg }) => [`**${dir}**`, pkg.description]);
-
-  if (rows.length === 0) return content;
-
-  const body = await formatMarkdown(renderTable([column, "Description"], rows));
-  const result = replaceBlock(content, beginTag, endTag, body);
-  return result ?? content;
-}
-
-async function buildDescription(content, description) {
-  const formatted = await formatMarkdown(description);
-  const result = replaceBlock(
-    content,
-    "BEGIN:description",
-    "END:description",
-    formatted,
-  );
-  if (result !== null) return result;
-
-  const headingMatch = content.match(/^# .+\n/);
-  if (!headingMatch) return null;
-  const headingEnd = headingMatch[0].length;
-
-  const nextSection = content.indexOf("\n\n## ", headingEnd);
-  const descEnd = nextSection !== -1 ? nextSection : content.length;
-
-  const begin =
-    "<!-- BEGIN:description — Do not edit. Generated from package.json. -->";
-  const end = "<!-- END:description -->";
-
-  return (
-    content.slice(0, headingEnd) +
-    `\n${begin}\n\n${formatted}\n\n${end}` +
-    content.slice(descEnd)
-  );
-}
-
 function mergeTriggers(triggers) {
   const stripped = triggers.map((t) => t.replace(/\.\s*$/, "").trim());
   const unique = [...new Set(stripped)];
-  const parts = unique.map((s, i) => {
-    if (i > 0) s = s.charAt(0).toLowerCase() + s.slice(1);
-    return s;
-  });
+  const parts = unique.map((s, i) =>
+    i > 0 ? s.charAt(0).toLowerCase() + s.slice(1) : s,
+  );
   return parts.join("; ") + ".";
 }
 
@@ -253,10 +174,9 @@ function mergeHireField(entries, capitalize) {
   if (entries.length === 0) return null;
   const stripped = entries.map((e) => e.text.replace(/\.\s*$/, "").trim());
   const unique = [...new Set(stripped)];
-  const parts = unique.map((s, i) => {
-    if (i > 0) s = s.charAt(0).toLowerCase() + s.slice(1);
-    return s;
-  });
+  const parts = unique.map((s, i) =>
+    i > 0 ? s.charAt(0).toLowerCase() + s.slice(1) : s,
+  );
   const pkgs = [...new Set(entries.map((e) => e.pkg))];
   const names = pkgs.map((p) =>
     capitalize ? p.charAt(0).toUpperCase() + p.slice(1) : p,
@@ -281,7 +201,6 @@ function addEntryToGroup(group, entry, dir) {
 
 function collectJobGroups(packages) {
   const groups = new Map();
-
   for (const { dir, pkg } of packages) {
     if (!pkg.jobs) continue;
     for (const entry of pkg.jobs) {
@@ -301,31 +220,26 @@ function collectJobGroups(packages) {
       addEntryToGroup(groups.get(key), entry, dir);
     }
   }
-
   return groups;
 }
 
-async function renderJobGroup(group, capitalize) {
+function buildJobProse(group, capitalize) {
   const trigger = mergeTriggers(group.triggers);
   const competesWith = mergeCompetesWith(group.competesWith);
   const bigHire = mergeHireField(group.bigHires, capitalize);
   const littleHire = mergeHireField(group.littleHires, capitalize);
 
-  const proseLines = [
+  const lines = [
     `## ${group.user}: ${group.goal}`,
     "",
     `**Trigger:** ${trigger}`,
   ];
-  if (bigHire) {
-    proseLines.push("", `**Big Hire:** ${bigHire}`);
-  }
-  if (littleHire) {
-    proseLines.push("", `**Little Hire:** ${littleHire}`);
-  }
-  proseLines.push("", `**Competes With:** ${competesWith}`);
+  if (bigHire) lines.push("", `**Big Hire:** ${bigHire}`);
+  if (littleHire) lines.push("", `**Little Hire:** ${littleHire}`);
+  lines.push("", `**Competes With:** ${competesWith}`);
 
   if (group.forces) {
-    proseLines.push(
+    lines.push(
       "",
       "**Forces:**",
       `- **Push:** ${group.forces.push}`,
@@ -334,16 +248,37 @@ async function renderJobGroup(group, capitalize) {
       `- **Anxiety:** ${group.forces.anxiety}`,
     );
   }
-
-  if (group.firedWhen) {
-    proseLines.push("", `**Fired When:** ${group.firedWhen}`);
-  }
-
-  const formatted = await formatMarkdown(proseLines.join("\n"));
-  return `<job user="${group.user}" goal="${group.goal}">\n\n${formatted}\n\n</job>`;
+  if (group.firedWhen) lines.push("", `**Fired When:** ${group.firedWhen}`);
+  return lines.join("\n");
 }
 
-async function buildJobs(content, packages, { capitalize = false } = {}) {
+function makeFormatter(prettierConfig) {
+  return async function formatMarkdown(text) {
+    const formatted = await prettier.format(text, {
+      ...prettierConfig,
+      parser: "markdown",
+    });
+    // Prettier inserts a blank line between bold labels and bullet lists;
+    // remove it to match the hand-written JTBD.md style.
+    return formatted.replace(/\*\*\n\n(- )/g, "**\n$1").trimEnd();
+  };
+}
+
+async function buildCatalog(content, packages, column, formatMarkdown) {
+  const rows = packages
+    .filter(({ pkg }) => pkg.description)
+    .map(({ dir, pkg }) => [`**${dir}**`, pkg.description]);
+  if (rows.length === 0) return content;
+  const body = await formatMarkdown(renderTable([column, "Description"], rows));
+  return replaceBlock(content, "BEGIN:catalog", "END:catalog", body) ?? content;
+}
+
+async function buildJobs(
+  content,
+  packages,
+  formatMarkdown,
+  { capitalize = false } = {},
+) {
   const groups = collectJobGroups(packages);
   if (groups.size === 0) return content;
 
@@ -355,51 +290,81 @@ async function buildJobs(content, packages, { capitalize = false } = {}) {
   });
 
   const blocks = await Promise.all(
-    sorted.map((group) => renderJobGroup(group, capitalize)),
+    sorted.map(async (group) => {
+      const formatted = await formatMarkdown(buildJobProse(group, capitalize));
+      return `<job user="${group.user}" goal="${group.goal}">\n\n${formatted}\n\n</job>`;
+    }),
   );
 
   const body = blocks.join("\n\n");
-  const result = replaceBlock(content, "BEGIN:jobs", "END:jobs", body);
-  return result ?? content;
+  return replaceBlock(content, "BEGIN:jobs", "END:jobs", body) ?? content;
 }
 
-// --- CLI ---
+async function buildDescription(content, description, formatMarkdown) {
+  const formatted = await formatMarkdown(description);
+  const result = replaceBlock(
+    content,
+    "BEGIN:description",
+    "END:description",
+    formatted,
+  );
+  if (result !== null) return result;
 
-const fix = process.argv.includes("--fix");
-let stale = false;
-let hasErrors = false;
+  const headingMatch = content.match(/^# .+\n/);
+  if (!headingMatch) return null;
+  const headingEnd = headingMatch[0].length;
+  const nextSection = content.indexOf("\n\n## ", headingEnd);
+  const descEnd = nextSection !== -1 ? nextSection : content.length;
 
-function applyUpdate(filePath, label, original, updated) {
+  const begin =
+    "<!-- BEGIN:description — Do not edit. Generated from package.json. -->";
+  const end = "<!-- END:description -->";
+
+  return (
+    content.slice(0, headingEnd) +
+    `\n${begin}\n\n${formatted}\n\n${end}` +
+    content.slice(descEnd)
+  );
+}
+
+function commitUpdate(filePath, label, original, updated, fix, result) {
   if (updated === null || updated === original) return;
   if (!fix) {
-    console.error(
-      `${label} out of date. Run \`bun run context:fix\` to regenerate.`,
-    );
-    stale = true;
+    result.stale.push(label);
     return;
   }
   writeFileSync(filePath, updated);
-  console.log(`Regenerated ${label}.`);
+  result.fixed.push(label);
 }
 
-for (const catalog of DIRS) {
+async function processCatalog(catalog, fix, formatMarkdown, result) {
   const packages = loadPackages(catalog.dir, catalog.filter);
-
   const errors = validate(packages, catalog.name, {
     skipUniqueHires: catalog.skipUniqueHires ?? false,
   });
   if (errors.length > 0) {
-    for (const err of errors) console.error(err);
-    hasErrors = true;
-    continue;
+    result.errors.push(...errors);
+    return;
   }
 
   if (existsSync(catalog.readme)) {
     const original = readFileSync(catalog.readme, "utf8");
     let content = original;
-    content = await buildCatalog(content, packages, catalog.column);
-    content = await buildJobs(content, packages);
-    applyUpdate(catalog.readme, `${catalog.name}/README.md`, original, content);
+    content = await buildCatalog(
+      content,
+      packages,
+      catalog.column,
+      formatMarkdown,
+    );
+    content = await buildJobs(content, packages, formatMarkdown);
+    commitUpdate(
+      catalog.readme,
+      `${catalog.name}/README.md`,
+      original,
+      content,
+      fix,
+      result,
+    );
   }
 
   for (const { dir, pkg } of packages) {
@@ -407,32 +372,59 @@ for (const catalog of DIRS) {
     const pkgReadme = join(catalog.dir, dir, "README.md");
     if (!existsSync(pkgReadme)) continue;
     const original = readFileSync(pkgReadme, "utf8");
-    const updated = await buildDescription(original, pkg.description);
-    applyUpdate(
+    const updated = await buildDescription(
+      original,
+      pkg.description,
+      formatMarkdown,
+    );
+    commitUpdate(
       pkgReadme,
       `${catalog.name}/${dir}/README.md`,
       original,
       updated,
+      fix,
+      result,
     );
   }
 }
 
-const jtbdPath = join(ROOT, "JTBD.md");
-const productsDir = DIRS.find((d) => d.name === "products");
-if (existsSync(jtbdPath)) {
-  const packages = loadPackages(productsDir.dir, productsDir.filter);
-
+async function processJtbdMd(root, fix, formatMarkdown, result) {
+  const jtbdPath = join(root, "JTBD.md");
+  if (!existsSync(jtbdPath)) return;
+  const productsCatalog = catalogs(root).find((c) => c.name === "products");
+  const packages = loadPackages(productsCatalog.dir, productsCatalog.filter);
   const errors = validate(packages, "products", { skipUniqueHires: true });
-  if (errors.length > 0 && !hasErrors) {
-    for (const err of errors) console.error(err);
-    hasErrors = true;
+  if (errors.length > 0) {
+    if (result.errors.length === 0) result.errors.push(...errors);
+    return;
   }
-
-  if (errors.length === 0) {
-    const original = readFileSync(jtbdPath, "utf8");
-    const updated = await buildJobs(original, packages, { capitalize: true });
-    applyUpdate(jtbdPath, "JTBD.md", original, updated);
-  }
+  const original = readFileSync(jtbdPath, "utf8");
+  const updated = await buildJobs(original, packages, formatMarkdown, {
+    capitalize: true,
+  });
+  commitUpdate(jtbdPath, "JTBD.md", original, updated, fix, result);
 }
 
-process.exit(hasErrors || stale ? 1 : 0);
+/**
+ * Validate every `package.json .jobs` entry under products/, services/, and
+ * libraries/, and (when `fix` is true) regenerate the marker-delimited catalog,
+ * jobs, and description blocks in the corresponding README.md and JTBD.md.
+ *
+ * @param {{ root: string, fix?: boolean }} options
+ * @returns {Promise<{ errors: string[], stale: string[], fixed: string[] }>}
+ *   `errors` are validation failures; `stale` is files whose generated blocks
+ *   are out of date (only populated when `fix` is false); `fixed` is files
+ *   that were rewritten in place.
+ */
+export async function checkJtbd({ root, fix = false }) {
+  const result = { errors: [], stale: [], fixed: [] };
+  const prettierConfig = await prettier.resolveConfig(join(root, "JTBD.md"));
+  const formatMarkdown = makeFormatter(prettierConfig);
+
+  for (const catalog of catalogs(root)) {
+    await processCatalog(catalog, fix, formatMarkdown, result);
+  }
+  await processJtbdMd(root, fix, formatMarkdown, result);
+
+  return result;
+}
