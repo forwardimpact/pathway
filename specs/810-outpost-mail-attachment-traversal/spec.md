@@ -52,8 +52,8 @@ take; the patch must be written by a trusted human/agent reviewer.
 
 | Persona | Job | How the gap blocks progress |
 |---|---|---|
-| Engineers using Outpost | Maintain continuous awareness of context without continuous effort — including syncing email so the agent team has it ([JTBD.md](../../JTBD.md)) | A "personal knowledge assistant that lives locally on this machine" cannot be the vector for remote arbitrary file write under the user's account. |
-| Teams running agent KBs | Run an autonomous, continuously improving development team that plans, ships, studies its own traces ([JTBD.md](../../JTBD.md)) | Persistent agents that auto-run sync skills against attacker-touchable inputs require those skills to be hardened against the attacker. |
+| Empowered Engineers | Be Prepared and Productive — "keep track of people, projects, and threads without depending on memory" ([JTBD.md](../../JTBD.md)) | A personal knowledge assistant that lives locally cannot be the vector for remote arbitrary file write under the user's account. |
+| Teams Using Agents | Run an autonomous, continuously improving development team ([CLAUDE.md § Primary Products](../../CLAUDE.md)) | Persistent agents that auto-run sync skills against attacker-touchable inputs require those skills to be hardened against the attacker. |
 
 ---
 
@@ -89,9 +89,8 @@ take; the patch must be written by a trusted human/agent reviewer.
 |---|---|
 | The sanitiser strips path separators, `NUL` bytes, and rejects pure-dot names from `att.name`. | New unit test: passing `"../../../foo"`, `"/etc/passwd"`, `"..\\..\\..\\foo"`, `"\u0000bar"`, `"."`, `".."`, `""`, `null` each produce a name that is a single basename, never empty, never `.` or `..`. |
 | `copySingleAttachment` cannot write outside its `destDir`. | New unit test: with a fake `attachmentIndex` source and `att.name = "../../../escape.txt"`, the resolved destPath either equals `<destDir>/<sanitised>` or the call returns `{ available: false }` — never writes outside `destDir`. |
-| Real-world attachment names continue to round-trip. | Existing manual sync against a Mail account still produces readable links in thread markdown for typical names like `"contract.pdf"`, `"Q3 plan.xlsx"`, `"image (2).png"`. |
-| The sanitiser is exported so future call sites can reuse it. | `import { sanitizeAttachmentName } from "./sync-helpers.mjs"` resolves; named export present in the module. |
-| The fix ships through the kata-design → kata-plan → kata-implement chain. | PR merging this change references spec 810; CI green; sub-agent review of design + plan clean. |
+| Real-world attachment names round-trip unchanged. | Unit test: benign names `"contract.pdf"`, `"Q3 plan.xlsx"`, `"image (2).png"` survive sanitisation byte-for-byte. |
+| The sanitiser is reusable from other modules in `sync-apple-mail/`. | The chosen API can be imported from another script in the same directory and produces identical output for identical input. (Specific export shape is a design decision.) |
 
 ---
 
