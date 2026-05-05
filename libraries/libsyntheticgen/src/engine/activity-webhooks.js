@@ -63,7 +63,7 @@ const PR_TITLES = [
   "Add {f} tests",
 ];
 
-const PR_BODIES = [
+const REVIEW_BODIES = [
   "LGTM",
   "Looks good to me!",
   "Nice work.",
@@ -224,7 +224,7 @@ function generatePREvents(
             id: rng.randomInt(10000, 99999),
             user: { login: reviewer.github_username },
             state: rng.pick(["approved", "changes_requested", "commented"]),
-            body: rng.pick(PR_BODIES),
+            body: rng.pick(REVIEW_BODIES),
             submitted_at: rts.toISOString(),
           },
           pull_request: { number: prNum },
@@ -303,4 +303,135 @@ export function generateWebhooks(ast, rng, people, teams) {
   }
 
   return webhooks;
+}
+
+/**
+ * Extract DX driver context for a team during a given week.
+ * @param {object[]} scenarios
+ * @param {string} teamId
+ * @param {Date} week
+ * @returns {Array<{driver_id: string, trajectory: string, magnitude: number}>}
+ */
+function getDriverContext(scenarios, teamId, week) {
+  const drivers = [];
+  for (const s of scenarios) {
+    const sStart = new Date(s.timerange_start + "-01");
+    const sEnd = new Date(s.timerange_end + "-28");
+    if (week >= sStart && week <= sEnd) {
+      for (const a of s.affects) {
+        if (a.team_id === teamId) {
+          for (const dx of a.dx_drivers || []) {
+            drivers.push({
+              driver_id: dx.driver_id,
+              trajectory: dx.trajectory,
+              magnitude: dx.magnitude,
+            });
+          }
+        }
+      }
+    }
+  }
+  return drivers;
+}
+
+/**
+ * Generate prose key metadata for webhook events.
+ * Correlates each webhook's delivery_id, sender, and occurred_at with
+ * scenario driver context. No RNG consumed — all inputs are deterministic.
+ * @param {import('../dsl/parser.js').TerrainAST} ast
+ * @param {object[]} webhooks
+ * @param {object[]} people
+ * @param {object[]} teams
+ * @returns {object[]}
+ */
+export function generateWebhookKeys(ast, webhooks, people, teams) {
+  const keys = [];
+  const peopleByLogin = new Map(
+    people.map((p) => [p.github_username, p]),
+  );
+  const teamMap = new Map(teams.map((t) => [t.id, t]));
+
+  for (const wh of webhooks) {
+    const week = new Date(wh.occurred_at);
+
+    if (wh.event_type === "pull_request") {
+      const login = wh.payload.pull_request?.user?.login;
+      const person = peopleByLogin.get(login);
+      if (!person) continue;
+      const team = teamMap.get(person.team_id);
+      if (!team) continue;
+
+      const drivers = getDriverContext(ast.scenarios, person.team_id, week);
+      if (drivers.length === 0) continue;
+
+      const activeScenario = ast.scenarios.find((s) => {
+        const sStart = new Date(s.timerange_start + "-01");
+        const sEnd = new Date(s.timerange_end + "-28");
+        return week >= sStart && week <= sEnd &&
+          s.affects.some((a) => a.team_id === person.team_id);
+      });
+
+      const pr = wh.payload.pull_request;
+      keys.push({
+        delivery_id: wh.delivery_id,
+        prose_type: "pr_body",
+        email: person.email,
+        team_id: person.team_id,
+        repo: wh.payload.repository?.full_name,
+        title: pr.title,
+        additions: pr.additions,
+        deletions: pr.deletions,
+        changed_files: pr.changed_files,
+        drivers,
+        person_level: person.level,
+        person_discipline: person.discipline,
+        scenario_name: activeScenario?.name || null,
+        team_name: team.name,
+      });
+    }
+
+    if (wh.event_type === "pull_request_review") {
+      const login = wh.payload.review?.user?.login;
+      const person = peopleByLogin.get(login);
+      if (!person) continue;
+      const team = teamMap.get(person.team_id);
+      if (!team) continue;
+
+      const drivers = getDriverContext(ast.scenarios, person.team_id, week);
+      if (drivers.length === 0) continue;
+
+      const activeScenario = ast.scenarios.find((s) => {
+        const sStart = new Date(s.timerange_start + "-01");
+        const sEnd = new Date(s.timerange_end + "-28");
+        return week >= sStart && week <= sEnd &&
+          s.affects.some((a) => a.team_id === person.team_id);
+      });
+
+      keys.push({
+        delivery_id: wh.delivery_id,
+        prose_type: "review_body",
+        email: person.email,
+        team_id: person.team_id,
+        repo: wh.payload.repository?.full_name,
+        review_state: wh.payload.review.state,
+        drivers,
+        person_level: person.level,
+        person_discipline: person.discipline,
+        scenario_name: activeScenario?.name || null,
+        team_name: team.name,
+      });
+    }
+  }
+
+  const cap = ast.snapshots?.webhook_prose_cap;
+  if (cap && keys.length > cap) {
+    const step = keys.length / cap;
+    const sampled = [];
+    for (let i = 0; i < cap; i++) {
+      sampled.push(keys[Math.floor(i * step)]);
+    }
+    return sampled;
+  }
+
+  return keys;
 }

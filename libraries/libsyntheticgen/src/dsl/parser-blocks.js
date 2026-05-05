@@ -272,6 +272,9 @@ export function createBlockParsers(helpers) {
         comments_per_snapshot: () => {
           snaps.comments_per_snapshot = parseNumberValue();
         },
+        webhook_prose_cap: () => {
+          snaps.webhook_prose_cap = parseNumberValue();
+        },
       },
       "snapshots",
     );

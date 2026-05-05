@@ -190,7 +190,52 @@ export function collectProseKeys(entities) {
     );
   }
 
+  if (entities.activity?.webhookKeys) {
+    addWebhookProseKeys(keys, entities.activity.webhookKeys, domain, orgName);
+  }
+
   return keys;
+}
+
+/**
+ * Add webhook prose keys for PR descriptions and review bodies.
+ * @param {Map<string, object>} keys
+ * @param {object[]} webhookKeys
+ * @param {string} domain
+ * @param {string} orgName
+ */
+function addWebhookProseKeys(keys, webhookKeys, domain, orgName) {
+  for (const wk of webhookKeys) {
+    if (wk.prose_type === "pr_body") {
+      keys.set(`pr_body_${wk.delivery_id}`, {
+        topic:
+          `Pull request description for "${wk.title}" in ${wk.repo} ` +
+          `(${wk.additions} additions, ${wk.deletions} deletions, ${wk.changed_files} files)`,
+        tone: "technical, first-person developer voice",
+        length: "2-4 sentences",
+        maxTokens: 200,
+        domain,
+        orgName,
+        role: `${wk.person_level} ${wk.person_discipline} on the ${wk.team_name}`,
+        scenario: wk.scenario_name,
+        drivers: wk.drivers,
+      });
+    }
+
+    if (wk.prose_type === "review_body") {
+      keys.set(`review_body_${wk.delivery_id}`, {
+        topic: `Code review (${wk.review_state}) on a PR in ${wk.repo}`,
+        tone: "professional, reviewer voice",
+        length: "1-3 sentences",
+        maxTokens: 150,
+        domain,
+        orgName,
+        role: `${wk.person_level} ${wk.person_discipline} on the ${wk.team_name}`,
+        scenario: wk.scenario_name,
+        drivers: wk.drivers,
+      });
+    }
+  }
 }
 
 /**

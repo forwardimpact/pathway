@@ -4,7 +4,7 @@
  * @module libterrain/engine/activity
  */
 
-import { generateWebhooks } from "./activity-webhooks.js";
+import { generateWebhooks, generateWebhookKeys } from "./activity-webhooks.js";
 import { deriveInitiatives } from "./activity-initiatives.js";
 import { generateCommentKeys } from "./activity-comments.js";
 import { generateRosterSnapshots } from "./activity-roster.js";
@@ -70,6 +70,7 @@ export function generateActivity(ast, rng, people, teams) {
   const snapshots = generateSnapshots(ast);
   const scores = generateScores(ast, rng, snapshots, activityTeams);
   const webhooks = generateWebhooks(ast, rng, people, teams);
+  const webhookKeys = generateWebhookKeys(ast, webhooks, people, teams);
   const evidence = generateEvidence(ast, rng, people, teams);
   const { scorecards, initiatives } = deriveInitiatives(
     ast,
@@ -94,6 +95,7 @@ export function generateActivity(ast, rng, people, teams) {
     snapshots,
     scores,
     webhooks,
+    webhookKeys,
     evidence,
     initiatives,
     scorecards,

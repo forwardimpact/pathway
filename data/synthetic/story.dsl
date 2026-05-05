@@ -274,6 +274,7 @@ terrain BioNova {
     quarterly_to 2026-01
     account_id "acct_bionova_001"
     comments_per_snapshot 25
+    webhook_prose_cap 1000
   }
 
   scenario oncora_push {

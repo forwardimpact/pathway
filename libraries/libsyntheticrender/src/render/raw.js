@@ -17,7 +17,7 @@ import YAML from "yaml";
 export function renderRawDocuments(entities, proseMap) {
   const files = new Map();
 
-  renderGitHubWebhooks(entities, files);
+  renderGitHubWebhooks(entities, files, proseMap);
   renderGetDXPayloads(entities, files);
   renderGetDXInitiatives(entities, files);
   renderGetDXScorecards(entities, files);
@@ -42,14 +42,25 @@ export function renderActivityFiles(entities) {
 }
 
 /**
- * Render GitHub webhook JSON payloads.
+ * Render GitHub webhook JSON payloads with optional LLM-generated prose.
  * @param {object} entities
  * @param {Map<string,string>} files
+ * @param {Map<string,string>} [proseMap]
  */
-function renderGitHubWebhooks(entities, files) {
+function renderGitHubWebhooks(entities, files, proseMap) {
   if (!entities.activity?.webhooks) return;
 
   for (const webhook of entities.activity.webhooks) {
+    if (proseMap) {
+      if (webhook.event_type === "pull_request") {
+        const body = proseMap.get(`pr_body_${webhook.delivery_id}`);
+        if (body) webhook.payload.pull_request.body = body;
+      }
+      if (webhook.event_type === "pull_request_review") {
+        const body = proseMap.get(`review_body_${webhook.delivery_id}`);
+        if (body) webhook.payload.review.body = body;
+      }
+    }
     const path = `github/${webhook.delivery_id}.json`;
     files.set(path, JSON.stringify(webhook, null, 2));
   }
