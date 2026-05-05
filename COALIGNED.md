@@ -1,14 +1,23 @@
 # Co-Aligned Teams of Humans & Coding Agents
 
-This is the design manifest for creating aligned coding agents. It draws on two
-well-publicized ideas:
+> "The volume and complexity of what we know has exceeded our individual
+> ability to deliver its benefits correctly, safely, or reliably."
+>
+> — Atul Gawande, _The Checklist Manifesto_
+
+This is the design manifest for creating aligned coding agents. It is built on
+top of the repository's general structure — see [MONOREPO.md](MONOREPO.md) for
+the top-level directories, root manifest files, and the JTBD entry structure
+and tagging convention this manifest assumes.
+
+It draws on two well-publicized ideas:
 
 1. **Jobs To Be Done** (Christensen, Moesta) — agents align to the progress
    each persona seeks in specific circumstances, not to feature lists. See
    [JTBD.md](JTBD.md).
-2. **The Checklist Manifesto** (Gawande) — complex work fails not from ignorance
-   but from inattention under load. Structured instructions ensure existing
-   knowledge is consistently applied — by humans and agents alike.
+2. **The Checklist Manifesto** (Gawande) — complex work fails not from
+   ignorance but from inattention under load. Structured instructions ensure
+   existing knowledge is consistently applied — by humans and agents alike.
 
 Together they answer _what_ agents align to (the jobs) and _how_ alignment
 holds under load (the layered instruction architecture). The more expert the
@@ -19,13 +28,13 @@ must; experts skip them because they think they don't need to.
 
 Instructions span seven layers, ascending from most general (every contributor,
 every run) to most specific (one pause point). Each layer has one job. A defect
-in one layer is a different class of problem from a defect in another, and trace
-attribution depends on the separation.
+in one layer is a different class of problem from a defect in another, and
+trace attribution depends on the separation.
 
 0. **System prompt** — harness mechanics: turns, tool calls, completion signal.
-1. **CLAUDE.md** — project identity: goal, users, products, distribution, maps.
-2. **CONTRIBUTING.md** — contribution standards: invariants, technical rules,
-   git workflow, security. **JTBD.md** — jobs each users hires products to do.
+1. **CLAUDE.md** — project identity. See [MONOREPO.md](MONOREPO.md).
+2. **CONTRIBUTING.md** & **JTBD.md** — contribution standards and jobs. See
+   [MONOREPO.md](MONOREPO.md).
 3. **Agent profile** — persona, voice, skill routing, scope constraints.
 4. **Skill procedure (SKILL.md)** — decision-making, sequencing, rationale.
 5. **Skill references (`references/`)** — data the procedure consults:
@@ -37,24 +46,6 @@ L4/L5/L6 share a skill folder but serve different concerns: L4 is _procedural_,
 L5 is _declarative_, L6 is _verificational_. Trace attribution requires the
 separation — "wrong procedure" is a different class of defect from "stale data"
 or "missing verification."
-
-### Tagging for Progressive Discovery
-
-Jobs and checklists are distributed across the codebase — Big Hires in JTBD.md,
-Little Hires in product READMEs, checklists in SKILL.md files and
-CONTRIBUTING.md. Semantic tags (`<job>`, `<read_do_checklist>`,
-`<do_confirm_checklist>`) make them discoverable without knowing where they live:
-
-```sh
-rg '<job '                  # Big Hires in JTBD.md, Little Hires near the code
-rg '<read_do_checklist'     # Entry gates — read each item, then do it
-rg '<do_confirm_checklist'  # Exit gates — do from memory, then confirm
-```
-
-- Tag attributes (`user`, `goal`) make search results self-describing —
-  each match shows purpose without opening the file.
-- Keep the full opening tag on one line within 74 characters so `rg`
-  output stays coherent.
 
 ### Layer Rules
 
@@ -87,108 +78,13 @@ interactive runs or `libeval` prompt for agent workflows.
 ## L1 — Project Identity (CLAUDE.md)
 
 Auto-loaded via `settingSources: ["project"]`. Orients every contributor on
-every run.
+every run. Properties of a good `CLAUDE.md` are defined upstream in
+[MONOREPO.md](MONOREPO.md).
 
-### Properties of Good Project Identity
+## L2 — Contribution Standards & Jobs (CONTRIBUTING.md, JTBD.md)
 
-1. **Orients, doesn't govern.** Answers what, who, where. Rules and policies
-   belong in L2.
-2. **Navigation hub.** Points to everything, restates nothing. A link is cheaper
-   than a duplicate.
-3. **Stable.** Changes rarely — frequent churn means content belongs elsewhere.
-4. **Budget-conscious.** Every line loads on every run. If a section is only
-   relevant to one workflow, push it to L2 or L4.
-5. **Surfaces the tagging conventions.** Includes a section that briefly
-   explains checklists and jobs, and how to discover them (`rg '<job '`,
-   `rg '<read_do_checklist'`).
-
-## L2 — Contribution Standards & Jobs
-
-CONTRIBUTING.md and JTBD.md are read on demand, not auto-loaded. One governs
-how contributors work; the other captures what progress each persona seeks.
-
-### Properties of Good Contribution Standards
-
-1. **Rules, not procedures.** What to do and what not to do — step-by-step
-   sequencing belongs in L4.
-2. **Universal scope.** Every item applies to every contribution. Workflow-
-   specific rules belong in the skill that owns that workflow.
-3. **Verifiable.** Each rule should be checkable — by a human, a script, or a
-   checklist item. Aspirational guidance that can't be verified drifts.
-
-### JTBD Entry Structure
-
-Each entry in [JTBD.md](JTBD.md) follows a fixed structure. The first five
-elements are required for all entries. _Forces_ and _Fired When_ are required
-for _Products_ but omitted for _Services_ and _Libraries_.
-
-- **User** — persona hiring the product (`##` heading).
-- **Goal** — high-level progress sought (`###` heading).
-- **Trigger** — a specific moment that creates the job, not a role description.
-- **Big Hire** — "{progress}." — the adoption decision; why this gets hired
-  over the alternatives. Rendered as "Help me {progress}." with a product arrow.
-- **Little Hire** — "{progress}." — the repeated daily use; what brings
-  the user back each time. Rendered the same way.
-- **Competes With** — what currently gets hired instead; semicolon-delimited.
-- **Forces** — Four forces: _Push_ (status quo pain), _Pull_ (desired future
-  state, not features), _Habit_ (current behavior resisting change), _Anxiety_
-  (fear blocking adoption).
-- **Fired When** — Conditions under which the product gets abandoned; include at
-  least one environmental shift beyond product failure.
-
-### Properties of Good JTBD Entries
-
-Drawing from Christensen and Moesta's methodology:
-
-1. **Progress, not features.** "Help me make staffing decisions I can defend" is
-   a job. "Help me run what-if staffing scenarios" is a feature request wearing
-   job syntax. If removing the product arrow makes the statement meaningless,
-   the job is too solution-shaped.
-
-2. **Trigger is a moment, not a role.** "Starting the third project that needs
-   the same plumbing" is a moment. "Building systems consumed by both humans and
-   agents" is a role description. A good trigger answers "what just happened?"
-
-3. **Competing hires include nonconsumption.** Every Competes With list must
-   include a "hire nothing" option. Nonconsumption is usually the real
-   incumbent.
-
-4. **Pull describes a desired future, not a feature list.** "Confidence that a
-   staffing change strengthens the team" is a future state. "System-level team
-   views and what-if scenarios" is a feature list.
-
-5. **Forces are asymmetric.** One force often dominates. If all four feel
-   equally weighted, the analysis was filled in from a template rather than
-   reconstructed from a decision story.
-
-6. **Fired When includes the world, not just the product.** Products get
-   abandoned when the environment shifts — a reorg, a budget cut, a tool ban.
-
-7. **Field-validated, not desk-authored.** JTBD entries are hypotheses until
-   confirmed by customer struggle stories. An entry that surprises the product
-   team is more likely correct than one that confirms existing assumptions.
-
-### Tagging Convention
-
-**Big Hires** live in [JTBD.md](JTBD.md) — the full entry structure above,
-one per persona-outcome pair. **Little Hires** can live anywhere — product
-READMEs, skill files, design docs — capturing narrower jobs closer to the code
-that serves them. Wrap both in a semantic tag for discoverability:
-
-```markdown
-<job user="Engineering Leaders" goal="Staff Teams to Succeed">
-
-**Trigger:** A post-mortem surfaces the same skill gap that caused the last
-incident.
-
-**Big Hire:** Help me make staffing decisions I can defend with evidence, not
-intuition. → **Summit**
-
-**Little Hire:** Help me spot capability gaps before someone gets set up to
-fail. → **Summit**
-
-</job>
-```
+Read on demand, not auto-loaded. Properties of `CONTRIBUTING.md` and the JTBD
+entry structure are defined upstream in [MONOREPO.md](MONOREPO.md).
 
 ## L3 — Agent Profile
 
@@ -262,22 +158,16 @@ Drawing from Gawande's findings:
 
 1. **Goal statement.** Every checklist begins with a stated goal — the outcome
    it protects. Without a goal, compliance becomes mechanical box-checking.
-
 2. **5–7 items.** Working memory limits. Beyond 7 items, contributors skip
    entries or treat the list as formality.
-
 3. **Precise.** Each item is a single, unambiguous action or verification. Two
    contributors should interpret each item the same way.
-
 4. **Killer items only.** Every item addresses a failure mode that has actually
    occurred or is highly likely. A list full of obvious steps wastes attention.
-
 5. **Action or verification, never explanation.** A verb phrase, not a
    paragraph. If it needs explanation, the contributor needs training.
-
 6. **One checklist, one moment.** Tied to a single pause point. The pause point
    must be natural — artificial ones get skipped.
-
 7. **Tested and revised.** Use it, observe what still goes wrong, revise. A
    stale checklist trains contributors to treat checklists as noise.
 
@@ -302,6 +192,16 @@ Wrap each checklist in a semantic tag encoding its type and goal:
 
 </do_confirm_checklist>
 ```
+
+Discover checklists from anywhere in the repo:
+
+```sh
+rg '<read_do_checklist'     # entry gates — read each item, then do it
+rg '<do_confirm_checklist'  # exit gates — do from memory, then confirm
+```
+
+Keep the full opening tag on one line within 74 characters so `rg` output stays
+coherent.
 
 ## Length and Loading
 
