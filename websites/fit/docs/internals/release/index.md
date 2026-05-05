@@ -79,9 +79,12 @@ releases trigger a version bump:
 livecheck do
   url :url
   strategy :github_releases
-  regex(/^{name}@v(\d+(?:\.\d+)+)$/i)
+  regex(/^pathway@v(\d+(?:\.\d+)+)$/i)
 end
 ```
+
+Each cask substitutes its own tag prefix (`pathway`, `map`, `guide`,
+`landmark`, `summit`, `outpost`, `gear`).
 
 The `^...$` anchors are essential — without them, a `map@v2.0.0` release would
 also match `landmark@v2.0.0` on the shared monorepo releases page.
@@ -146,6 +149,7 @@ a backup suffix with `-i`.
 <div class="grid">
 
 <!-- part:card:../operations -->
+
 <!-- part:card:../kata -->
 
 </div>
