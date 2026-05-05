@@ -12,8 +12,7 @@ on:
       - "map@v*"
       - "pathway@v*"
       - "summit@v*"
-      - "services@v*"
-      - "utilities@v*"
+      - "gear@v*"
 
 jobs:
   build:
@@ -31,9 +30,8 @@ jobs:
           NAME="${GITHUB_REF_NAME%%@v*}"
           VERSION="${GITHUB_REF_NAME#*@v}"
           case "$NAME" in
-            services)   KIND=services;   BUNDLE="FIT Services.app";  CASK=fit-services  ;;
-            utilities)  KIND=utilities;  BUNDLE="FIT Utilities.app"; CASK=fit-utilities ;;
-            *)          KIND=product;    BUNDLE="fit-${NAME}.app";   CASK=fit-${NAME}   ;;
+            gear)  KIND=gear;     BUNDLE="fit-gear.app";    CASK=fit-gear    ;;
+            *)     KIND=product;  BUNDLE="fit-${NAME}.app"; CASK=fit-${NAME} ;;
           esac
           {
             echo "name=${NAME}"
@@ -53,13 +51,9 @@ jobs:
       - name: Build bundle
         run: |
           case "${{ steps.meta.outputs.kind }}" in
-            services)
-              just build-service-binaries
-              just build-app-services
-              ;;
-            utilities)
-              just build-utility-binaries
-              just build-app-utilities
+            gear)
+              just build-gear-binaries
+              just build-app-gear
               ;;
             product)
               just build-binary "fit-${{ steps.meta.outputs.name }}"
@@ -74,9 +68,8 @@ jobs:
           # Product bundles run their own CLI's --help. Shared bundles exercise
           # one primary CLI per bundle (others are reachable via cask binary stanzas).
           case "${{ steps.meta.outputs.kind }}" in
-            product)    "$BUNDLE/Contents/MacOS/fit-${{ steps.meta.outputs.name }}" --help ;;
-            services)   "$BUNDLE/Contents/MacOS/fit-svcgraph" --help ;;
-            utilities)  "$BUNDLE/Contents/MacOS/fit-codegen" --help ;;
+            product)  "$BUNDLE/Contents/MacOS/fit-${{ steps.meta.outputs.name }}" --help ;;
+            gear)     "$BUNDLE/Contents/MacOS/fit-svcgraph" --help ;;
           esac
 
       - name: Verify cdhash stability (plan §1b CI gate)
@@ -89,13 +82,9 @@ jobs:
           BASELINE=$(codesign -dvvv "$BUNDLE" 2>&1 | grep -i CDHash || true)
           rm -rf dist/apps dist/binaries products/outpost/dist
           case "${{ steps.meta.outputs.kind }}" in
-            services)
-              just build-service-binaries
-              just build-app-services
-              ;;
-            utilities)
-              just build-utility-binaries
-              just build-app-utilities
+            gear)
+              just build-gear-binaries
+              just build-app-gear
               ;;
             product)
               just build-binary "fit-${{ steps.meta.outputs.name }}"
@@ -156,9 +145,8 @@ jobs:
           NAME="${GITHUB_REF_NAME%%@v*}"
           VERSION="${GITHUB_REF_NAME#*@v}"
           case "$NAME" in
-            services)   KIND=services;   CASK=fit-services  ;;
-            utilities)  KIND=utilities;  CASK=fit-utilities ;;
-            *)          KIND=product;    CASK=fit-${NAME}   ;;
+            gear)  KIND=gear;     CASK=fit-gear    ;;
+            *)     KIND=product;  CASK=fit-${NAME} ;;
           esac
           {
             echo "name=${NAME}"
@@ -202,10 +190,10 @@ jobs:
           VERSION: ${{ steps.meta.outputs.version }}
           SHA256: ${{ steps.hash.outputs.sha256 }}
         run: |
-          # Only the version and sha256 lines are updated per release. The rest
-          # of the cask body — depends_on graph, binary stanzas, livecheck regex
-          # — lives in the tap repo and is edited there by humans when bundle
-          # contents change. This avoids clobbering per-cask differences.
+          # Only the version and sha256 lines are updated per release. The rest of the
+          # cask body — binary stanzas, livecheck regex — is human-edited in the tap
+          # repo and survives releases unchanged. The casks declare no inter-cask
+          # dependencies, so each release rewrites exactly one cask file.
           CASK_FILE="tap/Casks/${CASK}.rb"
           sed -i \
             -e "s|^  version \".*\"|  version \"${VERSION}\"|" \

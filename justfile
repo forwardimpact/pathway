@@ -198,8 +198,8 @@ build-binary NAME TARGET="bun-darwin-arm64":
       --outfile "dist/binaries/{{NAME}}" \
       "$ENTRY"
 
-# Build every Mach-O for the default target (codegen + product + service + utility)
-build-binaries: codegen build-product-binaries build-service-binaries build-utility-binaries
+# Build every Mach-O for the default target (codegen + product + gear)
+build-binaries: codegen build-product-binaries build-gear-binaries
 
 # Compile every fit-<product> CLI
 build-product-binaries:
@@ -210,16 +210,14 @@ build-product-binaries:
     just build-binary fit-pathway
     just build-binary fit-summit
 
-# Compile every fit-svc<name> server
-build-service-binaries:
+# Compile every gear CLI (services + library binaries; must stay in sync with
+# Casks/fit-gear.rb in the forwardimpact/homebrew-tap repo)
+build-gear-binaries:
     just build-binary fit-svcgraph
     just build-binary fit-svcmcp
     just build-binary fit-svcpathway
     just build-binary fit-svctrace
     just build-binary fit-svcvector
-
-# Compile every library CLI (must stay in sync with Casks/fit-utilities.rb)
-build-utility-binaries:
     just build-binary fit-codegen
     just build-binary fit-terrain
     just build-binary fit-eval
@@ -268,25 +266,16 @@ build-app-product NAME:
         --out-dir dist/apps
     fi
 
-# Assemble dist/apps/FIT Services.app — bundles all five gRPC servers
-build-app-services:
+# Assemble dist/apps/fit-gear.app — bundles all 25 service + library CLIs
+build-app-gear:
     bash libraries/libmacos/scripts/build-app.sh \
-      --bundle-name "FIT Services" \
+      --bundle-name "fit-gear" \
       --primary-exec "dist/binaries/fit-svcgraph" \
       --extra-exec "dist/binaries/fit-svcmcp" \
       --extra-exec "dist/binaries/fit-svcpathway" \
       --extra-exec "dist/binaries/fit-svctrace" \
       --extra-exec "dist/binaries/fit-svcvector" \
-      --info-plist "macos/services/Info.plist" \
-      --entitlements "macos/services/entitlements.plist" \
-      --version "$(jq -r .version package.json)" \
-      --out-dir dist/apps
-
-# Assemble dist/apps/FIT Utilities.app — bundles every library CLI
-build-app-utilities:
-    bash libraries/libmacos/scripts/build-app.sh \
-      --bundle-name "FIT Utilities" \
-      --primary-exec "dist/binaries/fit-codegen" \
+      --extra-exec "dist/binaries/fit-codegen" \
       --extra-exec "dist/binaries/fit-terrain" \
       --extra-exec "dist/binaries/fit-eval" \
       --extra-exec "dist/binaries/fit-doc" \
@@ -306,8 +295,8 @@ build-app-utilities:
       --extra-exec "dist/binaries/fit-unary" \
       --extra-exec "dist/binaries/fit-tiktoken" \
       --extra-exec "dist/binaries/fit-download-bundle" \
-      --info-plist "macos/libraries/Info.plist" \
-      --entitlements "macos/libraries/entitlements.plist" \
+      --info-plist "macos/gear/Info.plist" \
+      --entitlements "macos/gear/entitlements.plist" \
       --version "$(jq -r .version package.json)" \
       --out-dir dist/apps
 
@@ -319,8 +308,7 @@ build-apps: build-binaries
     just build-app-product map
     just build-app-product pathway
     just build-app-product summit
-    just build-app-services
-    just build-app-utilities
+    just build-app-gear
 
 # ── Quality ───────────────────────────────────────────────────────
 
