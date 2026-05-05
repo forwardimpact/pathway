@@ -117,6 +117,11 @@ const definition = {
       description: "Show health view with driver scores and evidence",
       options: {
         manager: { type: "string", description: "Filter by manager email" },
+        verbose: {
+          type: "boolean",
+          description:
+            "Show every per-driver field including all percentile anchors",
+        },
       },
     },
     {
@@ -243,6 +248,10 @@ async function main() {
       supabase: ctx.supabase,
       format: ctx.format,
     });
+
+    if (result.meta) {
+      result.meta.verbose = values.verbose === true;
+    }
 
     const output = formatResult(command, result);
     process.stdout.write(output);

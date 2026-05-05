@@ -89,10 +89,25 @@ npx fit-landmark practiced --manager <email>
 
 ```sh
 npx fit-landmark health [--manager <email>]
+npx fit-landmark health [--manager <email>] --verbose
 ```
 
-Shows driver scores, contributing skill evidence, engineer voice comments, and
-(when Summit is installed) inline growth recommendations.
+Default output is a compact table of drivers with one anchor per row; pass
+`--verbose` for the full per-driver paragraph layout including all percentile
+anchors, GetDX comments, and contributing-skill evidence.
+
+Sample default output:
+
+```
+  Team — health view
+
+  Drivers (6)
+  ────────────────────────────────────────────────────────────
+  #  Driver          Percentile  vs_org   More
+  1  Quality         42nd        -10      +4 anchors via --verbose
+  2  Reliability     n/a         n/a      -
+  …
+```
 
 #### Engineer Voice
 
