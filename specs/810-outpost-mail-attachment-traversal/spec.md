@@ -35,16 +35,7 @@ and the file content.
 
 This is a **HIGH severity** finding: pre-auth (sending email to a published
 address suffices), reliable (sync runs every 5 minutes by default), and
-high-impact (LPE / persistence under the victim's account). It was not
-caught by the 2026-04-26 first-pass `app-security-products` audit because
-Outpost did not exist yet (basecamp → outpost rename merged via PR #624 on
-2026-04-26 and templates landed after).
-
-A separate, **non-security** harness constraint matters for resolution:
-direct edits under `products/outpost/templates/.claude/skills/**` are
-blocked by Claude Code's built-in sensitive-file guard. The Security
-Engineer cannot apply the trivial-fix branch path the audit would normally
-take; the patch must be written by a trusted human/agent reviewer.
+high-impact (LPE / persistence under the victim's account).
 
 ---
 
@@ -53,7 +44,6 @@ take; the patch must be written by a trusted human/agent reviewer.
 | Persona | Job | How the gap blocks progress |
 |---|---|---|
 | Empowered Engineers | Be Prepared and Productive — "keep track of people, projects, and threads without depending on memory" ([JTBD.md](../../JTBD.md)) | A personal knowledge assistant that lives locally cannot be the vector for remote arbitrary file write under the user's account. |
-| Teams Using Agents | Run an autonomous, continuously improving development team ([CLAUDE.md § Primary Products](../../CLAUDE.md)) | Persistent agents that auto-run sync skills against attacker-touchable inputs require those skills to be hardened against the attacker. |
 
 ---
 
@@ -68,10 +58,11 @@ take; the patch must be written by a trusted human/agent reviewer.
 
 ### Out of scope
 
-- The `att.name` rendering in `sync.mjs:94` (markdown link text). Even with a
-  `..`-bearing name, that path is not used for filesystem writes — it only
-  affects the rendered markdown's link target. Sanitisation should still be
-  applied for display consistency, but it is not the security fix.
+- The `att.name` rendering in `sync.mjs:94` (markdown link text and link
+  target). The residual there is content-injection only — a `..`-bearing
+  name skews where the rendered link points at click-time, not arbitrary
+  file write. Sanitisation should still be applied for display consistency,
+  but it is not the security fix.
 - Defense-in-depth changes to other Outpost templates (e.g. `sync-teams`,
   `sync-apple-calendar`). Those slugs/IDs already pass through numeric or
   regex-restricted slug builders; out of scope here, separate audit if
@@ -87,27 +78,8 @@ take; the patch must be written by a trusted human/agent reviewer.
 
 | Claim | Verification |
 |---|---|
-| The sanitiser strips path separators, `NUL` bytes, and rejects pure-dot names from `att.name`. | New unit test: passing `"../../../foo"`, `"/etc/passwd"`, `"..\\..\\..\\foo"`, `"\u0000bar"`, `"."`, `".."`, `""`, `null` each produce a name that is a single basename, never empty, never `.` or `..`. |
-| `copySingleAttachment` cannot write outside its `destDir`. | New unit test: with a fake `attachmentIndex` source and `att.name = "../../../escape.txt"`, the resolved destPath either equals `<destDir>/<sanitised>` or the call returns `{ available: false }` — never writes outside `destDir`. |
-| Real-world attachment names round-trip unchanged. | Unit test: benign names `"contract.pdf"`, `"Q3 plan.xlsx"`, `"image (2).png"` survive sanitisation byte-for-byte. |
-| The sanitiser is reusable from other modules in `sync-apple-mail/`. | The chosen API can be imported from another script in the same directory and produces identical output for identical input. (Specific export shape is a design decision.) |
-
----
-
-## Notes for Design and Plan
-
-The fix is small (≈10 lines added in `sync-helpers.mjs` plus a focused unit
-test). Anyone designing/planning this should:
-
-1. Treat `att.name` as untrusted across the whole module — not just inside
-   `copySingleAttachment` — and decide whether the markdown-link rendering
-   in `sync.mjs:94` should also call the sanitiser for display consistency.
-2. Confirm via grep that `attachments.name` does not flow into any other
-   `path.join` / `fs.*` call elsewhere in the templates.
-3. Decide whether a defence-in-depth `destPath.startsWith(destDir + sep)`
-   guard belongs alongside the basename-strip or is redundant once the
-   sanitiser is in place.
-
-These are HOW questions; resolve them in design-a.md / plan-a.md, not here.
+| No `att.name` value can produce a `destPath` outside `destDir`; the sanitised name is a single basename, never empty, never `.` or `..`. | Unit test of the sanitiser in isolation: `"../../../foo"`, `"/etc/passwd"`, `"..\\..\\..\\foo"`, `"\u0000bar"`, `"."`, `".."`, `""`, `null` each yield a single-basename string that is non-empty and not `.`/`..`. |
+| `copySingleAttachment` cannot write outside its `destDir`. | Integration-style test: with a fake `attachmentIndex` source and `att.name = "../../../escape.txt"`, the resolved `destPath` either equals `<destDir>/<sanitised>` or the call returns `{ available: false }` — never writes outside `destDir`. |
+| Real-world attachment names — including non-ASCII — round-trip unchanged through the sanitiser. | Unit test of the sanitiser in isolation (not the `copySingleAttachment` `${mid}_` collision branch): benign names `"contract.pdf"`, `"Q3 plan.xlsx"`, `"image (2).png"`, `"café résumé.pdf"` survive byte-for-byte. |
 
 — Security Engineer 🔒
