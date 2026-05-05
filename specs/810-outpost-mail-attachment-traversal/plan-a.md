@@ -7,11 +7,20 @@ Spec: [spec.md](spec.md) · Design: [design-a.md](design-a.md)
 Add `sanitiseAttachmentName` as a new pure exported helper in
 `sync-helpers.mjs`, then revise `copySingleAttachment` to (a) consume `att.name`
 only through that sanitiser, (b) feed the dedup branch the sanitised name, and
-(c) assert resolved-path containment under `destDir` before the copy. Two new
-test files in `products/outpost/test/` cover the sanitiser invariants in
-isolation and the containment post-condition end-to-end. No changes outside
-the in-scope file plus its two new test files; the rendering call site at
-`sync.mjs:94` is explicitly out of scope per spec.
+(c) assert resolved-path containment under `destDir` before the copy. Plumb an
+optional `attachmentsDir = ATTACHMENTS_DIR` parameter through the already-
+exported `copyThreadAttachments` to its private `copySingleAttachment` callee
+so the integration test can inject a temp directory — matching the
+dependency-injection pattern used by `state-manager.test.js` and
+`kb-manager.test.js`. `copySingleAttachment` stays private; tests exercise it
+through `copyThreadAttachments`. Two new test files in `products/outpost/test/`
+cover the sanitiser invariants in isolation and the containment post-condition
+end-to-end. No changes outside the in-scope file plus its two new test files;
+the rendering call site at `sync.mjs:94` is explicitly out of scope per spec.
+
+Bun's `os.homedir()` does not honour `process.env.HOME` (calls `getpwuid`
+directly), so `HOME` overrides do not redirect `ATTACHMENTS_DIR` under
+`bun test` — the DI parameter is the clean isolation channel.
 
 Libraries used: none (Node built-ins only — `node:path`, `node:fs`, `node:os`,
 `node:test`, `node:assert`).
@@ -62,30 +71,41 @@ Verify: `node --check products/outpost/templates/.claude/skills/sync-apple-mail/
 exits 0; the file's existing `export function` lines are unchanged; the new
 export is added once.
 
-### 2. Revise `copySingleAttachment` to use the sanitiser and assert containment
+### 2. Revise `copySingleAttachment` to use the sanitiser, assert containment, and accept `attachmentsDir`
 
 Files modified:
 
 - `products/outpost/templates/.claude/skills/sync-apple-mail/scripts/sync-helpers.mjs`
 
-Replace the current body (lines 276-304) with the version below. Three changes
-from today: the `att.name || "unnamed"` short-circuit is removed in favour of
-`sanitiseAttachmentName(att.name)`; the dedup `${mid}_${name}` branch operates
-on the already-sanitised name; a `resolve`-based containment check sits between
-`mkdirSync` and `copyFileSync`. Import `resolve` and `sep` from `node:path` by
-extending the existing import on line 10:
+Locate `copySingleAttachment` by symbol (it appears once in the file; current
+body at lines 276-304 of the pre-step-1 file — note that step 1's insertion
+shifts these by ~25 lines, so anchor by symbol not line number). Replace the
+body with the version below. Four changes from today:
+
+1. `att.name || "unnamed"` short-circuit removed; `sanitiseAttachmentName(att.name)` used instead.
+2. Dedup `${mid}_${name}` branch unchanged in shape — `mid` is a numeric DB
+   ROWID (`fetchAttachments` selects integers) and `name` is already sanitised,
+   so `${mid}_${name}` cannot introduce separators that would defeat Layer 2.
+   No second sanitise call.
+3. A `resolve`-based containment check sits between `mkdirSync` and `copyFileSync`.
+4. New optional parameter `attachmentsDir = ATTACHMENTS_DIR` (default preserves
+   today's behaviour for `copyThreadAttachments`'s production call shape; tests
+   thread a temp dir through `copyThreadAttachments` per step 4).
+
+Behaviour change to call out for the implementer: every return path now uses
+the sanitised `name` (or `destName`) — today the `copyFileSync`-failure branch
+returns the unsanitised `att.name || "unnamed"`. Returning the sanitised value
+unifies all four return shapes. Callers of `copyThreadAttachments` consume
+`name` only for log/index keys, so the change is observable but safe.
+
+Extend the `node:path` import:
 
 ```diff
 -import { basename, join } from "node:path";
 +import { basename, join, resolve, sep } from "node:path";
 ```
 
-Replace lines 276-304 with the body below. Behaviour change to call out for
-the implementer: today the missing-source branch returns `name = att.name ||
-"unnamed"` (raw attacker-controlled string in the result); the revised body
-returns `name = sanitiseAttachmentName(att.name)` (sanitised). Callers of
-`copyThreadAttachments` only consume `name` for log/index keys, so the change
-is observable but safe.
+Replace the function body with:
 
 ```js
 function copySingleAttachment(
@@ -94,6 +114,7 @@ function copySingleAttachment(
   threadId,
   attachmentIndex,
   seenFilenames,
+  attachmentsDir = ATTACHMENTS_DIR,
 ) {
   const name = sanitiseAttachmentName(att.name);
   const source = attachmentIndex.get(`${mid}:${att.attachment_id}`);
@@ -103,12 +124,10 @@ function copySingleAttachment(
   }
 
   let destName = name;
-  if (seenFilenames.has(destName)) {
-    destName = sanitiseAttachmentName(`${mid}_${name}`);
-  }
+  if (seenFilenames.has(destName)) destName = `${mid}_${name}`;
   seenFilenames.add(destName);
 
-  const destDir = join(ATTACHMENTS_DIR, String(threadId));
+  const destDir = join(attachmentsDir, String(threadId));
   mkdirSync(destDir, { recursive: true });
   const destPath = join(destDir, destName);
 
@@ -176,46 +195,76 @@ benign UTF-8 row holds. No filesystem touched — pure-function tests only.
 Verify: `bun test products/outpost/test/sync-helpers-sanitise.test.js` reports
 14 tests passing, 0 failing.
 
-### 4. Export `copySingleAttachment` with JSDoc
+### 4. Plumb `attachmentsDir` through `copyThreadAttachments`
 
 Files modified:
 
 - `products/outpost/templates/.claude/skills/sync-apple-mail/scripts/sync-helpers.mjs`
 
-`copySingleAttachment` is not exported today (line 276 has no `export`).
-Export it for testing and add a JSDoc block — `eslint.config.js` enables
-`jsdoc/require-jsdoc` with `publicOnly: true`, so `bun run jsdoc` (run by
-`bun run check`) errors on a public function without a docstring. The
-docstring also pins the dedup contract (`seenFilenames` is the caller's
-responsibility) so the new public surface does not become an unsafe seam:
+Add an optional `attachmentsDir = ATTACHMENTS_DIR` parameter to
+`copyThreadAttachments` and forward it to `copySingleAttachment`. The single
+production caller (`sync.mjs:207`, single-call site, no other importers per
+`rg copyThreadAttachments products/outpost`) keeps working without changes.
 
 ```diff
--function copySingleAttachment(
-+/**
-+ * Copy a single attachment for `mid` into the per-thread cache directory.
-+ * Sanitises `att.name` and asserts resolved-path containment under the
-+ * thread's destDir before writing — never writes outside that directory.
-+ * The `seenFilenames` Set is the caller's dedup state (typically owned by
-+ * `copyThreadAttachments`); call sites that bypass it are responsible for
-+ * their own collision handling.
-+ */
-+export function copySingleAttachment(
+ export function copyThreadAttachments(
+   threadId,
+   messages,
+   attachmentsByMsg,
+   attachmentIndex,
++  attachmentsDir = ATTACHMENTS_DIR,
+ ) {
+   const results = {};
+   const seenFilenames = new Set();
+
+   for (const msg of messages) {
+     const mid = msg.message_id;
+     const msgAttachments = attachmentsByMsg[mid] ?? [];
+     if (msgAttachments.length === 0) continue;
+
+     results[mid] = msgAttachments.map((att) =>
+-      copySingleAttachment(att, mid, threadId, attachmentIndex, seenFilenames),
++      copySingleAttachment(
++        att,
++        mid,
++        threadId,
++        attachmentIndex,
++        seenFilenames,
++        attachmentsDir,
++      ),
+     );
+   }
+   return results;
+ }
 ```
 
-Verify: `bun run jsdoc` exits 0 against the modified file.
+`copySingleAttachment` stays private — no `export` keyword added. Public
+surface unchanged: `sanitiseAttachmentName` (new from step 1) and
+`copyThreadAttachments` (existing, now with one optional parameter). The
+existing JSDoc on `copyThreadAttachments` (line 306 today: `/** Copy all
+attachments for a thread's messages into the cache directory, deduplicating
+filenames. */`) remains correct — extend it with one sentence noting the
+optional `attachmentsDir` injection point for tests:
 
-### 5. Add `copySingleAttachment` containment integration test
+```diff
+-/** Copy all attachments for a thread's messages into the cache directory, deduplicating filenames. */
++/** Copy all attachments for a thread's messages into the cache directory, deduplicating filenames. `attachmentsDir` defaults to the module-level `ATTACHMENTS_DIR`; tests inject a temp directory. */
+```
+
+Verify: `bun run jsdoc` exits 0; `node --check` on the modified file passes;
+`rg "copyThreadAttachments\(" products/outpost/templates` lists the single
+call at `sync.mjs:207` unchanged.
+
+### 5. Add `copyThreadAttachments` containment integration test
 
 Files created:
 
 - `products/outpost/test/sync-helpers-copy.test.js`
 
-The integration test must not write into the user's live
-`~/.cache/fit/outpost/apple_mail/attachments/`. The module computes
-`ATTACHMENTS_DIR` from `homedir()` at load time, so isolation is achieved by
-overriding `process.env.HOME` to a temp dir **before** the module is imported,
-then loading `sync-helpers.mjs` via dynamic import. After `after()` runs, the
-temp dir is removed and `process.env.HOME` is restored.
+Tests inject a temp `attachmentsDir` per step 4's parameter — no `HOME`
+override, no dynamic import. (Bun's `os.homedir()` ignores `process.env.HOME`
+and reads `getpwuid` directly, so an env-override approach would not work
+under `bun test`; DI is the clean isolation channel.)
 
 ```js
 import { test, describe, before, after } from "node:test";
@@ -224,66 +273,109 @@ import {
   mkdtempSync,
   rmSync,
   writeFileSync,
-  existsSync,
+  readdirSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, sep, resolve } from "node:path";
+import { copyThreadAttachments } from "../templates/.claude/skills/sync-apple-mail/scripts/sync-helpers.mjs";
 
-let helpers;
-let attachmentIndex;
-let tmpHome;
-let originalHome;
-let sourcePath;
 const MID = 42;
 const THREAD_ID = "999";
 
-describe("copySingleAttachment containment", () => {
-  before(async () => {
-    originalHome = process.env.HOME;
-    tmpHome = mkdtempSync(join(tmpdir(), "outpost-copy-"));
-    process.env.HOME = tmpHome;
-    helpers = await import(
-      "../templates/.claude/skills/sync-apple-mail/scripts/sync-helpers.mjs"
-    );
-    sourcePath = join(tmpHome, "source.bin");
+let tmpRoot; // mkdtemp root, removed in after()
+let attachmentsDir; // <tmpRoot>/attachments
+let sourcePath; // <tmpRoot>/source.bin (real file the index points at)
+let attachmentIndex; // populated for the four reachable cases
+
+describe("copyThreadAttachments containment", () => {
+  before(() => {
+    tmpRoot = mkdtempSync(join(tmpdir(), "outpost-copy-"));
+    attachmentsDir = join(tmpRoot, "attachments");
+    sourcePath = join(tmpRoot, "source.bin");
     writeFileSync(sourcePath, "payload");
     attachmentIndex = new Map([[`${MID}:att1`, sourcePath]]);
   });
 
   after(() => {
-    rmSync(tmpHome, { recursive: true, force: true });
-    if (originalHome === undefined) delete process.env.HOME;
-    else process.env.HOME = originalHome;
+    rmSync(tmpRoot, { recursive: true, force: true });
   });
 
-  // each test constructs its own seenFilenames Set so dedup state does not
-  // leak across cases
-  // ... test cases below ...
+  // helper: collect every regular-file path under `dir`, recursively.
+  function listFiles(dir) {
+    const out = [];
+    const stack = [dir];
+    while (stack.length) {
+      const current = stack.pop();
+      let entries;
+      try {
+        entries = readdirSync(current, { withFileTypes: true });
+      } catch {
+        continue;
+      }
+      for (const e of entries) {
+        const p = join(current, e.name);
+        if (e.isDirectory()) stack.push(p);
+        else if (e.isFile()) out.push(p);
+      }
+    }
+    return out;
+  }
+
+  function runOne(att) {
+    const messages = [{ message_id: MID }];
+    const attachmentsByMsg = { [MID]: [att] };
+    const results = copyThreadAttachments(
+      THREAD_ID,
+      messages,
+      attachmentsByMsg,
+      attachmentIndex,
+      attachmentsDir,
+    );
+    return results[MID][0];
+  }
 });
 ```
 
-Each test case constructs `att = { name: <case-input>, attachment_id: "att1" }`
-(or a non-matching `attachment_id` for the missing-source case) and a fresh
-`seenFilenames = new Set()`. Verification logic:
+Each `test(...)` constructs its own `att = { name: <case-input>,
+attachment_id: <id> }`, calls `runOne(att)`, then makes the assertions in
+the table below. After every test, the harness asserts that **every file
+under `tmpRoot` is either the seed `source.bin` or lives under
+`<attachmentsDir>/<THREAD_ID>/`** — i.e., no copy escaped the thread
+directory:
 
-- For `available: true`: assert `resolve(result.path).startsWith(resolve(join(helpers.ATTACHMENTS_DIR, THREAD_ID)) + sep)` — guarantees `result.path` is strictly inside the thread directory under the temp HOME.
-- Additionally, for traversal/absolute payloads: assert `existsSync(join(tmpHome, "escape.txt")) === false` and `existsSync(join(tmpHome, "passwd")) === false` — confirms the payload did not create a file outside the thread directory at the nominal escape target.
-- For `available: false`: assert `result.path === null`.
+```js
+function assertNoEscape() {
+  const threadDir = resolve(join(attachmentsDir, THREAD_ID)) + sep;
+  for (const p of listFiles(tmpRoot)) {
+    if (p === sourcePath) continue;
+    assert.ok(
+      resolve(p).startsWith(threadDir),
+      `file escaped containment: ${p}`,
+    );
+  }
+}
+```
 
-Test cases:
+Test cases (each calls `runOne` then `assertNoEscape`):
 
-| Case | `att.name` | `att.attachment_id` | Expected `result.available` | Additional assertions |
+| Case | `att.name` | `att.attachment_id` | Expected `result.available` | Per-case assertions |
 |---|---|---|---|---|
-| benign | `"report.pdf"` | `"att1"` | `true` | `result.name === "report.pdf"`; `result.path` ends with `${sep}report.pdf` |
-| traversal | `"../../../escape.txt"` | `"att1"` | `true` | `result.name === "escape.txt"`; `existsSync(join(tmpHome, "escape.txt")) === false` |
-| absolute | `"/etc/passwd"` | `"att1"` | `true` | `result.name === "passwd"`; `existsSync(join(tmpHome, "passwd")) === false` |
-| empty/null | `null` | `"att1"` | `true` | `result.name === "unnamed"`; `result.path` ends with `${sep}unnamed` |
+| benign | `"report.pdf"` | `"att1"` | `true` | `result.name === "report.pdf"`; `resolve(result.path).startsWith(resolve(join(attachmentsDir, THREAD_ID)) + sep)`; `result.path.endsWith(\`${sep}report.pdf\`)` |
+| traversal | `"../../../escape.txt"` | `"att1"` | `true` | `result.name === "escape.txt"`; resolve-prefix assertion (same as benign) |
+| absolute | `"/etc/passwd"` | `"att1"` | `true` | `result.name === "passwd"`; resolve-prefix assertion |
+| empty/null | `null` | `"att1"` | `true` | `result.name === "unnamed"`; resolve-prefix assertion |
 | missing-source | `"foo.pdf"` | `"missing"` | `false` | `result.path === null` (lookup misses the populated index) |
 
+The recursive `assertNoEscape` is the post-condition the spec demands —
+"never writes outside `destDir`" — verified empirically by walking the temp
+tree, not by checking a hand-picked candidate path. If a future change
+reverts Layer 1 or Layer 2, a stray write under `<tmpRoot>/escape.txt` or
+`<tmpRoot>/.cache/...` is detected.
+
 Verify: `bun test products/outpost/test/sync-helpers-copy.test.js` reports
-5 tests passing, 0 failing. After the run, `tmpHome` is removed and
-`process.env.HOME` is restored — the user's real Outpost cache is never
-touched.
+5 tests passing, 0 failing. After the run, `tmpRoot` is removed; the user's
+real Outpost cache is never touched (the `attachmentsDir` argument never
+defaults to `ATTACHMENTS_DIR` in this test file).
 
 ### 6. Run repository quality gates
 
@@ -305,9 +397,9 @@ files to confirm they still pass.
 
 | Risk | Mitigation |
 |---|---|
-| Exporting `copySingleAttachment` widens the module's public surface; another caller could later import it and bypass `copyThreadAttachments`'s dedup `Set`. | The JSDoc block added in step 4 pins the dedup contract: `seenFilenames` is the caller's responsibility, and call sites that bypass it own their own collision handling. |
-| The integration test imports `sync-helpers.mjs` dynamically after overriding `process.env.HOME`. If a future change moves `ATTACHMENTS_DIR` resolution out of module-load (e.g., into a function), the override technique stops working. | The test's `before()` hook performs the dynamic import explicitly so the dependency is visible; if a refactor breaks isolation, the test crashes in `before()` (loud failure) rather than silently writing to the user's cache. |
-| Re-running the dedup branch's `${mid}_${name}` through `sanitiseAttachmentName` is belt-and-braces — `mid` is a numeric DB ROWID (`fetchAttachments` selects integers), so `${mid}_${name}` cannot inject separators a properly sanitised `name` would not already lack. | Kept anyway as a single rule that any dedup string satisfies the sanitiser's invariants; cost is one extra call per collision (rare path). If the implementer prefers, drop the re-call and assert by inspection — both are sound. |
+| Layer 2 (containment check) cannot be exercised in isolation by the test suite — Layer 1 reduces every realistic input to a safe basename before Layer 2 runs, and there is no module-stub infrastructure in the repo to inject a regressed sanitiser. | Layer 2 is verified by code inspection (the resolved separator-boundary prefix is small and reviewable) and by the recursive `assertNoEscape` walk in step 5, which would catch any future regression in either layer that produces an out-of-tree write. The spec's success criteria (row 2) accept either branch of the disjunction (`destPath === <destDir>/<sanitised>` OR `available: false`); the integration test pins the first branch end-to-end. |
+| Adding an optional `attachmentsDir` parameter to `copyThreadAttachments` widens its signature. The default value preserves today's call shape, but a future refactor that drops the default would silently break the production caller at `sync.mjs:207`. | The default `= ATTACHMENTS_DIR` is required for production safety. A code review on any future change to `copyThreadAttachments` should preserve the default; the JSDoc updated in step 4 records the intent. |
+| Bun's `os.homedir()` does not honour `process.env.HOME` (verified empirically: `bun -e 'process.env.HOME="/x"; console.log(require("os").homedir())'` prints the real home). A reader unfamiliar with this divergence might propose env-override isolation in a follow-up patch. | The plan documents the divergence in the Approach paragraph and step 5; the DI parameter is the only correct isolation channel under `bun test`. |
 
 ## Execution
 
@@ -315,20 +407,23 @@ Single agent: **`staff-engineer`**. The plan is one logical unit (one helper
 file + two test files) with no parallelism worth coordinating. Sequence:
 
 1. Step 1 — add `sanitiseAttachmentName` export.
-2. Step 2 — revise `copySingleAttachment` body (depends on step 1).
+2. Step 2 — revise `copySingleAttachment` body and add `attachmentsDir` param
+   (depends on step 1).
 3. Step 3 — sanitiser unit tests (depends on step 1's export, independent of
    step 2).
-4. Step 4 — export `copySingleAttachment` with JSDoc (depends on step 2 — the
-   step 2 body must be in place before adding `export`, so `bun run jsdoc`
-   evaluates the new public function).
-5. Step 5 — copy integration tests (depends on step 4's export).
+4. Step 4 — plumb `attachmentsDir` through `copyThreadAttachments` (depends on
+   step 2).
+5. Step 5 — copy integration tests via `copyThreadAttachments` (depends on
+   step 4).
 6. Step 6 — quality gates (depends on all of the above).
 
 The design's Layer-2 containment check is exercised by inspection (resolved
-separator-boundary prefix is reviewable in the code) and indirectly by step
-5's traversal cases — adding a test that injects a regressed Layer-1 would
-require module-stub infrastructure not present in this repo, and the spec's
-verification criteria do not require it.
+separator-boundary prefix is reviewable in the code) and by the recursive
+`assertNoEscape` walk in step 5 — a stray write outside the thread directory
+would fail that assertion regardless of which layer regressed. Injecting a
+deliberately-broken Layer 1 into the test would require module-stub
+infrastructure not present in this repo, and the spec's verification criteria
+do not require it.
 
 Open the implementation PR as `impl(810): outpost mail attachment path-traversal hardening`
 once steps 1-5 land in the working tree and step 6 passes locally.
