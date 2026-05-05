@@ -1,7 +1,10 @@
 name: Coaligned Check
 description: |
-  Run a coaligned subcommand (instructions or jtbd) to enforce the layered
+  Run coaligned checks against the repository to enforce the layered
   instruction architecture defined in COALIGNED.md.
+
+  When `command` is omitted, every check runs (instructions and jtbd). When
+  `command` is set to "instructions" or "jtbd", only that subcommand runs.
 
   Assumes the workspace has already been bootstrapped (Bun installed,
   dependencies linked) so `bunx coaligned` resolves. When this action is
@@ -10,10 +13,11 @@ description: |
 
 inputs:
   command:
-    description: 'Subcommand to run: "instructions" or "jtbd".'
-    required: true
+    description: 'Subcommand to run: "instructions" or "jtbd". Leave empty to run every check.'
+    required: false
+    default: ""
   fix:
-    description: 'For "jtbd": regenerate stale catalog and jobs blocks in place. Ignored by other subcommands.'
+    description: 'For "jtbd": regenerate stale catalog and jobs blocks in place. Only valid when command=jtbd.'
     required: false
     default: "false"
   working-directory:
@@ -31,9 +35,9 @@ runs:
         FIX: ${{ inputs.fix }}
       run: |
         case "$COMMAND" in
-          instructions|jtbd) ;;
+          ""|instructions|jtbd) ;;
           *)
-            echo "::error::coaligned-check: unknown command \"$COMMAND\". Expected one of: instructions, jtbd."
+            echo "::error::coaligned-check: unknown command \"$COMMAND\". Expected one of: \"\" (run every check), instructions, jtbd."
             exit 2
             ;;
         esac
@@ -49,14 +53,17 @@ runs:
           exit 2
         fi
 
-    - name: Run coaligned ${{ inputs.command }}
+    - name: Run coaligned
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:
         COMMAND: ${{ inputs.command }}
         FIX: ${{ inputs.fix }}
       run: |
-        args=("$COMMAND")
+        args=()
+        if [ -n "$COMMAND" ]; then
+          args+=("$COMMAND")
+        fi
         if [ "$FIX" = "true" ]; then
           args+=("--fix")
         fi

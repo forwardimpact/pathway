@@ -10,6 +10,7 @@ invariants across the repo.
 ## Getting Started
 
 ```sh
+npx coaligned                   # run every check (instructions + jtbd)
 npx coaligned instructions      # enforce L1–L6 length and checklist caps
 npx coaligned jtbd              # validate JTBD entries against package.json
 npx coaligned jtbd --fix        # regenerate catalog and job blocks in place
