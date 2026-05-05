@@ -3,12 +3,13 @@
 Kata agents run on a **three-shift** (night, day, swing) producer-reviewer-
 shipper chain:
 
-1. **product-manager** -- triages a fresh backlog
-2. **staff-engineer** -- implements from the backlog
-3. **security-engineer** -- reviews code (night only)
-4. **technical-writer** -- reviews docs (night only)
-5. **release-engineer** -- ships what passed review
-6. **improvement-coach** -- storyboard, daily after night
+1. **product-manager** — triages a fresh backlog
+2. **engineering agent** — implements from the backlog (default profile:
+   `staff-engineer`)
+3. **security-engineer** — reviews code (night only)
+4. **technical-writer** — reviews docs (night only)
+5. **release-engineer** — ships what passed review
+6. **improvement-coach** — storyboard, daily after night
 
 Security and technical-writer run only at night.
 

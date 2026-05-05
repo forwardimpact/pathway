@@ -178,7 +178,9 @@ Append to the current week's log:
   § Invariants)
 - **Approval signals consumed** — label vs APPROVED review
 - **PRs merged this run** and **merge failures** with reasons
-- **Metrics** — record at least one measurement per KATA.md § Metrics.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.
 
 ## Coordination Channels
 

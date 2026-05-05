@@ -24,6 +24,10 @@ triage decisions captured here.
 - A specific issue needs an on-demand product-alignment decision
 - Never for PRs — use [`kata-release-merge`](../kata-release-merge/SKILL.md)
 
+## Prerequisites
+
+All comment templates are in `references/templates.md`.
+
 ## Checklists
 
 <read_do_checklist goal="Hold the triage boundary before classifying issues">
@@ -36,10 +40,6 @@ triage decisions captured here.
 - [ ] Record reasoning for each classification — future runs audit decisions.
 
 </read_do_checklist>
-
-## Prerequisites
-
-All comment templates are in `references/templates.md`.
 
 ## Classification
 
@@ -63,7 +63,7 @@ project's products should fulfil for its personas.
 
 Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Extract issues previously processed and recurring themes
-from prior `product-manager` entries.
+from prior entries.
 
 ### Step 1: List Open Issues
 
@@ -92,17 +92,9 @@ one-line rationale. The report is the deliverable of this skill.
 
 ### Step 4: Hand Off
 
-The triage report is consumed by the calling agent, which then takes action:
-
-- **Trivial fix/bug** → make the fix on a `fix/<short-name>` branch from `main`,
-  run `bun run check` and `bun run test`, open a PR. Templates in
-  `references/templates.md` § Fix PRs. Label the issue `triaged`.
-- **Product-aligned** → invoke the `kata-spec` skill to draft a spec,
-  referencing the issue. Label the issue `triaged` and `needs-spec`.
-- **Cross-product policy** → open a Discussion citing the issue; do not write a
-  spec until the policy question resolves. Label the issue `triaged`.
-- **Out of scope** → comment with explanation per `references/templates.md` §
-  Issue Comments and apply the appropriate label.
+The triage report is consumed by the calling agent, which acts on each category
+per the classification table above. Templates are in `references/templates.md`.
+Label each processed issue `triaged`.
 
 The READ-DO checklist defines this phase boundary.
 
@@ -113,10 +105,9 @@ Append to the current week's log (see agent profile for the file path):
 - **Issue triage table** — Each issue with category, action, and rationale
 - **Recurring themes** — Patterns across issues, with frequency and alignment
 - **Hand-offs** — Which follow-up skills were invoked for which issues
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{skill}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.
 
 ## Coordination Channels
 

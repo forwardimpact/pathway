@@ -1,7 +1,7 @@
 ---
 name: kata-documentation
 description: >
-  Write and review documentation in the websites/fit/ folder. Scheduled runs review
+  Write and review documentation in the websites/ folder. Scheduled runs review
   one topic in depth for accuracy, audience purity, and staleness. Interactive
   runs write or update pages following documentation standards. Use when
   writing, editing, auditing, or reviewing documentation, or running scheduled
@@ -19,7 +19,7 @@ modes of operation:
 ## When to Use
 
 - Scheduled documentation review (one topic per run)
-- Writing or updating pages in `websites/fit/`
+- Writing or updating pages in `websites/`
 - Auditing documentation accuracy against source code
 
 ## Checklists
@@ -56,15 +56,15 @@ Each run covers **one topic** in depth.
 
 | Topic                    | What to review                                                                        |
 | ------------------------ | ------------------------------------------------------------------------------------- |
-| `getting-started`        | `websites/fit/docs/getting-started/` — onboarding accuracy, CLI examples              |
-| `products`               | `websites/fit/docs/products/` — product-task accuracy, audience purity, completeness  |
-| `libraries`              | `websites/fit/docs/libraries/` — library-task accuracy, audience purity, completeness |
-| `services`               | `websites/fit/docs/services/` — service-task accuracy, audience purity, completeness  |
-| `reference`              | `websites/fit/docs/reference/` — CLI synopsis, entity definitions, schema             |
-| `internals`              | `websites/fit/docs/internals/` — architecture accuracy, code path validity            |
-| `product-pages`          | `websites/fit/{map,pathway,guide,outpost,landmark,summit,gear}/` — overviews          |
+| `getting-started`        | `websites/docs/getting-started/` — onboarding accuracy, CLI examples                  |
+| `products`               | `websites/docs/products/` — product-task accuracy, audience purity, completeness      |
+| `libraries`              | `websites/docs/libraries/` — library-task accuracy, audience purity, completeness     |
+| `services`               | `websites/docs/services/` — service-task accuracy, audience purity, completeness      |
+| `reference`              | `websites/docs/reference/` — CLI synopsis, entity definitions, schema                 |
+| `internals`              | `websites/docs/internals/` — architecture accuracy, code path validity                |
+| `product-pages`          | Product overview pages under `websites/` — overviews                                  |
 | `root-docs`              | `CLAUDE.md`, `CONTRIBUTING.md`, `KATA.md`, `SECURITY.md`                              |
-| `llms-txt-and-seo`       | `websites/fit/llms.txt`, `websites/fit/robots.txt`, sitemap completeness              |
+| `llms-txt-and-seo`       | `websites/llms.txt`, `websites/robots.txt`, sitemap completeness                      |
 | `cross-page-consistency` | Terminology, proficiency scales, field names across all pages                         |
 
 ### Step 0: Read Memory
@@ -91,9 +91,9 @@ teammates' summaries). Find last review dates per topic in the coverage map.
 4. Check audience purity — flag contributor content in user-facing pages (per
    [`references/standards.md`](references/standards.md)).
 5. Run CLI examples shown in docs, verify output matches.
-6. Check YAML examples against JSON schemas in `products/map/schema/json/`.
+6. Check YAML examples against the product's JSON schema directory.
 7. Verify all internal cross-links resolve.
-8. Run `bunx fit-doc build --src=websites/fit --out=dist` to confirm build.
+8. Run `bunx fit-doc build` to confirm build.
 9. Check `git log --oneline -20 -- <paths>` for recent code changes that may
    have invalidated docs.
 
@@ -120,14 +120,14 @@ Run the DO-CONFIRM checklist at the top of this skill.
    entity names against `data/pathway/`.
 6. **Add cross-links.** Guides → Reference for details. Getting Started → Guides
    for next steps. Internals → Reference for the user-facing model.
-7. **Build and check.** Run `bunx fit-doc build --src=websites/fit --out=dist`.
+7. **Build and check.** Run `bunx fit-doc build`.
 
 ### Updating existing pages
 
 1. Read the page and its source of truth — check actual code, not just docs.
 2. Check audience purity — move contributor content to Internals if needed.
 3. Verify CLI examples. Run every command shown.
-4. Verify YAML examples against `products/map/schema/json/`.
+4. Verify YAML examples against the product's JSON schema directory.
 5. Check cross-links resolve.
 6. Build and check.
 
@@ -164,10 +164,9 @@ Append to the current week's log (see agent profile for the file path):
 - **Deferred work** — Issues needing follow-up with enough context to resume
 - **Accuracy errors** — Specific docs that diverged from source code
 - **Memos sent** — Callouts dispatched via `fit-wiki memo` to agents whose work affects docs
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{skill}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.
 
 ## Coordination Channels
 
@@ -175,7 +174,7 @@ This skill produces these non-wiki outputs (per
 [coordination-protocol.md](../../agents/references/coordination-protocol.md)):
 
 - **PR comment** — Doc-impact callouts on code PRs that change behaviour
-  documented in `websites/fit/`.
+  documented in `websites/`.
 - **Discussion** — Doc gaps that reflect an unsettled product question rather
   than a writing task.
 

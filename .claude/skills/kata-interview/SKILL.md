@@ -7,7 +7,7 @@ description: >
   findings as GitHub issues classified against the chosen job.
 ---
 
-# Kata Interview
+# Switching Interview
 
 You are the supervisor in a `fit-eval supervise` relay running a **JTBD
 switching interview**: an agent, briefed only with a persona derived from a
@@ -79,7 +79,8 @@ Hire, Competes With, Forces (Push, Pull, Habit, Anxiety), Fired When.
 ### Step 3: Stage the Agent Workspace
 
 The workflow has run `bunx fit-terrain build` and installed `supabase`
-globally. Copy the subset the chosen product needs into `$AGENT_CWD`:
+globally. Copy the subset the chosen product needs into `$AGENT_CWD` (adjust
+for your installation's products):
 
 | Product          | Stage into `$AGENT_CWD`                                                                  |
 | ---------------- | ---------------------------------------------------------------------------------------- |
@@ -187,6 +188,5 @@ Append to the current week's log:
 - **Outcome** — done / abandoned / partial
 - **Forces observed** — Push/Pull/Habit/Anxiety/Competes/Fired
 - **Issues created or updated** — numbers and categories
-- **Metrics** — at least one measurement to `wiki/metrics/{skill}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. See
-  `references/metrics.md`.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/` per
+  `references/metrics.md`. See KATA.md § Metrics for recording eligibility.
