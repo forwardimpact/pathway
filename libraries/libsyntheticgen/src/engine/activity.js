@@ -4,7 +4,7 @@
  * @module libterrain/engine/activity
  */
 
-import { generateWebhooks } from "./activity-webhooks.js";
+import { generateWebhooks, generateWebhookKeys } from "./activity-webhooks.js";
 import { deriveInitiatives } from "./activity-initiatives.js";
 import { generateCommentKeys } from "./activity-comments.js";
 import { generateRosterSnapshots } from "./activity-roster.js";
@@ -66,10 +66,11 @@ export function generateActivity(ast, rng, people, teams) {
     team_id: p.team_id,
   }));
 
-  const activityTeams = buildActivityTeams(ast, teams);
+  const activityTeams = buildActivityTeams(ast, teams, people);
   const snapshots = generateSnapshots(ast);
   const scores = generateScores(ast, rng, snapshots, activityTeams);
   const webhooks = generateWebhooks(ast, rng, people, teams);
+  const webhookKeys = generateWebhookKeys(ast, webhooks, people, teams);
   const evidence = generateEvidence(ast, rng, people, teams);
   const { scorecards, initiatives } = deriveInitiatives(
     ast,
@@ -94,6 +95,7 @@ export function generateActivity(ast, rng, people, teams) {
     snapshots,
     scores,
     webhooks,
+    webhookKeys,
     evidence,
     initiatives,
     scorecards,
@@ -134,7 +136,7 @@ function buildDeptEntries(departments, orgMap) {
   });
 }
 
-function buildLeafTeamEntries(teams, deptMap, orgMap) {
+function buildLeafTeamEntries(teams, deptMap, orgMap, people) {
   return teams.map((team) => {
     const dept = deptMap.get(team.department);
     const parentDeptId = dept ? `gdx_dept_${dept.id}` : null;
@@ -150,6 +152,9 @@ function buildLeafTeamEntries(teams, deptMap, orgMap) {
       parent_id: parentDeptId,
       manager_id: team.manager ? `gdx_mgr_${team.manager}` : null,
       contributors: team.size,
+      contributor_list: people
+        .filter((p) => p.team_id === team.id)
+        .map((p) => ({ email: p.email, name: p.name })),
       reference_id: null,
       ancestors,
       last_changed_at: new Date("2025-01-01").toISOString(),
@@ -157,14 +162,14 @@ function buildLeafTeamEntries(teams, deptMap, orgMap) {
   });
 }
 
-function buildActivityTeams(ast, teams) {
+function buildActivityTeams(ast, teams, people) {
   const orgMap = new Map(ast.orgs.map((o) => [o.id, o]));
   const deptMap = new Map(ast.departments.map((d) => [d.id, d]));
 
   return [
     ...buildOrgEntries(ast.orgs),
     ...buildDeptEntries(ast.departments, orgMap),
-    ...buildLeafTeamEntries(teams, deptMap, orgMap),
+    ...buildLeafTeamEntries(teams, deptMap, orgMap, people),
   ];
 }
 

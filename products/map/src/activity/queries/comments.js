@@ -28,13 +28,12 @@ export async function getSnapshotComments(supabase, options = {}) {
   }
 
   if (options.managerEmail) {
-    const { data: teams } = await supabase
-      .from("getdx_teams")
-      .select("getdx_team_id")
-      .eq("manager_email", options.managerEmail);
-    const teamIds = (teams ?? []).map((t) => t.getdx_team_id);
-    if (teamIds.length === 0) return [];
-    query = query.in("team_id", teamIds);
+    const { data: team } = await supabase.rpc("get_team", {
+      root_email: options.managerEmail,
+    });
+    const emails = (team || []).map((p) => p.email);
+    if (emails.length === 0) return [];
+    query = query.in("email", emails);
   }
 
   const { data, error } = await query;

@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package map;
+
+import "tool.proto";
+
+service Map {
+  rpc GetUnscoredArtifacts(GetUnscoredArtifactsRequest) returns (tool.ToolCallResult);
+  rpc GetArtifact(GetArtifactRequest) returns (tool.ToolCallResult);
+  rpc WriteEvidence(WriteEvidenceRequest) returns (tool.ToolCallResult);
+  rpc GetPerson(GetPersonRequest) returns (tool.ToolCallResult);
+}
+
+message GetUnscoredArtifactsRequest {
+  // Filter by person email
+  optional string email = 1;
+  // Filter to a manager's direct reports
+  optional string manager_email = 2;
+  // Set true for org-wide scope
+  optional bool org = 3;
+}
+
+message GetArtifactRequest {
+  // Artifact UUID
+  string artifact_id = 1;
+}
+
+message WriteEvidenceRequest {
+  // Artifact UUID
+  string artifact_id = 1;
+  // Skill id from the engineering standard
+  string skill_id = 2;
+  // Proficiency level id
+  string level_id = 3;
+  // Marker text verbatim from GetMarkersForProfile
+  string marker_text = 4;
+  // Whether the artifact demonstrates this marker
+  bool matched = 5;
+  // 1-3 sentence rationale
+  string rationale = 6;
+}
+
+message GetPersonRequest {
+  // Engineer email
+  string email = 1;
+}

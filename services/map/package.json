@@ -1,0 +1,62 @@
+{
+  "name": "@forwardimpact/svcmap",
+  "version": "0.1.0",
+  "description": "Activity reads and writes over gRPC — the agent-facing gateway to Map's activity database.",
+  "keywords": [
+    "map",
+    "activity",
+    "evidence",
+    "grpc",
+    "agent"
+  ],
+  "homepage": "https://www.forwardimpact.team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "services/map"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Expose Activity Data to Agents",
+      "trigger": "Building an agent feature that reads or writes activity data and realizing the agent would need direct DB access.",
+      "bigHire": "read and write activity data from any agent without leaking schema or credentials.",
+      "littleHire": "fetch unscored artifacts or write evidence rows without touching Supabase directly.",
+      "competesWith": "opening Supabase directly from the agent; building per-product activity endpoints; embedding query logic in the evaluation skill"
+    }
+  ],
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "fit-svcmap": "./server.js"
+  },
+  "files": [
+    "proto/",
+    "server.js"
+  ],
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "bun server.js",
+    "test": "bun test test/*.test.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libconfig": "^0.1.58",
+    "@forwardimpact/librpc": "^0.1.77",
+    "@forwardimpact/libtelemetry": "^0.1.30",
+    "@forwardimpact/libtype": "^0.1.67",
+    "@forwardimpact/map": "^0.15.12",
+    "@supabase/supabase-js": "^2.105.1"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.14"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -167,6 +167,10 @@ export class ProseGenerator {
    * @returns {string}
    */
   #buildPrompt(key, context) {
+    const driverContext = (context.drivers || [])
+      .map((d) => `- ${d.driver_id}: ${d.trajectory} (magnitude: ${d.magnitude})`)
+      .join("\n");
+
     return this.promptLoader.render("prose-user", {
       topic: context.topic || key.replace(/_/g, " ").replace(/-/g, " "),
       tone: context.tone || "technical",
@@ -179,6 +183,7 @@ export class ProseGenerator {
       driver: context.driver,
       direction: context.direction,
       magnitude: context.magnitude,
+      driverContext: driverContext || undefined,
     });
   }
 }

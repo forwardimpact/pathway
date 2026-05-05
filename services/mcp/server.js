@@ -13,6 +13,7 @@ const tracer = await createTracer("mcp");
 const graphClient = await createClient("graph", logger, tracer);
 const vectorClient = await createClient("vector", logger, tracer);
 const pathwayClient = await createClient("pathway", logger, tracer);
+const mapClient = await createClient("map", logger, tracer);
 const resourceIndex = createResourceIndex("resources");
 
 const service = createMcpService({
@@ -21,6 +22,7 @@ const service = createMcpService({
   graphClient,
   vectorClient,
   pathwayClient,
+  mapClient,
   resourceIndex,
 });
 

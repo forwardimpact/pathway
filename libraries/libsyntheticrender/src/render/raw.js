@@ -17,7 +17,7 @@ import YAML from "yaml";
 export function renderRawDocuments(entities, proseMap) {
   const files = new Map();
 
-  renderGitHubWebhooks(entities, files);
+  renderGitHubWebhooks(entities, files, proseMap);
   renderGetDXPayloads(entities, files);
   renderGetDXInitiatives(entities, files);
   renderGetDXScorecards(entities, files);
@@ -42,14 +42,36 @@ export function renderActivityFiles(entities) {
 }
 
 /**
- * Render GitHub webhook JSON payloads.
+ * Render GitHub webhook JSON payloads with optional LLM-generated prose.
  * @param {object} entities
  * @param {Map<string,string>} files
+ * @param {Map<string,string>} [proseMap]
  */
-function renderGitHubWebhooks(entities, files) {
+function injectWebhookProse(webhook, proseMap) {
+  if (!proseMap) return;
+  const prefix =
+    webhook.event_type === "pull_request"
+      ? "pr_body_"
+      : webhook.event_type === "pull_request_review"
+        ? "review_body_"
+        : null;
+  if (!prefix) return;
+
+  const body = proseMap.get(`${prefix}${webhook.delivery_id}`);
+  if (!body) return;
+
+  if (webhook.event_type === "pull_request") {
+    webhook.payload.pull_request.body = body;
+  } else {
+    webhook.payload.review.body = body;
+  }
+}
+
+function renderGitHubWebhooks(entities, files, proseMap) {
   if (!entities.activity?.webhooks) return;
 
   for (const webhook of entities.activity.webhooks) {
+    injectWebhookProse(webhook, proseMap);
     const path = `github/${webhook.delivery_id}.json`;
     files.set(path, JSON.stringify(webhook, null, 2));
   }
@@ -80,6 +102,7 @@ function renderGetDXPayloads(entities, files) {
       parent: t.is_parent || false,
       manager_id: t.manager_id || null,
       contributors: t.contributors || 0,
+      contributor_list: t.contributor_list || [],
       last_changed_at: t.last_changed_at || null,
       reference_id: t.reference_id || null,
       ancestors: t.ancestors || [],
@@ -275,6 +298,7 @@ function renderGetDXComments(entities, files, proseMap) {
       return {
         snapshot_id: ck.snapshot_id,
         email: ck.email,
+        driver_name: ck.driver_name,
         text:
           text ||
           `[${ck.driver_name} — ${ck.trajectory}] Comment pending prose generation.`,

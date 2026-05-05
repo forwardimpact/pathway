@@ -275,4 +275,53 @@ export class PathwayService extends PathwayBase {
     const content = await jobSoftwareToTurtle(job, toolkit);
     return { content };
   }
+
+  /** @param {import("@forwardimpact/libtype").pathway.GetMarkersForProfileRequest} req */
+  async GetMarkersForProfile(req) {
+    const data = this.#data;
+    const discipline = this.#findDiscipline(req.discipline);
+    const level = this.#findLevel(req.level);
+    const track = this.#findTrack(req.track);
+
+    const job = deriveJob({
+      discipline,
+      level,
+      track,
+      skills: data.skills,
+      behaviours: data.behaviours,
+      capabilities: data.capabilities,
+      validationRules: this.#validationRules(),
+    });
+
+    if (!job) {
+      throw new Error(
+        `Invalid profile: discipline=${req.discipline} level=${req.level}` +
+          (req.track ? ` track=${req.track}` : ""),
+      );
+    }
+
+    const markers = [];
+    for (const entry of job.skillMatrix) {
+      const skill = data.skills.find((s) => s.id === entry.skillId);
+      if (!skill?.markers) continue;
+      const levelMarkers = skill.markers[entry.proficiency];
+      if (!levelMarkers) continue;
+      const allTexts = [
+        ...(levelMarkers.human || []),
+        ...(levelMarkers.agent || []),
+      ];
+      for (const text of allTexts) {
+        markers.push({
+          skill_id: skill.id,
+          level_id: entry.proficiency,
+          marker_text: text,
+        });
+      }
+    }
+
+    const content = markers
+      .map((m) => `${m.skill_id}\t${m.level_id}\t${m.marker_text}`)
+      .join("\n");
+    return { content };
+  }
 }

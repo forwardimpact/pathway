@@ -67,8 +67,6 @@ toc: false
 
 <!-- part:card:engineering-outcomes -->
 
-<!-- part:card:engineering-outcomes/culture-investments -->
-
 </div>
 
 ## Staff Teams to Succeed (Leaders)

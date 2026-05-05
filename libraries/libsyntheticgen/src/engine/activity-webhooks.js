@@ -63,7 +63,7 @@ const PR_TITLES = [
   "Add {f} tests",
 ];
 
-const PR_BODIES = [
+const REVIEW_BODIES = [
   "LGTM",
   "Looks good to me!",
   "Nice work.",
@@ -224,7 +224,7 @@ function generatePREvents(
             id: rng.randomInt(10000, 99999),
             user: { login: reviewer.github_username },
             state: rng.pick(["approved", "changes_requested", "commented"]),
-            body: rng.pick(PR_BODIES),
+            body: rng.pick(REVIEW_BODIES),
             submitted_at: rts.toISOString(),
           },
           pull_request: { number: prNum },
@@ -303,4 +303,143 @@ export function generateWebhooks(ast, rng, people, teams) {
   }
 
   return webhooks;
+}
+
+function isScenarioActive(scenario, week) {
+  const sStart = new Date(scenario.timerange_start + "-01");
+  const sEnd = new Date(scenario.timerange_end + "-28");
+  return week >= sStart && week <= sEnd;
+}
+
+function extractDriversFromAffect(affect) {
+  return (affect.dx_drivers || []).map((dx) => ({
+    driver_id: dx.driver_id,
+    trajectory: dx.trajectory,
+    magnitude: dx.magnitude,
+  }));
+}
+
+/**
+ * Extract DX driver context for a team during a given week.
+ * @param {object[]} scenarios
+ * @param {string} teamId
+ * @param {Date} week
+ * @returns {Array<{driver_id: string, trajectory: string, magnitude: number}>}
+ */
+function getDriverContext(scenarios, teamId, week) {
+  return scenarios
+    .filter((s) => isScenarioActive(s, week))
+    .flatMap((s) => s.affects.filter((a) => a.team_id === teamId))
+    .flatMap(extractDriversFromAffect);
+}
+
+function findActiveScenarioForTeam(scenarios, teamId, week) {
+  return scenarios.find(
+    (s) =>
+      isScenarioActive(s, week) && s.affects.some((a) => a.team_id === teamId),
+  );
+}
+
+function getWebhookLogin(wh) {
+  if (wh.event_type === "pull_request") {
+    return wh.payload.pull_request?.user?.login;
+  }
+  if (wh.event_type === "pull_request_review") {
+    return wh.payload.review?.user?.login;
+  }
+  return null;
+}
+
+function resolvePerson(login, peopleByLogin, teamMap) {
+  const person = peopleByLogin.get(login);
+  if (!person) return null;
+  const team = teamMap.get(person.team_id);
+  if (!team) return null;
+  return { person, team };
+}
+
+function buildPRKey(wh, person, team, drivers, activeScenario) {
+  const pr = wh.payload.pull_request;
+  return {
+    delivery_id: wh.delivery_id,
+    prose_type: "pr_body",
+    email: person.email,
+    team_id: person.team_id,
+    repo: wh.payload.repository?.full_name,
+    title: pr.title,
+    additions: pr.additions,
+    deletions: pr.deletions,
+    changed_files: pr.changed_files,
+    drivers,
+    person_level: person.level,
+    person_discipline: person.discipline,
+    scenario_name: activeScenario?.name || null,
+    team_name: team.name,
+  };
+}
+
+function buildReviewKey(wh, person, team, drivers, activeScenario) {
+  return {
+    delivery_id: wh.delivery_id,
+    prose_type: "review_body",
+    email: person.email,
+    team_id: person.team_id,
+    repo: wh.payload.repository?.full_name,
+    review_state: wh.payload.review.state,
+    drivers,
+    person_level: person.level,
+    person_discipline: person.discipline,
+    scenario_name: activeScenario?.name || null,
+    team_name: team.name,
+  };
+}
+
+function webhookToKey(wh, scenarios, peopleByLogin, teamMap) {
+  const login = getWebhookLogin(wh);
+  if (!login) return [];
+
+  const resolved = resolvePerson(login, peopleByLogin, teamMap);
+  if (!resolved) return [];
+  const { person, team } = resolved;
+
+  const week = new Date(wh.occurred_at);
+  const drivers = getDriverContext(scenarios, person.team_id, week);
+  if (drivers.length === 0) return [];
+
+  const scenario = findActiveScenarioForTeam(scenarios, person.team_id, week);
+
+  if (wh.event_type === "pull_request") {
+    return [buildPRKey(wh, person, team, drivers, scenario)];
+  }
+  if (wh.event_type === "pull_request_review") {
+    return [buildReviewKey(wh, person, team, drivers, scenario)];
+  }
+  return [];
+}
+
+/**
+ * Generate prose key metadata for webhook events.
+ * Correlates each webhook's delivery_id, sender, and occurred_at with
+ * scenario driver context. No RNG consumed — all inputs are deterministic.
+ * @param {import('../dsl/parser.js').TerrainAST} ast
+ * @param {object[]} webhooks
+ * @param {object[]} people
+ * @param {object[]} teams
+ * @returns {object[]}
+ */
+export function generateWebhookKeys(ast, webhooks, people, teams) {
+  const peopleByLogin = new Map(people.map((p) => [p.github_username, p]));
+  const teamMap = new Map(teams.map((t) => [t.id, t]));
+
+  const keys = webhooks.flatMap((wh) =>
+    webhookToKey(wh, ast.scenarios, peopleByLogin, teamMap),
+  );
+
+  const cap = ast.snapshots?.webhook_prose_cap;
+  if (cap && keys.length > cap) {
+    const step = keys.length / cap;
+    return Array.from({ length: cap }, (_, i) => keys[Math.floor(i * step)]);
+  }
+
+  return keys;
 }

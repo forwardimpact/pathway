@@ -139,6 +139,7 @@ function extractPullRequestArtifacts(payload) {
       metadata: {
         number: pr.number,
         title: pr.title,
+        body: pr.body || null,
         state: pr.state,
         additions: pr.additions,
         deletions: pr.deletions,
@@ -171,6 +172,7 @@ function extractReviewArtifacts(payload) {
       metadata: {
         pr_number: payload.pull_request?.number,
         state: review.state,
+        body: review.body || null,
         body_length: review.body?.length || 0,
       },
       raw: review,

@@ -46,7 +46,6 @@
     "./activity/queries/evidence": "./src/activity/queries/evidence.js",
     "./activity/queries/artifacts": "./src/activity/queries/artifacts.js",
     "./activity/queries/comments": "./src/activity/queries/comments.js",
-    "./activity/queries/initiatives": "./src/activity/queries/initiatives.js",
     "./activity/parse-people": "./src/activity/parse-people.js",
     "./activity/validate/people": "./src/activity/validate/people.js",
     "./activity/storage": "./src/activity/storage.js",

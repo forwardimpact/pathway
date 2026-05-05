@@ -95,6 +95,7 @@ const KEYWORDS = new Set([
   "briefings_per_persona",
   "notes_per_persona",
   "comments_per_snapshot",
+  "webhook_prose_cap",
   // Dataset and output blocks
   "dataset",
   "tool",

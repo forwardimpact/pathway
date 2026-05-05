@@ -66,6 +66,21 @@ Practice patterns show where your team has strong evidence of skill practice and
 where evidence is thin — helping you identify coaching opportunities before they
 become gaps.
 
+## How evidence gets populated
+
+Landmark presents evidence — Guide creates it. Guide's evaluation pipeline reads
+GitHub artifacts from Map, evaluates each one against the markers in your
+engineering standard, and writes evidence rows back to Map. In production this
+runs on a schedule (a cron job or GitHub Action) so evidence stays current as new
+artifacts arrive:
+
+```sh
+echo "evaluate unscored artifacts for all" | npx fit-guide
+```
+
+You do not need to run this manually in most setups — your operations team
+configures it once during Guide setup.
+
 ## Browse evidence
 
 Drill into the evidence rows linked to agent-aligned engineering standard
@@ -178,32 +193,24 @@ saying:
 
 ```sh
 npx fit-landmark voice --manager alice@example.com
-npx fit-landmark voice --email bob@example.com
 ```
 
-In manager mode, comments are bucketed by theme (estimation, incident, planning,
-etc.) and aligned to low-scoring drivers — showing where engineer sentiment
-matches the data. In individual mode, comments appear as a timeline alongside
-evidence context.
+```text
+  alice@example.com team — engineer voice
 
-## Track initiatives
+    Most discussed themes:
+      incident              8 comments   "On-call handoffs are still rough", "Runbook coverage is improving"
+      onboarding            3 comments   "New hire ramp-up is smoother this quarter"
+      deploy                2 comments   "Release cadence feels more predictable now"
 
-See how organizational initiatives correlate with driver score changes:
-
-```sh
-npx fit-landmark initiative list --manager alice@example.com
-npx fit-landmark initiative impact --manager alice@example.com
+    Aligned with health signals:
+      Codebase Experience driver (48.6th pctl)
+      Requirements Quality driver (49.8th pctl)
 ```
 
-`initiative list` shows active initiatives with their IDs. To drill into a
-specific initiative, pass the ID from the list output:
-
-```sh
-npx fit-landmark initiative show --id <id>
-```
-
-`initiative impact` joins initiative completion dates to snapshot score deltas,
-showing whether a completed initiative moved the needle on its target drivers.
+In manager mode, comments are bucketed by theme and aligned to low-scoring
+drivers — showing where engineer sentiment matches the data. In individual mode
+(`--email`), comments appear as a timeline alongside evidence context.
 
 ## Output formats
 
