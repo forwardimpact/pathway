@@ -26,11 +26,8 @@ flowchart LR
 |---|---|---|
 | `sanitiseAttachmentName(raw)` | `sync-helpers.mjs` (new export, pure) | Coerce any input to a single non-empty basename that is not `.` or `..`. |
 | `copySingleAttachment` (revised) | `sync-helpers.mjs` (existing, in scope) | Call sanitiser, run dedup against sanitised name, assert containment, then copy. |
-| `sanitiseAttachmentName.test.{mjs,js}` | `products/outpost/test/` (new) | Unit tests for the sanitiser against the spec's worked-example inputs. |
-| `copySingleAttachment.test.{mjs,js}` | `products/outpost/test/` (new) | Integration-style test: traversal inputs never produce a write outside `destDir`. |
-
-The renderer in `sync.mjs:94` is **out of scope** per the spec — content-injection
-only, not arbitrary file write. No design changes there.
+| Sanitiser unit-test surface | new test file under `products/outpost/test/` | Exercises the sanitiser against the spec's worked-example inputs. |
+| Containment integration-test surface | new test file under `products/outpost/test/` | Asserts traversal inputs never produce a write outside `destDir`. |
 
 ## Interfaces
 
@@ -43,34 +40,30 @@ only, not arbitrary file write. No design changes there.
 | `"\u0000bar"` and other control chars | control bytes stripped; if remainder empty → `"unnamed"` |
 | benign UTF-8 (`"café résumé.pdf"`, `"image (2).png"`) | byte-for-byte unchanged |
 
-**Algorithm (specification, not code):**
+**Invariants (the algorithm is a plan-phase choice):**
 
-1. Coerce non-string inputs to `""`.
-2. Strip ASCII control characters (`\x00`–`\x1f`, `\x7f`) and the path separators
-   `/` and `\`. (Backslash stripping is forward-defence only — POSIX
-   `path.join` does not normalise `\`, so the on-disk exploit on macOS uses
-   `/`. The spec's success-criteria input set includes `"..\\..\\..\\foo"`,
-   so the sanitiser strips both separators.)
-3. Take the trailing segment after the last separator. (Equivalent to applying
-   `basename` after stripping; specified explicitly so test expectations are
-   independent of `path.basename`'s POSIX-only behaviour.)
-4. If the result is `""`, `.`, or `..`, return the fallback `"unnamed"`.
-5. Otherwise return the result.
-
-The function never throws and never returns a string containing `/`, `\`, or
-control characters.
+- Total: never throws; non-string inputs (including `null`) yield the fallback.
+- Closed: the return string contains no `/`, `\`, or ASCII control bytes
+  (`\x00`–`\x1f`, `\x7f`).
+- Single basename: the return string equals its own basename under both POSIX
+  and win32 separator semantics.
+- Non-trivial: the return string is never `""`, `.`, or `..`. The fallback for
+  these and the closed/single-basename failure cases is the literal string
+  `"unnamed"`.
+- Identity on benign UTF-8: any input that already satisfies the four
+  invariants above is returned byte-for-byte unchanged.
 
 ### Revised `copySingleAttachment` contract
 
-| Step | Behaviour |
+| Aspect | Behaviour |
 |---|---|
-| 1 | `safeName = sanitiseAttachmentName(att.name)` (replaces `att.name || "unnamed"`). |
-| 2 | Dedup branch operates on `safeName`: `destName = seenFilenames.has(safeName) ? sanitiseAttachmentName(`${mid}_${safeName}`) : safeName`. The re-sanitisation of the prefixed form is a no-op in practice (`mid` is numeric) but keeps the invariant local. |
-| 3 | After `destPath = join(destDir, destName)`, assert `resolve(destPath)` starts with `resolve(destDir) + sep`. If not, return `{ name, available: false, path: null }`. |
-| 4 | Copy as today; return shape unchanged. |
+| Input handling | The raw `att.name` is consumed only through the sanitiser; the existing `att.name || "unnamed"` short-circuit is removed. |
+| Dedup | The collision check and any `mid`-prefixed alternative both operate on a sanitised name. Whatever string ultimately becomes `destName` satisfies the sanitiser's invariants. |
+| Containment | Before the copy, the resolved `destPath` must be strictly inside the resolved `destDir` (separator-boundary prefix). If not, the function returns `{ available: false, path: null }` and performs no write. |
+| Return shape | Unchanged from today (`{ name, available, path }`). |
 
-**Post-condition (invariant):** every successful return has `path` strictly
-inside `destDir`.
+**Post-condition (invariant):** every return with `available: true` has `path`
+strictly inside `destDir`. No reachable code path writes outside `destDir`.
 
 ## Data flow
 
@@ -104,7 +97,7 @@ sequenceDiagram
 | 4 | Fallback string `"unnamed"` | Skip the attachment (return `available: false`) | Existing code already uses `"unnamed"` for null `att.name`. Reusing it preserves observable behaviour for the benign null-name path; only the genuinely traversal-shaped cases change behaviour. |
 | 5 | Sanitiser exported from `sync-helpers.mjs`, not a new module | New `attachment-name.mjs` module | One function, one caller, one test target. A new module multiplies surface for no leverage. The existing helpers file already exports pure utilities. |
 | 6 | Layer 2 returns `{ available: false }` rather than throwing | `throw new Error("traversal")` | The function's contract today is "best-effort copy"; throwing would propagate to `copyThreadAttachments` and abort the whole thread's attachments on a single hostile name. Refuse-and-continue matches the existing `try/catch` shape. |
-| 7 | `path.resolve` + prefix check, not `path.relative + startsWith("..")` | `relative(destDir, destPath).startsWith("..")` | Symlink chasing is moot here (`destDir` is freshly `mkdirSync`'d under `~/.cache/fit/outpost/`), and prefix-of-resolved-paths is the form most reviewers can verify by eye. Add `+ sep` to the prefix to avoid the `dest/foo` vs `dest-evil/...` substring trap. |
+| 7 | Containment check is a separator-boundary prefix on resolved paths | `relative(destDir, destPath).startsWith("..")` | Either form is sound; the resolved-prefix form is the one most reviewers can verify by inspection, and the separator-boundary requirement avoids the `dest/foo` vs `dest-evil/...` substring trap. The plan picks the literal `path` API surface. |
 
 ## Failure modes
 
@@ -115,7 +108,6 @@ sequenceDiagram
 | `"../../../foo"` | `"foo"` | passes | copy succeeds as `foo` inside `destDir` |
 | `"."` / `".."` | `"unnamed"` | passes | copy succeeds as `unnamed` |
 | Future regression breaks Layer 1 (returns `"../foo"`) | bad value | fails containment | `available: false`, no write |
-| `destDir` itself is a symlink to outside `~/.cache` | unchanged | passes (resolved path may escape; documented as out-of-scope) | covered by `~/.cache` parent assumption; not in spec scope |
 
 ## Out of scope (restated from spec)
 
