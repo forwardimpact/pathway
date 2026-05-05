@@ -168,7 +168,9 @@ export class ProseGenerator {
    */
   #buildPrompt(key, context) {
     const driverContext = (context.drivers || [])
-      .map((d) => `- ${d.driver_id}: ${d.trajectory} (magnitude: ${d.magnitude})`)
+      .map(
+        (d) => `- ${d.driver_id}: ${d.trajectory} (magnitude: ${d.magnitude})`,
+      )
       .join("\n");
 
     return this.promptLoader.render("prose-user", {

@@ -4,11 +4,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>FIT Services</string>
+    <string>fit-gear</string>
     <key>CFBundleDisplayName</key>
-    <string>FIT Services</string>
+    <string>Forward Impact Gear</string>
     <key>CFBundleIdentifier</key>
-    <string>team.forwardimpact.services</string>
+    <string>team.forwardimpact.gear</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>

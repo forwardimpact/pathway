@@ -13,6 +13,8 @@ toc: false
 
 <!-- part:card:operations -->
 
+<!-- part:card:release -->
+
 <!-- part:card:kata -->
 
 </div>

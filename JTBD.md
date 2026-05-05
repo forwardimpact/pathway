@@ -247,4 +247,71 @@ reorganization makes the framework feel irrelevant.
 
 </job>
 
+<job user="Platform Builders" goal="Build Agent-Capable Systems">
+
+## Platform Builders: Build Agent-Capable Systems
+
+**Trigger:** Building an agent that needs structured knowledge, typed service
+contracts, or self-documenting CLIs — and the alternative is reimplementing
+retrieval, transport, and interface plumbing from scratch.
+
+**Big Hire:** Help me give humans and agents shared capabilities through the
+same interface, with tooling to prove changes actually improved outcomes. →
+**Gear**
+
+**Little Hire:** Help me query RDF graphs, run vector search, or expose a gRPC
+service as MCP tools without building retrieval or transport from scratch. →
+**Gear**
+
+**Competes With:** hand-rolled retrieval; bespoke gRPC wrappers; ad-hoc CLI
+frameworks; monolithic agent platforms that bundle everything.
+
+**Forces:**
+- **Push:** Every new agent project rebuilds the same retrieval, transport, and
+  interface plumbing.
+- **Pull:** Focused, interoperable libraries that work standalone or together —
+  humans and agents on the same docs.
+- **Habit:** Copy-pasting infrastructure from the last project rather than using
+  shared, tested primitives.
+- **Anxiety:** Depending on shared libraries means losing control over the
+  interface contract.
+
+**Fired When:** the libraries diverge from how agents actually consume them; or
+a monolithic framework absorbs enough of the surface that individual libraries
+feel like overhead.
+
+</job>
+
+<job user="Platform Builders" goal="Evaluate and Improve Agents">
+
+## Platform Builders: Evaluate and Improve Agents
+
+**Trigger:** An agent change shipped but nobody can tell whether it actually
+improved outcomes — the only evidence is anecdotal.
+
+**Big Hire:** Help me prove whether agent changes improved outcomes with
+reproducible evidence. → **Gear**
+
+**Little Hire:** Help me generate deterministic test data from a DSL and chart
+agent metrics with XmR control charts to distinguish signal from noise. →
+**Gear**
+
+**Competes With:** manual spot-checking; anecdotal feedback; shipping without
+measuring; building custom eval harnesses per project.
+
+**Forces:**
+- **Push:** Agent improvements are claimed but never measured — regressions hide
+  until users complain.
+- **Pull:** Reproducible eval datasets and control charts that make real
+  improvement visible.
+- **Habit:** Shipping agent changes and assuming they helped because the prompt
+  looks better.
+- **Anxiety:** Rigorous evaluation might reveal that recent changes made things
+  worse.
+
+**Fired When:** eval overhead exceeds the value of knowing; or the team stops
+iterating on agents.
+
+</job>
+
 <!-- END:jobs -->

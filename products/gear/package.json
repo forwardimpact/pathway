@@ -1,0 +1,83 @@
+{
+  "name": "@forwardimpact/gear",
+  "version": "0.1.0",
+  "description": "Shared libraries and services for platform builders and agents — CLIs, retrieval, evaluation, and infrastructure published to npm.",
+  "keywords": [
+    "agent",
+    "cli",
+    "grpc",
+    "retrieval",
+    "evaluation",
+    "infrastructure",
+    "engineering"
+  ],
+  "homepage": "https://www.forwardimpact.team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "products/gear"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Build Agent-Capable Systems",
+      "trigger": "Building an agent that needs structured knowledge, typed service contracts, or self-documenting CLIs — and the alternative is reimplementing retrieval, transport, and interface plumbing from scratch.",
+      "bigHire": "give humans and agents shared capabilities through the same interface, with tooling to prove changes actually improved outcomes.",
+      "littleHire": "query RDF graphs, run vector search, or expose a gRPC service as MCP tools without building retrieval or transport from scratch.",
+      "competesWith": "hand-rolled retrieval; bespoke gRPC wrappers; ad-hoc CLI frameworks; monolithic agent platforms that bundle everything",
+      "forces": {
+        "push": "Every new agent project rebuilds the same retrieval, transport, and interface plumbing.",
+        "pull": "Focused, interoperable libraries that work standalone or together — humans and agents on the same docs.",
+        "habit": "Copy-pasting infrastructure from the last project rather than using shared, tested primitives.",
+        "anxiety": "Depending on shared libraries means losing control over the interface contract."
+      },
+      "firedWhen": "the libraries diverge from how agents actually consume them; or a monolithic framework absorbs enough of the surface that individual libraries feel like overhead."
+    },
+    {
+      "user": "Platform Builders",
+      "goal": "Evaluate and Improve Agents",
+      "trigger": "An agent change shipped but nobody can tell whether it actually improved outcomes — the only evidence is anecdotal.",
+      "bigHire": "prove whether agent changes improved outcomes with reproducible evidence.",
+      "littleHire": "generate deterministic test data from a DSL and chart agent metrics with XmR control charts to distinguish signal from noise.",
+      "competesWith": "manual spot-checking; anecdotal feedback; shipping without measuring; building custom eval harnesses per project",
+      "forces": {
+        "push": "Agent improvements are claimed but never measured — regressions hide until users complain.",
+        "pull": "Reproducible eval datasets and control charts that make real improvement visible.",
+        "habit": "Shipping agent changes and assuming they helped because the prompt looks better.",
+        "anxiety": "Rigorous evaluation might reveal that recent changes made things worse."
+      },
+      "firedWhen": "eval overhead exceeds the value of knowing; or the team stops iterating on agents."
+    }
+  ],
+  "dependencies": {
+    "@forwardimpact/svcgraph": "^0.1.68",
+    "@forwardimpact/svcmcp": "^0.1.6",
+    "@forwardimpact/svcpathway": "^0.1.13",
+    "@forwardimpact/svctrace": "^0.1.41",
+    "@forwardimpact/svcvector": "^0.1.120",
+    "@forwardimpact/libcodegen": "^0.1.49",
+    "@forwardimpact/libdoc": "^0.2.24",
+    "@forwardimpact/libeval": "^0.1.27",
+    "@forwardimpact/libgraph": "^0.1.69",
+    "@forwardimpact/librc": "^0.1.27",
+    "@forwardimpact/libresource": "^0.1.109",
+    "@forwardimpact/librpc": "^0.1.97",
+    "@forwardimpact/libstorage": "^0.1.72",
+    "@forwardimpact/libsupervise": "^0.1.22",
+    "@forwardimpact/libtelemetry": "^0.1.39",
+    "@forwardimpact/libterrain": "^0.1.22",
+    "@forwardimpact/libutil": "^0.1.78",
+    "@forwardimpact/libvector": "^0.1.88",
+    "@forwardimpact/libwiki": "^0.1.2",
+    "@forwardimpact/libxmr": "^1.1.0"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

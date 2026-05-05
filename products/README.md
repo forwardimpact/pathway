@@ -1,7 +1,8 @@
 # Products
 
-The six primary products serve external users — leadership, engineers, and
-agents – empowering teams to have lasting impact on their organizations.
+The seven products serve external users — leadership, engineers, platform
+builders, and agents — empowering teams to have lasting impact on their
+organizations.
 
 ## Catalog
 
@@ -9,6 +10,7 @@ agents – empowering teams to have lasting impact on their organizations.
 
 | Product      | Description                                                                                                                              |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **gear**     | Shared libraries and services for platform builders and agents — CLIs, retrieval, evaluation, and infrastructure published to npm.       |
 | **guide**    | Conversational agent that grounds career guidance and quality review in your organization's engineering standard.                        |
 | **landmark** | Surface engineering progress from activity evidence — outcomes visible without singling out individuals.                                 |
 | **map**      | Validate, store, and publish agent-aligned engineering standards so expectations are operational, not tribal.                            |
