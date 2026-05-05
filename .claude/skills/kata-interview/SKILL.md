@@ -79,10 +79,8 @@ Hire, Competes With, Forces (Push, Pull, Habit, Anxiety), Fired When.
 ### Step 3: Stage the Agent Workspace
 
 The workflow has run `bunx fit-terrain build` and installed `supabase`
-globally. Copy the subset the chosen product needs into `$AGENT_CWD`:
-
-The table below shows the default staging configuration. Adjust for your
-installation's products.
+globally. Copy the subset the chosen product needs into `$AGENT_CWD` (adjust
+for your installation's products):
 
 | Product          | Stage into `$AGENT_CWD`                                                                  |
 | ---------------- | ---------------------------------------------------------------------------------------- |
@@ -190,6 +188,5 @@ Append to the current week's log:
 - **Outcome** — done / abandoned / partial
 - **Forces observed** — Push/Pull/Habit/Anxiety/Competes/Fired
 - **Issues created or updated** — numbers and categories
-- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
-  per `references/metrics.md`. See KATA.md § Metrics for the
-  recording-eligibility rule.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/` per
+  `references/metrics.md`. See KATA.md § Metrics for recording eligibility.

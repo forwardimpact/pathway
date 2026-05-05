@@ -62,55 +62,27 @@ there is no architectural direction to translate into implementation steps.
 
 ## Naming Convention
 
-Plans live alongside their spec in `specs/{NNN}-{name}/`.
-
-### Default plan
-
-The first (and usually only) plan is always **`plan-a.md`**. Do not use
-`plan.md` or other shorthands — the letter suffix keeps naming consistent
-whether one plan or several exist.
-
-### Alternative plans
-
-When exploring competing approaches for the same spec, create additional
-variants using sequential letters:
-
-```
-plan-a.md    ← default (always created first)
-plan-b.md    ← alternative approach
-plan-c.md    ← another alternative
-```
-
-Each variant should open with a brief rationale explaining how it differs from
-plan-a. When the plan is approved, **plan-a is the plan that will be
-implemented** unless the approver explicitly selects a different variant.
+Plans live alongside their spec in `specs/{NNN}-{name}/`. The first plan is
+always **`plan-a.md`**. Alternative variants use sequential letters
+(`plan-b.md`, `plan-c.md`); each opens with a rationale. **plan-a is
+implemented** unless the approver selects a different variant.
 
 ### Large plan decomposition
 
-When a plan is too large to implement as a single unit — many files, multiple
-independent phases, or risk of exceeding context — decompose it into numbered
-parts:
+When too large for a single unit, decompose into numbered parts:
 
 ```
 plan-a.md       ← overview, strategy, and part index
 plan-a-01.md    ← part 1 (independently executable)
 plan-a-02.md    ← part 2 (independently executable)
-plan-a-03.md    ← part 3 (independently executable)
 ```
 
-**Rules for decomposition:**
+- `plan-a.md` holds approach, cross-cutting concerns, and a numbered index.
+- Each `plan-a-NN.md` is independently executable; state inter-part dependencies.
+- Decompose only when there is concrete benefit (size, independence, parallelism).
+- Include an **Execution** section: parallel vs sequential, agent routing.
 
-- `plan-a.md` holds the approach, cross-cutting concerns, and a numbered index
-  with a one-line summary per part.
-- Each `plan-a-NN.md` is independently executable (its own scope, files,
-  ordering, verification) and numbered in execution order. State inter-part
-  dependencies explicitly.
-- Decompose only when there is concrete benefit (size, independence,
-  parallelism).
-- `plan-a.md` includes an **Execution** section: which parts run in parallel vs
-  sequentially, and which agent each part routes to.
-
-Alternative plans can also be decomposed (`plan-b.md`, `plan-b-01.md`, etc.).
+Alternative plans can also be decomposed (`plan-b-01.md`, etc.).
 
 ## Writing a Plan (HOW + WHEN)
 
@@ -204,7 +176,6 @@ Append to the current week's log (see agent profile for the file path):
 - **Plan decisions** — Key approach choices and why (so the implementer has
   context)
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
-
 - **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
   per `references/metrics.md`. See KATA.md § Metrics for the
   recording-eligibility rule.
