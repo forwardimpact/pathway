@@ -63,8 +63,8 @@ store, and graph index. Re-run them whenever you update standard data.
 npx fit-rc start          # provided by @forwardimpact/librc
 ```
 
-This supervises all required microservices (trace, vector, graph, pathway, mcp)
-in dependency order. Configuration and secrets are read automatically from
+This supervises all required microservices (trace, vector, graph, pathway, map,
+mcp) in dependency order. Configuration and secrets are read automatically from
 `.env`. Stop them with `npx fit-rc stop`.
 
 ## Usage

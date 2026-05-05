@@ -56,9 +56,9 @@ bun run check
 bun run test
 ```
 
-`bun run check` runs formatting and linting (Biome) sequentially so failures
-are easy to spot. `bun run test` runs unit tests (`bun test`) separately so
-test output does not bury check failures.
+`bun run check` runs `format`, `lint`, `jsdoc`, `harness`, and `context`
+sequentially so failures are easy to spot. `bun run test` runs unit tests
+(`bun test`) separately so test output does not bury check failures.
 
 To auto-fix formatting and lint issues:
 
@@ -69,9 +69,9 @@ bun run check:fix
 ## Understand the structure
 
 ```
-products/       Six products (map, pathway, outpost, guide, summit, landmark)
+products/       Seven products (map, pathway, outpost, guide, summit, landmark, gear)
 libraries/      Shared libraries (libskill, libui, libdoc, etc.)
-services/       gRPC microservices (trace, vector, graph, pathway, mcp)
+services/       gRPC microservices (trace, vector, graph, pathway, map, mcp)
 data/           Generated and standard data
 config/         Service and tool configuration
 specs/          Feature specifications and plans
