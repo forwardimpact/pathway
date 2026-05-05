@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libharness",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "Shared mocks and test fixtures so every library and service tests the same way.",
   "keywords": [
     "test",

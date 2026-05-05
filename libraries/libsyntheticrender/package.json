@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libsyntheticrender",
-  "version": "0.1.19",
+  "version": "0.1.20",
   "description": "Multi-format rendering of synthetic evaluation data — validate fixtures before they enter the eval pipeline.",
   "keywords": [
     "synthetic",
