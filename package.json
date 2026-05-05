@@ -35,10 +35,10 @@
     "data:check-prose": "LOG_LEVEL=error bunx fit-terrain check",
     "data:check-schema": "LOG_LEVEL=error bunx fit-terrain validate && LOG_LEVEL=error bunx fit-map validate --data products/map/starter",
     "context": "bun run context:check-instructions && bun run context:check-metadata && bun run context:check-jtbd",
-    "context:check-instructions": "bun scripts/check-instructions.mjs",
+    "context:check-instructions": "bunx coaligned instructions",
     "context:check-metadata": "bun scripts/check-metadata.mjs",
-    "context:check-jtbd": "bun scripts/check-jtbd.mjs",
-    "context:fix": "bun scripts/check-metadata.mjs --fix && bun scripts/check-jtbd.mjs --fix"
+    "context:check-jtbd": "bunx coaligned jtbd",
+    "context:fix": "bun scripts/check-metadata.mjs --fix && bunx coaligned jtbd --fix"
   },
   "dependencies": {
     "forwardimpact-monorepo": "."

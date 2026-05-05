@@ -306,7 +306,7 @@ Wrap each checklist in a semantic tag encoding its type and goal:
 ## Length and Loading
 
 Auto-loaded layers consume context on every run; keep them tight. Limits
-enforced by `scripts/check-instructions.mjs`:
+enforced by `coaligned instructions` (see `libraries/libcoaligned/`):
 
 | Layer                        | Target      | Loaded           |
 | ---------------------------- | ----------- | ---------------- |
