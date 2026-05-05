@@ -164,10 +164,12 @@ Append to the current week's log (see agent profile for the file path):
 - **Deferred work** — Issues needing follow-up with enough context to resume
 - **Accuracy errors** — Specific docs that diverged from source code
 - **Memos sent** — Callouts dispatched via `fit-wiki memo` to agents whose work affects docs
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{skill}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+- **Metrics** — Record `errors_found` ONLY on activations that perform a
+  topic review (i.e., this skill's primary loop ran end-to-end). Storyboard,
+  curation, coaching, or other non-review activations that touch this skill
+  do NOT append a row to `wiki/metrics/kata-documentation/2026.csv` — those
+  activities are tracked under their own skills' metrics. This keeps the
+  series unimodal so XmR characterises review behaviour, not activation mix.
 
 ## Coordination Channels
 
