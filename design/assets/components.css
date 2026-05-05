@@ -1,0 +1,237 @@
+/* ══════════════════════════════════════════════════════════════════
+   Shared Design Language — Components
+   Buttons, grid, product cards, code blocks, mermaid, scroll reveal.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  transition: all var(--duration-fast) var(--ease-default);
+}
+
+.btn-primary {
+  background: var(--bg-inverted);
+  color: #ffffff;
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+}
+
+.btn-primary:hover {
+  background: var(--gray-700);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(28, 26, 24, 0.12);
+}
+
+.btn-secondary {
+  background: var(--bg-page);
+  color: var(--gray-900);
+  padding: 14px 28px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--gray-200);
+}
+
+.btn-secondary:hover {
+  background: var(--gray-50);
+  color: var(--gray-900);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--gray-700);
+  padding: 0;
+}
+
+.btn-ghost::after {
+  content: " \2192";
+  color: var(--gray-400);
+  transition: transform var(--duration-fast) var(--ease-default);
+  display: inline-block;
+}
+
+.btn-ghost:hover {
+  color: var(--text-primary);
+}
+
+.btn-ghost:hover::after {
+  color: var(--text-primary);
+  transform: translateX(2px);
+}
+
+/* ── Grid & Cards ──────────────────────────────────────────────── */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-6);
+  margin: var(--space-8) 0;
+}
+
+.grid > a,
+.grid > div {
+  background: var(--bg-page);
+  border: 1.5px solid var(--gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  text-decoration: none;
+  color: inherit;
+  transition:
+    border-color var(--duration-normal) var(--ease-default),
+    transform var(--duration-normal) var(--ease-default),
+    box-shadow var(--duration-normal) var(--ease-default);
+}
+
+.grid > a:hover {
+  border-color: var(--accent-warm-200);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(28, 26, 24, 0.04);
+}
+
+.grid h3,
+.grid h4 {
+  font-size: var(--text-body-size);
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0 0 var(--space-2);
+}
+
+.grid p {
+  color: var(--text-body);
+  font-size: var(--text-small-size);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Product cards — icon + CTA variant */
+
+.grid:has(.product-card) {
+  grid-template-columns: repeat(3, 1fr);
+  margin: var(--space-12) 0;
+}
+
+.product-card {
+  padding: var(--space-8);
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(28, 26, 24, 0.04);
+}
+
+.product-card > p:first-child {
+  margin: 0;
+  flex: none;
+  line-height: 0;
+}
+
+.product-card img {
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--space-4);
+  border-radius: 0;
+  transition: transform var(--duration-normal) var(--ease-default);
+}
+
+.product-card:hover img {
+  animation: iconWiggle 300ms var(--ease-default);
+}
+
+@keyframes iconWiggle {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(3deg);
+  }
+  75% {
+    transform: rotate(-3deg);
+  }
+}
+
+.product-card h3 {
+  font-size: var(--text-h3-size);
+}
+
+.product-card p {
+  margin-bottom: var(--space-6);
+  flex: 1;
+}
+
+.product-card .btn-ghost {
+  font-size: var(--text-small-size);
+  align-self: flex-start;
+}
+
+/* ── Code Blocks ───────────────────────────────────────────────── */
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  color: var(--gray-700);
+  background: var(--gray-50);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+pre {
+  background: var(--bg-inverted);
+  color: var(--text-on-dark);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  margin: var(--space-6) 0;
+  overflow-x: auto;
+  line-height: 1.6;
+}
+
+pre code {
+  font-family: var(--font-mono);
+  font-size: var(--text-small-size);
+  color: var(--text-on-dark);
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+/* ── Mermaid Diagrams ──────────────────────────────────────────── */
+
+.language-mermaid {
+  background: transparent !important;
+  padding: 0 !important;
+}
+
+.language-mermaid code {
+  background: transparent;
+  padding: 0;
+}
+
+pre:has(.language-mermaid) {
+  background: transparent;
+  border: none;
+  padding: var(--space-4) 0;
+}
+
+/* ── Scroll Reveal ─────────────────────────────────────────────── */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity var(--duration-slow) var(--ease-default),
+    transform var(--duration-slow) var(--ease-default);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
