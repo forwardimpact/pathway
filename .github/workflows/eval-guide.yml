@@ -69,6 +69,7 @@ jobs:
                 }
               }
             };
+            fs.mkdirSync('config', { recursive: true });
             fs.writeFileSync('config/config.json', JSON.stringify(cfg, null, 2));
           "
 
