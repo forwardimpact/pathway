@@ -66,6 +66,35 @@ jobs:
           echo "  graph files: $(find data/graphs -type f 2>/dev/null | wc -l)"
           echo "  resource files: $(find data/resources -type f 2>/dev/null | wc -l)"
 
+      - name: Smoke test MCP tools
+        shell: bash
+        run: |
+          node -e "
+            const { createServiceConfig } = await import('@forwardimpact/libconfig');
+            const mcpConfig = await createServiceConfig('mcp');
+            const url = mcpConfig.url;
+            const token = mcpConfig.mcpToken();
+
+            // Initialize session
+            const init = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', Authorization: 'Bearer ' + token },
+              body: JSON.stringify({ jsonrpc: '2.0', id: 0, method: 'initialize', params: { protocolVersion: '2025-03-26', capabilities: {}, clientInfo: { name: 'smoke-test', version: '0.0.1' } } })
+            });
+            const sessionId = init.headers.get('mcp-session-id');
+            console.log('Session:', sessionId, 'Status:', init.status);
+
+            // Call ListJobs
+            const res = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', Authorization: 'Bearer ' + token, 'Mcp-Session-Id': sessionId },
+              body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'ListJobs', arguments: {} } })
+            });
+            const text = await res.text();
+            console.log('ListJobs status:', res.status, 'length:', text.length);
+            console.log('Preview:', text.slice(0, 300));
+          "
+
       - name: Prepare agent workspace
         id: agent-workspace
         shell: bash
@@ -89,7 +118,7 @@ jobs:
           task-amend: ${{ inputs.task-amend }}
 
       - name: Dump service logs
-        if: failure()
+        if: always()
         shell: bash
         run: |
           for f in data/logs/graph.log data/logs/pathway.log data/logs/mcp.log; do
