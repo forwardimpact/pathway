@@ -51,14 +51,20 @@ jobs:
       - name: Start services
         shell: bash
         run: |
-          node -e "import('@forwardimpact/svcgraph/server.js')" &
-          node -e "import('@forwardimpact/svcpathway/server.js')" &
-          node -e "import('@forwardimpact/svcmcp/server.js')" &
+          mkdir -p data/logs
+          node -e "import('@forwardimpact/svcgraph/server.js')"    > data/logs/graph.log   2>&1 &
+          node -e "import('@forwardimpact/svcpathway/server.js')"  > data/logs/pathway.log 2>&1 &
+          node -e "import('@forwardimpact/svcmcp/server.js')"      > data/logs/mcp.log     2>&1 &
           for i in $(seq 1 30); do
             curl -sf http://localhost:3005/health > /dev/null 2>&1 && break
-            [ "$i" -eq 30 ] && { echo "::error::MCP service failed to start"; exit 1; }
+            [ "$i" -eq 30 ] && { echo "::error::MCP service failed to start"; cat data/logs/*.log; exit 1; }
             sleep 1
           done
+          echo "Services started — checking data:"
+          echo "  pathway files: $(find data/pathway -type f 2>/dev/null | wc -l)"
+          echo "  knowledge files: $(find data/knowledge -name '*.html' 2>/dev/null | wc -l)"
+          echo "  graph files: $(find data/graphs -type f 2>/dev/null | wc -l)"
+          echo "  resource files: $(find data/resources -type f 2>/dev/null | wc -l)"
 
       - name: Prepare agent workspace
         id: agent-workspace
@@ -81,6 +87,15 @@ jobs:
           allowed-tools: "Bash,Read,Glob,Grep,Write,Edit"
           mcp-server: "guide"
           task-amend: ${{ inputs.task-amend }}
+
+      - name: Dump service logs
+        if: failure()
+        shell: bash
+        run: |
+          for f in data/logs/graph.log data/logs/pathway.log data/logs/mcp.log; do
+            echo "=== $f ==="
+            cat "$f" 2>/dev/null || echo "(not found)"
+          done
 
       - name: Stop services
         if: always()
