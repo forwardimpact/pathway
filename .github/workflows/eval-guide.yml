@@ -62,9 +62,9 @@ jobs:
         shell: bash
         run: |
           mkdir -p data/logs
-          node -e "import('@forwardimpact/svcgraph/server.js')"    > data/logs/graph.log   2>&1 &
-          node -e "import('@forwardimpact/svcpathway/server.js')"  > data/logs/pathway.log 2>&1 &
-          node -e "import('@forwardimpact/svcmcp/server.js')"      > data/logs/mcp.log     2>&1 &
+          bun run services/graph/server.js    > data/logs/graph.log   2>&1 &
+          bun run services/pathway/server.js  > data/logs/pathway.log 2>&1 &
+          bun run services/mcp/server.js      > data/logs/mcp.log     2>&1 &
           for i in $(seq 1 30); do
             curl -sf http://localhost:3005/health > /dev/null 2>&1 && break
             [ "$i" -eq 30 ] && { echo "::error::MCP service failed to start"; cat data/logs/*.log; exit 1; }
@@ -90,7 +90,7 @@ jobs:
           "
 
           # Test gRPC via generated PathwayClient
-          timeout 30 node -e "
+          timeout 30 bun -e "
             const { createClient } = await import('@forwardimpact/librpc');
             const { pathway } = await import('@forwardimpact/libtype');
             const client = await createClient('pathway');
