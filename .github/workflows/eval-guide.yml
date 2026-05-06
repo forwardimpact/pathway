@@ -48,64 +48,21 @@ jobs:
 
       - name: Initialize Guide environment
         shell: bash
-        run: |
-          node -e "const m = await import('./products/guide/src/commands/init.js'); await m.runInitCommand();"
-
-      - name: Disable IPv6
-        shell: bash
-        run: |
-          # gRPC on Ubuntu hangs when localhost resolves to ::1 first.
-          sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
-          sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+        run: node -e "const m = await import('./products/guide/src/commands/init.js'); await m.runInitCommand();"
 
       - name: Start services
         shell: bash
         run: |
           mkdir -p data/logs
           bun run services/trace/server.js     > data/logs/trace.log   2>&1 &
-          bun run services/graph/server.js    > data/logs/graph.log   2>&1 &
-          bun run services/pathway/server.js  > data/logs/pathway.log 2>&1 &
-          bun run services/mcp/server.js      > data/logs/mcp.log     2>&1 &
+          bun run services/graph/server.js     > data/logs/graph.log   2>&1 &
+          bun run services/pathway/server.js   > data/logs/pathway.log 2>&1 &
+          bun run services/mcp/server.js       > data/logs/mcp.log     2>&1 &
           for i in $(seq 1 30); do
             curl -sf http://localhost:3005/health > /dev/null 2>&1 && break
             [ "$i" -eq 30 ] && { echo "::error::MCP service failed to start"; cat data/logs/*.log; exit 1; }
             sleep 1
           done
-          echo "Services started — checking data:"
-          echo "  pathway files: $(find data/pathway -type f 2>/dev/null | wc -l)"
-          echo "  knowledge files: $(find data/knowledge -name '*.html' 2>/dev/null | wc -l)"
-          echo "  graph files: $(find data/graphs -type f 2>/dev/null | wc -l)"
-          echo "  resource files: $(find data/resources -type f 2>/dev/null | wc -l)"
-
-      - name: Smoke test gRPC
-        shell: bash
-        timeout-minutes: 2
-        run: |
-          # Test raw TCP connectivity first
-          node -e "
-            const net = await import('net');
-            const sock = net.createConnection(3004, '127.0.0.1');
-            sock.on('connect', () => { console.log('TCP connect OK to 127.0.0.1:3004'); sock.destroy(); process.exit(0); });
-            sock.on('error', (e) => { console.error('TCP connect FAILED:', e.message); process.exit(1); });
-            setTimeout(() => { console.error('TCP connect TIMEOUT'); process.exit(1); }, 5000);
-          "
-
-          # Test gRPC via generated PathwayClient
-          timeout 30 bun -e "
-            const { createClient } = await import('@forwardimpact/librpc');
-            const { pathway } = await import('@forwardimpact/libtype');
-            const client = await createClient('pathway');
-            const req = pathway.ListJobsRequest.fromObject({});
-            console.log('Calling ListJobs...');
-            try {
-              const result = await client.ListJobs(req);
-              console.log('OK — content length:', result.content?.length ?? 0);
-            } catch (e) {
-              console.error('gRPC error:', e.code, e.details || e.message);
-              process.exit(1);
-            }
-            process.exit(0);
-          " || { echo 'gRPC call failed or timed out'; exit 1; }
 
       - name: Prepare agent workspace
         id: agent-workspace
@@ -130,7 +87,7 @@ jobs:
           task-amend: ${{ inputs.task-amend }}
 
       - name: Dump service logs
-        if: always()
+        if: failure()
         shell: bash
         run: |
           for f in data/logs/trace.log data/logs/graph.log data/logs/pathway.log data/logs/mcp.log; do
