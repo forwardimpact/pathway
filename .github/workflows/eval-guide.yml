@@ -69,19 +69,16 @@ jobs:
       - name: Smoke test gRPC + MCP
         shell: bash
         run: |
-          # Test gRPC directly
           node -e "
             const { createClient } = await import('@forwardimpact/librpc');
             const { createLogger } = await import('@forwardimpact/libtelemetry');
+            const { pathway } = await import('@forwardimpact/libtype');
             const logger = createLogger('smoke');
-            console.log('Creating pathway client...');
             const client = await createClient('pathway', logger);
+            const req = pathway.ListJobsRequest.fromObject({});
             console.log('Calling ListJobs...');
-            const { Pathway } = await import('@forwardimpact/libtype');
-            const req = Pathway.ListJobsRequest.fromObject({});
             const result = await client.ListJobs(req);
-            console.log('ListJobs result content length:', result.content?.length ?? 0);
-            console.log('Preview:', (result.content || '').slice(0, 200));
+            console.log('OK — content length:', result.content?.length ?? 0);
             process.exit(0);
           "
 
