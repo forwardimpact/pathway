@@ -1,11 +1,10 @@
 ---
 title: "Configure Agents to Meet Your Engineering Standard"
-description: "End the cycle of rejecting agent output for following generic practices — agents configured against the same standard the organization holds for human contributors."
+description: "End the cycle of rejecting agent output for following generic practices — configure agents to meet the expectations the organization holds for humans."
 ---
 
-An agent delivered work the team rejected -- not because the code was wrong, but
-because it followed generic best practices instead of the organization's actual
-standards. The problem is configuration: the agent has no access to the skills,
+An agent's work was rejected -- not because the code was wrong, but because it
+followed generic practices instead of the organization's standards. The problem is configuration: the agent has no access to the skills,
 behaviours, and conventions your engineering standard defines. This guide walks
 you through configuring agents against that standard so their output reflects
 what the organization expects from any contributor, human or AI.

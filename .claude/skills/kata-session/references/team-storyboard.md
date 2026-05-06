@@ -47,9 +47,8 @@ vs. expected), update Obstacles, and plan the next experiment.
 ## Metrics
 
 Each participant records to `wiki/metrics/{skill}/{YYYY}.csv`. See
-[`metrics.md`](metrics.md) for suggested coaching-side metrics; authoritative
-XmR protocol reference at
-[`../../kata-metrics/references/xmr.md`](../../kata-metrics/references/xmr.md).
+[`metrics.md`](metrics.md) for suggested coaching-side metrics and KATA.md §
+Metrics for the recording-eligibility rule.
 
 ## Storyboard updates
 
@@ -107,7 +106,9 @@ Discussion, not four parallel coaching dispatches.
 
 ## Participant briefing template
 
-> "You are joining a team storyboard meeting. I will Ask you five questions;
-> reply to each with Answer. Before answering Q2, record your domain metrics to
-> `wiki/metrics/{skill}/{YYYY}.csv`; your Answer references the
-> CSV row."
+```markdown
+You are joining a team storyboard meeting. I will Ask you five questions;
+reply to each with Answer. Before answering Q2, record your domain metrics to
+`wiki/metrics/{skill}/{YYYY}.csv`; your Answer references the
+CSV row.
+```

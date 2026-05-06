@@ -46,7 +46,7 @@ determine version bumps, and cut releases.
 
 Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Extract previous release outcomes and any packages that
-had publish failures from prior `release-engineer` entries.
+had publish failures from prior entries.
 
 ### Step 1: Pre-Flight — Verify Main Branch CI
 
@@ -74,8 +74,8 @@ git push origin main
 
 ### Version Rules
 
-- **Pre-1.0** (`0.x.y`): bump **patch** for any change
-- **Post-1.0**: breaking (`!` suffix) → **major**; `feat` → **minor**; else →
+- **Pre-1.0** (`0.x.y`) — bump **patch** for any change
+- **Post-1.0** — breaking (`!` suffix) → **major**; `feat` → **minor**; else →
   **patch**
 
 ### Step 2: Enumerate Changed Packages
@@ -160,10 +160,9 @@ Append to the current week's log (see agent profile for the file path):
   status
 - **Publish failures** — Package and reason (so the next run can revisit)
 - **Main branch CI state** — Green or broken, and what was repaired
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{skill}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.
 
 ## Edge Cases
 

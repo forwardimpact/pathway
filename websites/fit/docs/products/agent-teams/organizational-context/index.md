@@ -4,7 +4,7 @@ description: "Keep agents aligned as your engineering standard evolves — guida
 ---
 
 You need to maintain alignment between your agents and the engineering standard
-as it evolves -- without writing bespoke prompts for every task.
+as it evolves -- without bespoke prompts.
 
 ## Prerequisites
 

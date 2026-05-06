@@ -15,10 +15,9 @@ hero:
       secondary: true
 ---
 
-Walking into a meeting cold because the context was buried across email
-threads, a Slack channel, and last week's notes. Outpost assembles and
-maintains that context so you arrive already oriented — without the morning
-scramble.
+Walking into a meeting cold because context was scattered across email, Slack,
+and last week's notes. Outpost assembles and maintains that context so you
+arrive already oriented.
 
 ## What becomes possible
 

@@ -9,10 +9,11 @@ description: >
 
 # Write and Review Plans
 
-A plan defines HOW to implement and WHEN to sequence changes. Pair with the
-[`kata-spec`](../kata-spec/SKILL.md) and
-[`kata-design`](../kata-design/SKILL.md) skills — the spec captures WHAT/WHY,
-the design captures WHICH/WHERE, the plan captures HOW/WHEN.
+A plan defines HOW to implement and WHEN to sequence changes. Plan sits in the
+[spec](../kata-spec/SKILL.md) → [design](../kata-design/SKILL.md) → plan →
+[implement](../kata-implement/SKILL.md) pipeline: the spec captures WHAT/WHY,
+the design captures WHICH/WHERE, the plan captures HOW/WHEN, and implementation
+executes the plan.
 
 **A plan requires an existing approved design.** Without an approved design
 there is no architectural direction to translate into implementation steps.
@@ -61,55 +62,27 @@ there is no architectural direction to translate into implementation steps.
 
 ## Naming Convention
 
-Plans live alongside their spec in `specs/{NNN}-{name}/`.
-
-### Default plan
-
-The first (and usually only) plan is always **`plan-a.md`**. Do not use
-`plan.md` or other shorthands — the letter suffix keeps naming consistent
-whether one plan or several exist.
-
-### Alternative plans
-
-When exploring competing approaches for the same spec, create additional
-variants using sequential letters:
-
-```
-plan-a.md    ← default (always created first)
-plan-b.md    ← alternative approach
-plan-c.md    ← another alternative
-```
-
-Each variant should open with a brief rationale explaining how it differs from
-plan-a. When the plan is approved, **plan-a is the plan that will be
-implemented** unless the approver explicitly selects a different variant.
+Plans live alongside their spec in `specs/{NNN}-{name}/`. The first plan is
+always **`plan-a.md`**. Alternative variants use sequential letters
+(`plan-b.md`, `plan-c.md`); each opens with a rationale. **plan-a is
+implemented** unless the approver selects a different variant.
 
 ### Large plan decomposition
 
-When a plan is too large to implement as a single unit — many files, multiple
-independent phases, or risk of exceeding context — decompose it into numbered
-parts:
+When too large for a single unit, decompose into numbered parts:
 
 ```
 plan-a.md       ← overview, strategy, and part index
 plan-a-01.md    ← part 1 (independently executable)
 plan-a-02.md    ← part 2 (independently executable)
-plan-a-03.md    ← part 3 (independently executable)
 ```
 
-**Rules for decomposition:**
+- `plan-a.md` holds approach, cross-cutting concerns, and a numbered index.
+- Each `plan-a-NN.md` is independently executable; state inter-part dependencies.
+- Decompose only when there is concrete benefit (size, independence, parallelism).
+- Include an **Execution** section: parallel vs sequential, agent routing.
 
-- `plan-a.md` holds the approach, cross-cutting concerns, and a numbered index
-  with a one-line summary per part.
-- Each `plan-a-NN.md` is independently executable (its own scope, files,
-  ordering, verification) and numbered in execution order. State inter-part
-  dependencies explicitly.
-- Decompose only when there is concrete benefit (size, independence,
-  parallelism).
-- `plan-a.md` includes an **Execution** section: which parts run in parallel vs
-  sequentially, and which agent each part routes to.
-
-Alternative plans can also be decomposed (`plan-b.md`, `plan-b-01.md`, etc.).
+Alternative plans can also be decomposed (`plan-b-01.md`, etc.).
 
 ## Writing a Plan (HOW + WHEN)
 
@@ -127,8 +100,8 @@ The plan translates an approved design into concrete implementation steps.
   `Libraries used: none.` No section heading, no paragraph.
 - **Risks.** List risks the implementer cannot see from reading the plan. If the
   mitigation is "do the plan correctly", it is not a risk.
-- **Execution recommendation.** Route parts to matching agents —
-  `staff-engineer` for code, `technical-writer` for docs. For decomposed plans,
+- **Execution recommendation.** Route parts to the most suitable agent —
+  engineering agents for code, `technical-writer` for docs. For decomposed plans,
   state which parts can run in parallel vs sequentially.
 
 **Form follows content.** Prefer tables for shared-structure lists, bullets for
@@ -159,24 +132,41 @@ When multiple variants exist, note which is recommended (plan-a is the default).
 ### Step 0: Read Memory
 
 Read memory per the agent profile. Extract specs previously planned and any
-deferred work from prior `staff-engineer` entries.
+deferred work from prior entries.
 
-### Steps
+### Step 1: Find the design
 
-1. **Find the design.** Run `git fetch origin main`, then require
-   `specs/NNN/design-a.md` on `origin/main`; otherwise stop. An open design PR
-   with `design:approved` does not satisfy this — wait for the merge.
-2. **Study the spec and design.** Read both end to end.
-3. **Research the codebase.** Read the files the plan will target.
-4. **Write the plan.** Create `plan-a.md`. Each step independently verifiable.
-   Decompose into parts if large (see § Large plan decomposition).
-5. **Open a `plan(NNN): …` PR.** The PR title carries the spec id.
-6. **Clean sub-agent review panel.** Follow the
-   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
-   Tell each reviewer not to invoke `kata-plan`. Address every confirmed
-   blocker/high/medium finding before advancing.
-7. **Apply approval signal.** When the panel passes, run
-   `gh pr edit <number> --add-label plan:approved`.
+Run `git fetch origin main`, then confirm `specs/NNN/design-a.md` exists on
+`origin/main`. An open PR with a `design:approved` label is not sufficient —
+wait for the merge.
+
+### Step 2: Study the spec and design
+
+Read both end to end.
+
+### Step 3: Research the codebase
+
+Read the files the plan will target.
+
+### Step 4: Write the plan
+
+Create `plan-a.md`. Each step independently verifiable. Decompose into parts if
+large (see § Large plan decomposition).
+
+### Step 5: Open a plan PR
+
+The PR title carries the spec id: `plan(NNN): …`.
+
+### Step 6: Clean sub-agent review panel
+
+Follow the [`kata-review` caller
+protocol](../kata-review/references/caller-protocol.md). Tell each reviewer not
+to invoke `kata-plan`. Address every confirmed blocker/high/medium finding
+before advancing.
+
+### Step 7: Apply approval signal
+
+When the panel passes, run `gh pr edit <number> --add-label plan:approved`.
 
 ## Memory: what to record
 
@@ -186,6 +176,6 @@ Append to the current week's log (see agent profile for the file path):
 - **Plan decisions** — Key approach choices and why (so the implementer has
   context)
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
-
-No metrics — plans are work-in-progress; see KATA.md § Metrics for recording
-eligibility.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.

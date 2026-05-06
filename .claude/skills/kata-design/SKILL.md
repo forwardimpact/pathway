@@ -11,11 +11,11 @@ description: >
 # Write and Review Designs
 
 A design defines WHICH components exist, WHERE they interact, and what
-interfaces connect them. It sits between the
-[`kata-spec`](../kata-spec/SKILL.md) skill (WHAT/WHY) and the
-[`kata-plan`](../kata-plan/SKILL.md) skill (HOW/WHEN). The spec captures the
-problem and scope; the design captures components, interfaces, and data flow;
-the plan translates those into file-level changes and execution ordering.
+interfaces connect them. Design sits in the
+[spec](../kata-spec/SKILL.md) → design → [plan](../kata-plan/SKILL.md) →
+[implement](../kata-implement/SKILL.md) pipeline: the spec captures WHAT/WHY,
+the design captures WHICH/WHERE, the plan captures HOW/WHEN, and implementation
+executes the plan.
 
 **A design requires an existing approved spec.** Without an approved spec there
 is no commitment to implement, and a design has nothing to shape.
@@ -142,24 +142,41 @@ label.
 
 Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Extract specs previously designed and any deferred work
-from prior `staff-engineer` entries.
+from prior entries.
 
-### Steps
+### Step 1: Find the spec
 
-1. **Find the spec.** Run `git fetch origin main`, then require
-   `specs/NNN/spec.md` on `origin/main`; otherwise stop. An open spec PR with
-   `spec:approved` does not satisfy this — wait for the merge.
-2. **Study the spec.** Read `spec.md` end to end.
-3. **Research the codebase.** Read the code areas the spec targets.
-4. **Write the design.** Create `design-a.md`. Stay under 200 lines. Each
-   architectural choice names a rejected alternative.
-5. **Open a `design(NNN): …` PR.** The PR title carries the spec id.
-6. **Clean sub-agent review panel.** Follow the
-   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
-   Tell each reviewer not to invoke `kata-design`. Address every confirmed
-   blocker/high/medium finding before advancing.
-7. **Apply approval signal.** When the panel passes, run
-   `gh pr edit <number> --add-label design:approved`.
+Run `git fetch origin main`, then confirm `specs/NNN/spec.md` exists on
+`origin/main`. An open PR with a `spec:approved` label is not sufficient — wait
+for the merge.
+
+### Step 2: Study the spec
+
+Read `spec.md` end to end.
+
+### Step 3: Research the codebase
+
+Read the code areas the spec targets.
+
+### Step 4: Write the design
+
+Create `design-a.md`. Stay under 200 lines. Each architectural choice names a
+rejected alternative.
+
+### Step 5: Open a design PR
+
+The PR title carries the spec id: `design(NNN): …`.
+
+### Step 6: Clean sub-agent review panel
+
+Follow the [`kata-review` caller
+protocol](../kata-review/references/caller-protocol.md). Tell each reviewer not
+to invoke `kata-design`. Address every confirmed blocker/high/medium finding
+before advancing.
+
+### Step 7: Apply approval signal
+
+When the panel passes, run `gh pr edit <number> --add-label design:approved`.
 
 ## Memory: what to record
 
@@ -170,6 +187,6 @@ Append to the current week's log (see agent profile for the file path):
   context)
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
 
-This skill produces a design document — work-in-progress for the downstream plan
-and implementation — so it does not record metrics. See KATA.md § Metrics for
-the recording-eligibility rule.
+- **Metrics** — Append one row per run to `wiki/metrics/{skill}/`
+  per `references/metrics.md`. See KATA.md § Metrics for the
+  recording-eligibility rule.

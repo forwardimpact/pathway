@@ -31,7 +31,7 @@ facilitated sessions, and event-driven responses.
 
 <read_do_checklist goal="Gather all configuration before generating files">
 
-- [ ] Ask which agents to enable -- do not assume all six.
+- [ ] Ask which agents to enable — do not assume all six.
 - [ ] Confirm timezone for schedule generation.
 - [ ] Confirm secrets are configured before writing workflows.
 - [ ] Use fully-qualified action references
@@ -56,34 +56,35 @@ facilitated sessions, and event-driven responses.
 
 Ask these questions. Skip any already answered in the task prompt.
 
-1. **GitHub App** -- "Do you have a GitHub App for your agents, or should I help
+1. **GitHub App** — "Do you have a GitHub App for your agents, or should I help
    you create one?" If creating, walk through `references/github-app.md`. If
    existing, ask for the App slug.
 
-2. **Secrets** -- "Have you configured these repository secrets?"
-   - `KATA_APP_ID` -- GitHub App ID
-   - `KATA_APP_PRIVATE_KEY` -- GitHub App private key (PEM)
-   - `ANTHROPIC_API_KEY` -- Anthropic API key
+2. **Secrets** — "Have you configured these repository secrets?"
+   - `KATA_APP_ID` — GitHub App ID
+   - `KATA_APP_PRIVATE_KEY` — GitHub App private key (PEM)
+   - `ANTHROPIC_API_KEY` — Anthropic API key
 
-3. **Agents** -- "Which agents do you want to run?" Present:
-   - **product-manager** -- Triage issues and PRs, merge fixes, run evaluations
-   - **staff-engineer** -- Spec, design, plan, and implement features
-   - **security-engineer** -- Patch dependencies, harden supply chain
-   - **release-engineer** -- Keep branches merge-ready, cut releases
-   - **technical-writer** -- Review docs, curate wiki, fix staleness
-   - **improvement-coach** -- Facilitate storyboard and coaching sessions
+3. **Agents** — "Which agents do you want to run?" Present:
+   - **product-manager** — Triage issues and PRs, merge fixes, run evaluations
+   - **engineering agent** — Spec, design, plan, and implement features (default
+     profile: `staff-engineer`)
+   - **security-engineer** — Patch dependencies, harden supply chain
+   - **release-engineer** — Keep branches merge-ready, cut releases
+   - **technical-writer** — Review docs, curate wiki, fix staleness
+   - **improvement-coach** — Facilitate storyboard and coaching sessions
 
    Default: all six. Let the user pick a subset.
 
-4. **Timezone** -- "What timezone are your agents working in?" Default:
+4. **Timezone** — "What timezone are your agents working in?" Default:
    Europe/Paris. Use `references/schedules.md` for cron expressions.
 
-5. **Wiki** -- "Do you want agents to share persistent memory via a GitHub
+5. **Wiki** — "Do you want agents to share persistent memory via a GitHub
    wiki?" Default: yes. If no, set `wiki: "false"` in generated workflows.
 
-6. **Model** -- "Which Claude model?" Default: `claude-opus-4-7[1m]`.
+6. **Model** — "Which Claude model?" Default: `claude-opus-4-7[1m]`.
 
-7. **Agent profiles** -- "Do you have custom agent profiles, or should I use the
+7. **Agent profiles** — "Do you have custom agent profiles, or should I use the
    defaults from kata-skills?" If defaults, confirm
    `npx skills add forwardimpact/kata-skills` is installed.
 
@@ -107,7 +108,7 @@ from `references/workflow-react.md`.
 
 Run verification:
 
-- `gh secret list` -- confirm secrets are configured
+- `gh secret list` — confirm secrets are configured
 - Confirm workflow files were written to `.github/workflows/`
 - Suggest a test run: `gh workflow run "Agent: <name>"`
 

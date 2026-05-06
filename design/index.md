@@ -409,6 +409,7 @@ All animations respect `prefers-reduced-motion`.
 ---
 
 _The design language is brand-agnostic. For how to apply it — illustration
-layering and the contract for deriving a brand — see [usage.md](usage.md). For
-concrete palettes, fonts, products, scenes, icons, and CSS tokens, see the brand
+layering, the contract for deriving a brand, and the four-layer CSS
+architecture that ships with it — see [usage.md](usage.md). For concrete
+palettes, fonts, products, scenes, icons, and CSS tokens, see the brand
 implementation files listed at the top of this page._

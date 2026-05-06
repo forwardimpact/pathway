@@ -23,29 +23,29 @@
     {
       "user": "Platform Builders",
       "goal": "Build Agent-Capable Systems",
-      "trigger": "Building an agent that needs structured knowledge, typed service contracts, or self-documenting CLIs — and the alternative is reimplementing retrieval, transport, and interface plumbing from scratch.",
-      "bigHire": "give humans and agents shared capabilities through the same interface, with tooling to prove changes actually improved outcomes.",
-      "littleHire": "query RDF graphs, run vector search, or expose a gRPC service as MCP tools without building retrieval or transport from scratch.",
-      "competesWith": "hand-rolled retrieval; bespoke gRPC wrappers; ad-hoc CLI frameworks; monolithic agent platforms that bundle everything",
+      "trigger": "Building an agent that needs structured knowledge or typed contracts — and the alternative is reimplementing plumbing from scratch.",
+      "bigHire": "give humans and agents shared capabilities through the same interface, with tooling to prove changes improved outcomes.",
+      "littleHire": "query graphs, run vector search, or expose services as MCP tools without building infrastructure.",
+      "competesWith": "hand-rolled retrieval; bespoke wrappers; ad-hoc frameworks; monolithic platforms",
       "forces": {
-        "push": "Every new agent project rebuilds the same retrieval, transport, and interface plumbing.",
-        "pull": "Focused, interoperable libraries that work standalone or together — humans and agents on the same docs.",
-        "habit": "Copy-pasting infrastructure from the last project rather than using shared, tested primitives.",
-        "anxiety": "Depending on shared libraries means losing control over the interface contract."
+        "push": "Every agent project rebuilds retrieval, transport, and interface plumbing.",
+        "pull": "Interoperable libraries that work standalone or together.",
+        "habit": "Copy-pasting infrastructure rather than using shared primitives.",
+        "anxiety": "Shared libraries mean losing control over the interface contract."
       },
-      "firedWhen": "the libraries diverge from how agents actually consume them; or a monolithic framework absorbs enough of the surface that individual libraries feel like overhead."
+      "firedWhen": "the libraries diverge from how agents consume them; or a monolithic framework absorbs the surface."
     },
     {
       "user": "Platform Builders",
       "goal": "Evaluate and Improve Agents",
-      "trigger": "An agent change shipped but nobody can tell whether it actually improved outcomes — the only evidence is anecdotal.",
+      "trigger": "An agent change shipped but nobody can tell whether it improved outcomes — the only evidence is anecdotal.",
       "bigHire": "prove whether agent changes improved outcomes with reproducible evidence.",
-      "littleHire": "generate deterministic test data from a DSL and chart agent metrics with XmR control charts to distinguish signal from noise.",
-      "competesWith": "manual spot-checking; anecdotal feedback; shipping without measuring; building custom eval harnesses per project",
+      "littleHire": "generate test data and chart agent metrics to distinguish signal from noise.",
+      "competesWith": "spot-checking; anecdotal feedback; shipping without measuring; custom eval harnesses",
       "forces": {
         "push": "Agent improvements are claimed but never measured — regressions hide until users complain.",
-        "pull": "Reproducible eval datasets and control charts that make real improvement visible.",
-        "habit": "Shipping agent changes and assuming they helped because the prompt looks better.",
+        "pull": "Reproducible evals and control charts that make improvement visible.",
+        "habit": "Assuming changes helped because the prompt looks better.",
         "anxiety": "Rigorous evaluation might reveal that recent changes made things worse."
       },
       "firedWhen": "eval overhead exceeds the value of knowing; or the team stops iterating on agents."

@@ -25,10 +25,9 @@ engineering standard.
 
 ### For Empowered Engineers
 
-Get career guidance grounded in your organization's standards, not generic
-advice. Know what evidence would close the gap between where you are and where
-you want to go. Review agent output against an objective standard instead of
-your subjective impression of quality.
+Get guidance and evidence grounded in your organization's standard, not
+impressions or generic advice. Verify agent work against the standard so you
+review by exception, not by default.
 
 - Gap analysis between current level and target, with specific skill
   recommendations

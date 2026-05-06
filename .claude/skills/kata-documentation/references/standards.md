@@ -2,7 +2,7 @@
 
 ## Information Architecture
 
-Six-tier hierarchy under `websites/fit/docs/` serving four user groups
+Six-tier hierarchy under `websites/docs/` serving four user groups
 (Leadership, Engineers, Builders and Agents, Contributors):
 
 | Tier              | Intent                              | Subsections                                                                                                                                                                               |
@@ -40,8 +40,8 @@ libraries.
 **Reference is lookup, not tutorial.** Structured, scannable — no prose
 narrative.
 
-**Link to existing artifacts, don't duplicate.** Published JSON Schema lives at
-`/schema/json/` and RDF/SHACL at `/schema/rdf/` — link to them instead of
+**Link to existing artifacts, don't duplicate.** Published JSON Schema and
+RDF/SHACL live under the product's schema directory — link to them instead of
 reproducing. Published SKILL.md files link to Product Guides, Library Guides,
 and Reference markdown companions for progressive disclosure.
 
@@ -68,9 +68,9 @@ in the Authoring Standards guide; copies must match exactly.
 
 Tier names in `baseSkillProficiencies` match discipline `<tier>Skills` arrays.
 
-**Required/optional fields** — Verify against the JSON schema in
-`products/map/schema/json/`. The schema's `required` array is the single source
-of truth — do not guess from examples.
+**Required/optional fields** — Verify against the product's JSON schema
+directory. The schema's `required` array is the single source of truth — do not
+guess from examples.
 
 **Casing** — Table cells lowercase unless proper nouns or sentence starts.
 Proficiency levels always lowercase (`awareness`). Behaviour maturities

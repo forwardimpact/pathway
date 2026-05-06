@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {{#description}}
+    <meta name="description" content="{{description}}" />
+    {{/description}}
+    <title>Co-Aligned – {{title}}</title>
+    <link rel="stylesheet" href="/assets/base.css" />
+    <link rel="stylesheet" href="/assets/layout.css" />
+    <link rel="stylesheet" href="/assets/components.css" />
+    <link rel="stylesheet" href="/assets/main.css" />
+    <link rel="alternate" type="text/markdown" href="{{markdownUrl}}" />
+    {{#canonicalUrl}}
+    <link rel="canonical" href="{{canonicalUrl}}" />
+    {{/canonicalUrl}}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="brand" href="/">
+          <span class="brand-text">Co-Aligned Teams</span>
+        </a>
+      </div>
+    </header>
+    <main>
+      <div class="page-content">
+        <h1 class="page-title">{{{title}}}</h1>
+        {{{content}}}
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div class="footer-column footer-column-left">
+          <span class="footer-heading">Co-Aligned Teams</span>
+          <a href="https://www.monorepo.team/">monorepo.team</a>
+          <a href="https://www.kata.team/">kata.team</a>
+          <a href="https://www.forwardimpact.team/">forwardimpact.team</a>
+        </div>
+        <div class="footer-social">
+          <a href="https://github.com/forwardimpact/monorepo" target="_blank" aria-label="GitHub">
+            <img src="https://cdn.simpleicons.org/github/9ca3af" alt="" width="24" height="24" />
+          </a>
+        </div>
+        <div class="footer-column footer-column-right">
+          <span class="footer-heading">Copyright 2026</span>
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

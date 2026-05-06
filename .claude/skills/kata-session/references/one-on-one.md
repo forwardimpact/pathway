@@ -30,9 +30,11 @@ participant fetches it under Q2.
 
 ## Participant briefing template
 
-> "You are in a 1-on-1 coaching session. I will Ask you five questions; reply to
-> each with Answer. Under Q2, run `fit-trace` on your most recent workflow
-> trace and include the numeric findings in your Answer."
+```markdown
+You are in a 1-on-1 coaching session. I will Ask you five questions; reply to
+each with Answer. Under Q2, run `fit-trace` on your most recent workflow
+trace and include the numeric findings in your Answer.
+```
 
 ## Memory
 

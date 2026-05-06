@@ -1,0 +1,107 @@
+name: "Kata Interview"
+
+on:
+  workflow_dispatch:
+    inputs:
+      product:
+        description: "Product to interview about (leave empty for supervisor to choose)"
+        required: false
+        type: string
+      job:
+        description: "Specific JTBD job goal to test (leave empty for supervisor to choose)"
+        required: false
+        type: string
+      task-amend:
+        description: "Additional text appended to the task prompt for steering"
+        required: false
+        type: string
+
+concurrency:
+  group: kata-interview
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  interview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate installation token
+        id: ci-app
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
+        with:
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
+
+      - name: Generate LLM token
+        id: llm-app
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
+        with:
+          app-id: ${{ secrets.LLM_APP_ID }}
+          private-key: ${{ secrets.LLM_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          token: ${{ steps.ci-app.outputs.token }}
+
+      - uses: ./.github/actions/bootstrap
+        with:
+          token: ${{ steps.ci-app.outputs.token }}
+          app-slug: kata-agent-team
+          app-id: ${{ secrets.KATA_APP_ID }}
+
+      - name: Prepare interview workspace
+        id: agent-workspace
+        shell: bash
+        run: |
+          agent_dir=$(mktemp -d)
+
+          # Build synthetic data so the supervisor can stage the right
+          # subset into the agent CWD per the chosen product. The skill's
+          # staging table decides what gets copied.
+          bunx fit-terrain build
+
+          # Install the Supabase CLI globally — npm's global install is
+          # blocked by supabase's postinstall script, so we use bun.
+          bun install -g supabase
+
+          echo "dir=$agent_dir" >> "$GITHUB_OUTPUT"
+
+      - name: Compose task amendment
+        id: amend
+        shell: bash
+        env:
+          PRODUCT: ${{ inputs.product }}
+          JOB: ${{ inputs.job }}
+          USER_AMEND: ${{ inputs.task-amend }}
+        run: |
+          {
+            echo 'amend<<AMEND_EOF'
+            [ -n "$PRODUCT" ] && echo "Product: $PRODUCT"
+            [ -n "$JOB" ] && echo "Job: $JOB"
+            [ -n "$USER_AMEND" ] && echo "$USER_AMEND"
+            echo 'AMEND_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Run interview
+        uses: ./.github/actions/kata-action-eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          LLM_TOKEN: ${{ steps.llm-app.outputs.token }}
+          LLM_BASE_URL: https://models.github.ai/orgs/forwardimpact
+          GH_TOKEN: ${{ steps.ci-app.outputs.token }}
+          CLAUDE_CODE_USE_BEDROCK: "0"
+        with:
+          mode: "supervise"
+          task-file: scenarios/interview/task.md
+          supervisor-cwd: "."
+          agent-cwd: ${{ steps.agent-workspace.outputs.dir }}
+          supervisor-profile: "product-manager"
+          model: "claude-opus-4-7[1m]"
+          max-turns: "200"
+          allowed-tools: "Bash,Read,Glob,Grep,Write,Edit,WebFetch,WebSearch"
+          supervisor-allowed-tools: "Bash,Read,Glob,Grep,Write,Edit,Skill,TodoWrite"
+          task-amend: ${{ steps.amend.outputs.amend }}

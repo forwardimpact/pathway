@@ -16,18 +16,17 @@ hero:
 ---
 
 A post-mortem surfaces the same skill gap that caused the last incident —
-nobody had a way to see it before staffing the team. A team's capability
-depends on coverage, depth, redundancy, and complementarity — not the sum of
-individual scores. Summit makes that visible.
+nobody saw it before staffing. A team's capability depends on coverage, depth,
+redundancy, and complementarity — not the sum of individual scores. Summit
+makes that visible.
 
 ## What becomes possible
 
 ### For Engineering Leaders
 
-Make staffing decisions you can defend with evidence, not intuition. See what
-each role on the team actually requires. Spot capability gaps before someone
-gets set up to fail. Simulate roster changes and see their impact before anyone
-makes a decision.
+Make staffing decisions you can defend by seeing what each role requires. Spot
+capability gaps and check whether a candidate fills them. Simulate roster
+changes and see their impact before anyone makes a decision.
 
 - Capability coverage per skill across the team
 - Structural risk identification (single points of failure, critical gaps)

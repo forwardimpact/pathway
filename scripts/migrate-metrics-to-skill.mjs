@@ -14,7 +14,7 @@ const WIKI_METRICS = path.resolve("wiki/metrics");
 
 const MAPPING = {
   "product-manager/backlog": "kata-product-issue",
-  "product-manager/evaluation": "kata-product-evaluation",
+  "product-manager/evaluation": "kata-interview",
   "release-engineer/merge": "kata-release-merge",
   "release-engineer/release": "kata-release-cut",
   "security-engineer/audit": "kata-security-audit",

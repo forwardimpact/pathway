@@ -6,7 +6,7 @@ description: >
   quality is signaled to the merge gate via the `spec:approved` PR label.
 skills:
   - kata-product-issue
-  - kata-product-evaluation
+  - kata-interview
   - kata-spec
   - kata-plan
   - kata-review
@@ -45,7 +45,7 @@ Survey all open work items, then act on the highest-priority bucket:
    spec for the oldest issue. P3 → `kata-product-issue` to triage. All empty →
    fallback per step 0, then clean.
 
-`kata-product-evaluation` is supervisor-initiated, not part of scheduled runs.
+`kata-interview` is supervisor-initiated, not part of scheduled runs.
 
 ## Constraints
 

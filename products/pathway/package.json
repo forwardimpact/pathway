@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/pathway",
-  "version": "0.25.45",
+  "version": "0.25.46",
   "description": "Explore roles, generate agent profiles, and surface career expectations so progression and team configuration are visible, not guessed.",
   "keywords": [
     "career",
@@ -24,9 +24,9 @@
     {
       "user": "Engineering Leaders",
       "goal": "Define the Engineering Standard",
-      "trigger": "A promotion decision stalls because two managers disagree on what 'senior' means — neither can point to a written definition.",
-      "bigHire": "give specialized roles coherent expectations from a shared foundation so evaluations feel fair rather than arbitrary.",
-      "littleHire": "define what a new role requires without starting from a blank page.",
+      "trigger": "Two managers disagree on what 'senior' means — neither can point to a written definition.",
+      "bigHire": "define what good engineering means so roles have clear, defensible expectations.",
+      "littleHire": "define or update a role's expectations knowing structural mistakes get caught.",
       "competesWith": "tribal knowledge; borrowed frameworks; per-manager intuition; tolerating the ambiguity",
       "forces": {
         "push": "Inconsistent expectations produce contested promotions.",
@@ -34,14 +34,14 @@
         "habit": "Each manager carries a private mental model of what 'good' means.",
         "anxiety": "Getting definitions wrong feels worse than having none."
       },
-      "firedWhen": "definitions drift from practice; or a reorg removes the mandate to maintain them."
+      "firedWhen": "definitions drift from practice; or a reorg removes the mandate."
     },
     {
       "user": "Engineering Leaders",
       "goal": "Staff Teams to Succeed",
-      "trigger": "A post-mortem surfaces the same skill gap that caused the last incident — nobody had a way to see it before staffing the team.",
-      "bigHire": "see what each role on the team actually requires so staffing isn't guesswork.",
-      "littleHire": "check whether a candidate fills the team's actual gap, not just the job description.",
+      "trigger": "A post-mortem surfaces the same skill gap that caused the last incident — nobody saw it before staffing.",
+      "bigHire": "make staffing decisions I can defend by seeing what each role requires.",
+      "littleHire": "spot capability gaps and check whether a candidate fills them.",
       "competesWith": "résumé screening; gut feel; copying a team that seems to work; accepting gaps as inevitable",
       "forces": {
         "push": "Capability gaps appear as incidents, never in advance.",
@@ -49,15 +49,15 @@
         "habit": "Hiring on résumés and gut rather than team composition analysis.",
         "anxiety": "Modeling human capability feels reductive."
       },
-      "firedWhen": "the skill taxonomy drifts from actual roles; or a hiring freeze removes the pressure to staff analytically."
+      "firedWhen": "the skill taxonomy drifts from actual roles; or a hiring freeze removes staffing pressure."
     },
     {
       "user": "Empowered Engineers",
       "goal": "Understand Expectations",
-      "trigger": "Starting a new role and realizing that 'meets expectations' on the review form has no definition anyone can point to.",
+      "trigger": "'Meets expectations' on the review form has no definition anyone can point to.",
       "bigHire": "see exactly what's expected at my level so I stop guessing during reviews.",
-      "littleHire": "understand the autonomy and scope my level implies so I can self-assess honestly.",
-      "competesWith": "asking peers; inferring from manager comments; browsing LinkedIn postings for similar titles; living with the ambiguity",
+      "littleHire": "understand the autonomy and scope my level implies.",
+      "competesWith": "asking peers; inferring from manager comments; browsing LinkedIn; living with ambiguity",
       "forces": {
         "push": "Ambiguous expectations create anxiety about reviews and readiness.",
         "pull": "Clarity about what's expected, removing the guesswork from self-assessment.",
@@ -69,32 +69,32 @@
     {
       "user": "Empowered Engineers",
       "goal": "Equip Aligned Agent Teams",
-      "trigger": "An agent delivered work the team rejected because it followed generic best practices instead of the organization's actual standards.",
-      "bigHire": "configure agents to meet the same expectations the organization holds for human contributors.",
-      "littleHire": "give agents organizational context without writing bespoke prompts for every task.",
-      "competesWith": "writing custom system prompts; copying another team's agent config; hoping generic instructions produce aligned output; not configuring agents at all",
+      "trigger": "An agent's work was rejected because it followed generic practices instead of the organization's standards.",
+      "bigHire": "configure agents to meet the expectations the organization holds for humans.",
+      "littleHire": "give agents organizational context without bespoke prompts.",
+      "competesWith": "custom system prompts; copying another team's config; hoping generic instructions work",
       "forces": {
-        "push": "Agent output gets rejected or reworked because generic configuration doesn't match what the organization expects.",
-        "pull": "Agents that reflect organizational standards without bespoke prompt engineering for each task.",
-        "habit": "Treating agent configuration as a one-time setup rather than something that evolves with standards.",
-        "anxiety": "Over-constraining agents might make them less useful for novel or unexpected tasks."
+        "push": "Generic configuration misses what the organization expects.",
+        "pull": "Agents that reflect organizational standards without bespoke prompts.",
+        "habit": "Treating agent configuration as a one-time setup, not something that evolves.",
+        "anxiety": "Over-constraining agents might limit their usefulness on novel tasks."
       },
-      "firedWhen": "configuration overhead exceeds the quality gain; or a policy change bans custom agent configuration."
+      "firedWhen": "configuration overhead exceeds the quality gain; or policy bans custom configuration."
     },
     {
       "user": "Empowered Engineers",
       "goal": "Trust Agent Output",
-      "trigger": "Reviewing agent output line by line because there's no objective way to tell whether it meets the organization's quality bar without reading everything.",
-      "bigHire": "know what to expect from agent output so I can review by exception, not by default.",
-      "littleHire": "check the role's expected output before reviewing so I know what to look for.",
-      "competesWith": "reviewing every line agents produce; accepting slower delivery as the cost of using agents; trusting output uncritically and catching issues later; not using agents for substantive work",
+      "trigger": "Reviewing agent output line by line because there's no way to tell whether it meets the quality bar.",
+      "bigHire": "verify agent work against the standard so I review by exception, not by default.",
+      "littleHire": "check expected output and get a second opinion before approving a deliverable.",
+      "competesWith": "reviewing every line; accepting slower delivery; trusting uncritically; not using agents for substantive work",
       "forces": {
-        "push": "Full review of every agent deliverable negates the productivity gain of using agents.",
-        "pull": "Confident delegation — knowing when agent output meets the standard without reading every line.",
+        "push": "Full review of every deliverable negates the productivity gain.",
+        "pull": "Confident delegation — knowing output meets the standard without reading every line.",
         "habit": "Reviewing everything because that's how quality has always been caught.",
-        "anxiety": "Delegating quality judgment to a standard might miss context-specific issues a review would catch."
+        "anxiety": "Delegating quality judgment might miss context-specific issues."
       },
-      "firedWhen": "standards-based verification catches fewer real issues than full review; or the team stops using agents for substantive work."
+      "firedWhen": "verification catches fewer issues than full review; or the team stops using agents."
     }
   ],
   "type": "module",

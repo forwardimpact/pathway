@@ -25,7 +25,7 @@ the same interface and documentation.
 ### For Platform Builders
 
 Give humans and agents shared capabilities through the same interface, with
-tooling to prove changes actually improved outcomes. Every CLI prints
+tooling to prove changes improved outcomes. Every CLI prints
 grep-friendly help and JSON output; every library ships a matching skill in the
 `forwardimpact/fit-skills` pack so agents land on the same docs as humans.
 

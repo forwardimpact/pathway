@@ -1,18 +1,23 @@
 # Websites
 
-Two sites built by `fit-doc`
-([internals](fit/docs/internals/fit-doc/index.md)).
+Four sites built by `fit-doc`
+([internals](fit/docs/internals/fit-doc/index.md)). Two are live; two are
+placeholders pending content and a publish workflow.
 
-| Site                       | Source           | Domain                   |
-| -------------------------- | ---------------- | ------------------------ |
-| Forward Impact Engineering | `websites/fit/`  | `www.forwardimpact.team` |
-| Kata Agent Team            | `websites/kata/` | `www.kata.team`          |
+| Site                       | Source                | Domain                   | Status      |
+| -------------------------- | --------------------- | ------------------------ | ----------- |
+| Forward Impact Engineering | `websites/fit/`       | `www.forwardimpact.team` | Live        |
+| Kata Agent Team            | `websites/kata/`      | `www.kata.team`          | Live        |
+| Co-Aligned                 | `websites/coaligned/` | `www.coaligned.team`     | Placeholder |
+| Monorepo Structure         | `websites/monorepo/`  | `www.monorepo.team`      | Placeholder |
 
 Preview locally:
 
 ```sh
 bunx fit-doc serve --src=websites/fit --watch
 bunx fit-doc serve --src=websites/kata --watch
+bunx fit-doc serve --src=websites/coaligned --watch
+bunx fit-doc serve --src=websites/monorepo --watch
 ```
 
 ## Page Conventions
@@ -115,13 +120,16 @@ pre-build hook. Asset paths in pages are absolute (`/assets/scene-guide.svg`).
 
 ## Publishing Pipeline
 
-Both sites share the same deployment pattern. Workflows in
+Live sites share the same deployment pattern. Workflows in
 `.github/workflows/`:
 
 | Workflow            | Artifact     | Pages repo                 |
 | ------------------- | ------------ | -------------------------- |
 | `website-fit.yaml`  | `fit-pages`  | `forwardimpact/fit-pages`  |
 | `website-kata.yaml` | `kata-pages` | `forwardimpact/kata-pages` |
+
+The Co-Aligned and Monorepo placeholder sites do not yet have publish
+workflows; they will be added when the sites are ready to ship.
 
 Push to `main` (path-filtered) triggers: build with `fit-doc`, upload artifact,
 dispatch to the pages repo via GitHub App token. The pages repo deploys to

@@ -15,19 +15,17 @@ hero:
       secondary: true
 ---
 
-A promotion decision stalls because two managers disagree on what 'senior'
-means — neither can point to a written definition. Map gives them one: a
-structured, validatable engineering standard that everyone references, humans
-and agents alike.
+Two managers disagree on what 'senior' means — neither can point to a written
+definition. Map gives them one: a structured, validatable engineering standard
+that everyone references, humans and agents alike.
 
 ## What becomes possible
 
 ### For Engineering Leaders
 
-Turn implicit expectations into a definition the organization trusts.
-Specialized roles get coherent expectations from a shared foundation so
-evaluations feel fair rather than arbitrary. Structural mistakes in the
-standard get caught before they ship.
+Define what good engineering means so roles have clear, defensible
+expectations. Define or update a role's expectations knowing structural
+mistakes get caught.
 
 - A validated engineering standard in plain text — skills, behaviours, levels,
   disciplines, and tracks

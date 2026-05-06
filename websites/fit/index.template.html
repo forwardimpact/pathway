@@ -8,6 +8,9 @@
     {{/description}}
     <title>{{title}} – FIT</title>
     <link rel="icon" href="/assets/icon-map.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/assets/base.css" />
+    <link rel="stylesheet" href="/assets/layout.css" />
+    <link rel="stylesheet" href="/assets/components.css" />
     <link rel="stylesheet" href="/assets/main.css" />
     <link rel="alternate" type="text/markdown" href="{{markdownUrl}}" />
     {{#canonicalUrl}}
@@ -31,7 +34,6 @@
           <li><a href="/gear/">Gear</a></li>
           <li class="nav-spacer"></li>
           <li class="nav-secondary"><a href="/docs/">Docs</a></li>
-          <li class="nav-secondary"><a href="/about/">About</a></li>
         </ul>
         <button class="nav-toggle" aria-label="Toggle navigation">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -85,7 +87,14 @@
 
     <footer class="site-footer">
       <div class="footer-inner">
-        <div class="footer-brand">Forward Impact Engineering</div>
+        <div class="footer-column footer-column-left">
+          <span class="footer-heading">Forward Impact Engineering</span>
+          <a href="/about/">About</a>
+          <a href="/meta/">Meta</a>
+          <a href="https://www.monorepo.team/">monorepo.team</a>
+          <a href="https://www.coaligned.team/">coaligned.team</a>
+          <a href="https://www.kata.team/">kata.team</a>
+        </div>
         <div class="footer-social">
           <a href="https://github.com/forwardimpact/monorepo" target="_blank" aria-label="GitHub">
             <img src="https://cdn.simpleicons.org/github/9ca3af" alt="" width="24" height="24" />
@@ -94,10 +103,10 @@
             <img src="https://cdn.simpleicons.org/npm/9ca3af" alt="" width="24" height="24" />
           </a>
         </div>
-        <div class="footer-license">
-          Code licensed
-          <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0</a>, docs
-          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>
+        <div class="footer-column footer-column-right">
+          <span class="footer-heading">Copyright 2026</span>
+          <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Code: Apache 2.0</a>
+          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">Docs: CC BY 4.0</a>
         </div>
       </div>
     </footer>

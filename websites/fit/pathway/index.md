@@ -15,19 +15,18 @@ hero:
       secondary: true
 ---
 
-An engineer starts a new role and discovers that 'meets expectations' on the
-review form has no definition anyone can point to. An agent delivers work the
-team rejects because it followed generic best practices instead of the
-organization's actual standards. Pathway resolves both — one shared standard
-that produces definitions for humans and agents alike.
+'Meets expectations' on the review form has no definition anyone can point to.
+An agent's work was rejected because it followed generic practices instead of
+the organization's standards. Pathway resolves both — one shared standard that
+produces definitions for humans and agents alike.
 
 ## What becomes possible
 
 ### For Engineering Leaders
 
-Define roles precisely enough that hiring decisions and evaluations feel
-consistent, not arbitrary. Staff teams knowing exactly what each role requires
-rather than relying on intuition.
+Define what good engineering means so roles have clear, defensible
+expectations. Make staffing decisions you can defend by seeing what each role
+requires.
 
 - Complete job definitions from discipline + track + level
 - Interview question sets grounded in actual skill expectations
@@ -36,8 +35,8 @@ rather than relying on intuition.
 ### For Empowered Engineers
 
 See exactly what's expected at your level, what changes at the next level, and
-configure agents to meet the same expectations the organization holds for human
-contributors — without writing bespoke prompts for every task.
+configure agents to meet the expectations the organization holds for humans —
+without bespoke prompts.
 
 - An interactive career browser showing skills and level progression
 - Agent profiles and skill files derived from organizational standards

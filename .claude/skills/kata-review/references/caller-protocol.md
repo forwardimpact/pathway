@@ -19,10 +19,10 @@ for a given artifact in a single message so they run in parallel.
 | Caller           | Artifact                    | Panel     | `subagent_type`   | Reviewers |
 | ---------------- | --------------------------- | --------- | ----------------- | --------- |
 | `kata-spec`      | `spec.md`                   | product   | `product-manager` | 3         |
-| `kata-spec`      | `spec.md`                   | technical | `staff-engineer`  | 3         |
-| `kata-design`    | `design-a.md`               | technical | `staff-engineer`  | 3         |
-| `kata-plan`      | `plan-a.md` (+ parts)       | technical | `staff-engineer`  | 3         |
-| `kata-implement` | diff (`origin/main...HEAD`) | technical | `staff-engineer`  | 5         |
+| `kata-spec`      | `spec.md`                   | technical | engineering agent  | 3         |
+| `kata-design`    | `design-a.md`               | technical | engineering agent  | 3         |
+| `kata-plan`      | `plan-a.md` (+ parts)       | technical | engineering agent  | 3         |
+| `kata-implement` | diff (`origin/main...HEAD`) | technical | engineering agent  | 5         |
 
 Implementation diffs get 5 because the artifact is larger, the step is
 irreversible (code lands on `main`), and the surface area for subtle bugs and

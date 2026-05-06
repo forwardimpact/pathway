@@ -13,6 +13,7 @@ can read and tune via JSON.
 | Library                | Description                                                                                                              |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | **libcli**             | Agent-friendly CLIs — self-documenting entry points that humans and agents reach through the same interface.             |
+| **libcoaligned**       | Co-Aligned architecture checks — enforce instruction-layer length caps and JTBD invariants across the repo.              |
 | **libcodegen**         | Protobuf code generation — keep types in sync with proto definitions without hand-writing.                               |
 | **libconfig**          | Environment-aware application settings — services and CLIs load configuration without custom plumbing.                   |
 | **libdoc**             | Static documentation sites from markdown — publish docs without a framework.                                             |
@@ -155,6 +156,24 @@ parsing YAML by hand. → **libpack, libskill**
 and git plumbing per consumer; maintaining parallel format-specific scripts;
 parsing YAML files directly; hardcoding role definitions; skipping derivation
 and displaying raw data.
+
+</job>
+
+<job user="Platform Builders" goal="Keep Instruction Layers Honest">
+
+## Platform Builders: Keep Instruction Layers Honest
+
+**Trigger:** Editing a CLAUDE.md or skill procedure and realizing the layer has
+quietly grown past its budget.
+
+**Big Hire:** Help me enforce instruction-layer length caps and JTBD invariants
+without hand-rolling repo checks. → **libcoaligned**
+
+**Little Hire:** Help me verify a docs change before commit and trust the
+layered architecture has not drifted. → **libcoaligned**
+
+**Competes With:** ad-hoc shell scripts; eyeballing word counts; tolerating slow
+drift in the instruction architecture.
 
 </job>
 
