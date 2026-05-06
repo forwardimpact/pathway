@@ -122,7 +122,9 @@ describe("libconfig - .env file loading", () => {
   });
 
   test("strips surrounding quotes from values", async () => {
-    writeEnvFile("GITHUB_TOKEN=\"double-quoted\"\nANTHROPIC_API_KEY='single-quoted'\n");
+    writeEnvFile(
+      "GITHUB_TOKEN=\"double-quoted\"\nANTHROPIC_API_KEY='single-quoted'\n",
+    );
 
     const config = await createConfig(
       "test",
