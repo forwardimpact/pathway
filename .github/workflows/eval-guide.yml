@@ -18,6 +18,8 @@ permissions:
 jobs:
   eval-guide:
     runs-on: ubuntu-latest
+    env:
+      GRPC_DNS_RESOLVER: native
     steps:
       - name: Generate installation token
         id: ci-app
@@ -48,11 +50,6 @@ jobs:
         shell: bash
         run: |
           node -e "const m = await import('./products/guide/src/commands/init.js'); await m.runInitCommand();"
-          # fit-guide init sets SERVICE_*_URL to grpc://localhost:* but gRPC
-          # on Linux can fail when localhost resolves to ::1. The Client class
-          # also remaps 0.0.0.0 to a .guide.local DNS name. Use 127.0.0.1.
-          sed -i 's|grpc://localhost:|grpc://127.0.0.1:|g' .env
-          sed -i 's|http://localhost:|http://127.0.0.1:|g' .env
 
       - name: Start services
         shell: bash
