@@ -1,11 +1,16 @@
 ---
-title: Co-Aligned Teams of Humans & Coding Agents
-description: A design manifest for creating aligned coding agents — a layered instruction architecture grounded in Jobs To Be Done and The Checklist Manifesto.
+title: Co-Aligned Engineers & Coding Agents
+description: An instruction architecture standard for creating aligned coding agents — grounded in Jobs To Be Done and The Checklist Manifesto.
 toc: false
 ---
 
-A design manifest for creating aligned coding agents. A layered instruction
-architecture — grounded in Jobs To Be Done and The Checklist Manifesto —
+> "The volume and complexity of what we know has exceeded our individual
+> ability to deliver its benefits correctly, safely, or reliably."
+>
+> — Atul Gawande, _The Checklist Manifesto_
+
+An instruction architecture standard for creating aligned coding agents —
+grounded in Jobs To Be Done and The Checklist Manifesto — that
 keeps humans and agents aligned to the progress each persona seeks, and keeps
 that alignment under load.
 
@@ -16,4 +21,3 @@ structure and is the upstream architecture that the
 ## Learn more
 
 - [COALIGNED.md on GitHub](https://github.com/forwardimpact/monorepo/blob/main/COALIGNED.md)
-- [View on GitHub](https://github.com/forwardimpact/monorepo/)
