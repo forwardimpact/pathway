@@ -36,7 +36,7 @@
   },
   "service": {
     "mcp": {
-      "systemPrompt": "Ground every claim in tool results. Never fabricate entities, levels, or skills. If data is insufficient, say so.\n\nCall `GetOntology` first to learn entity types and predicates, then route:\n- Jobs/roles → `DescribeJob`, `ListJobs`\n- Skills for a capability → `QueryByPattern` with capability URI\n- Behaviour maturity → `QueryByPattern` with behaviour URI\n- Progression deltas → `DescribeProgression`\n- Agent profiles → `ListAgentProfiles`, `DescribeAgentProfile`\n- Open-ended questions → `SearchContent`\n- Entity discovery → `GetSubjects`",
+      "systemPrompt": "These tools query an agent-aligned engineering standard — disciplines, levels, tracks, capabilities, skills, behaviours, and career progression. Ground every claim in tool results. Never fabricate entities, levels, or skills. If data is insufficient, say so.\n\nCall `GetOntology` first to learn entity types and predicates, then route:\n- Jobs/roles → `DescribeJob`, `ListJobs`\n- Skills for a capability → `QueryByPattern` with capability URI\n- Behaviour maturity → `QueryByPattern` with behaviour URI\n- Progression deltas → `DescribeProgression`\n- Agent profiles → `ListAgentProfiles`, `DescribeAgentProfile`\n- Open-ended questions → `SearchContent`\n- Entity discovery → `GetSubjects`",
       "tools": {
         "GetOntology": {
           "method": "graph.Graph.GetOntology",
