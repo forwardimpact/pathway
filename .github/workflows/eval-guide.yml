@@ -85,26 +85,24 @@ jobs:
             setTimeout(() => { console.error('TCP connect TIMEOUT'); process.exit(1); }, 5000);
           "
 
-          # Test gRPC with deadline
+          # Test gRPC — bypass librpc auth wrapper to isolate the issue
           timeout 30 node -e "
-            const { createClient, createGrpc } = await import('@forwardimpact/librpc');
-            const { createLogger } = await import('@forwardimpact/libtelemetry');
-            const { pathway } = await import('@forwardimpact/libtype');
-            const grpc = createGrpc();
-            const logger = createLogger('smoke');
-            const client = await createClient('pathway', logger);
-            const channel = client.getChannel?.() || client.client?.getChannel?.();
-            if (channel) {
-              const state = channel.getConnectivityState(true);
-              console.log('Channel state:', state, '(0=IDLE, 1=CONNECTING, 2=READY, 3=TRANSIENT_FAILURE, 4=SHUTDOWN)');
-            }
-            const req = pathway.ListJobsRequest.fromObject({});
-            console.log('Calling ListJobs with 10s deadline...');
-            const deadline = new Date(Date.now() + 10000);
-            const result = await client.ListJobs(req, { deadline });
-            console.log('OK — content length:', result.content?.length ?? 0);
-            process.exit(0);
-          " || { echo 'gRPC call failed or timed out'; exit 1; }
+            const grpc = (await import('@grpc/grpc-js')).default || await import('@grpc/grpc-js');
+            const { pathway: types } = await import('@forwardimpact/libtype');
+            const { definitions } = await import('@forwardimpact/libtype');
+
+            const serviceDef = definitions.pathway.Pathway;
+            const client = new serviceDef(
+              '127.0.0.1:3004',
+              grpc.credentials.createInsecure()
+            );
+            console.log('Raw gRPC client created, calling ListJobs...');
+            client.ListJobs({}, (err, response) => {
+              if (err) { console.error('gRPC error:', err.code, err.details); process.exit(1); }
+              console.log('OK — content length:', response?.content?.length ?? 0);
+              process.exit(0);
+            });
+          " || { echo 'Raw gRPC call failed'; exit 1; }
 
       - name: Prepare agent workspace
         id: agent-workspace
