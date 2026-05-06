@@ -3,6 +3,7 @@ import { resolve, join } from "node:path";
 import { tmpdir } from "node:os";
 import { createSupervisor } from "../supervisor.js";
 import { createTeeWriter } from "../tee-writer.js";
+import { createServiceConfig } from "@forwardimpact/libconfig";
 
 /**
  * Parse all supervise flags from parsed values into an options object.
@@ -44,6 +45,7 @@ function parseSuperviseOptions(values) {
     supervisorAllowedTools: supervisorAllowedToolsRaw
       ? supervisorAllowedToolsRaw.split(",")
       : undefined,
+    mcpServer: values["mcp-server"] ?? undefined,
   };
 }
 
@@ -71,6 +73,19 @@ export async function runSuperviseCommand(values, _args) {
       })
     : process.stdout;
 
+  let agentMcpServers = null;
+  if (opts.mcpServer) {
+    const mcpConfig = await createServiceConfig("mcp");
+    agentMcpServers = {
+      [opts.mcpServer]: {
+        type: "http",
+        url: mcpConfig.url,
+        headers: { Authorization: `Bearer ${mcpConfig.mcpToken()}` },
+      },
+    };
+    opts.allowedTools.push(`mcp__${opts.mcpServer}__*`);
+  }
+
   if (opts.agentProfile) {
     process.env.LIBEVAL_AGENT_PROFILE = opts.agentProfile;
   }
@@ -88,6 +103,7 @@ export async function runSuperviseCommand(values, _args) {
     supervisorProfile: opts.supervisorProfile,
     agentProfile: opts.agentProfile,
     taskAmend: opts.taskAmend,
+    agentMcpServers,
   });
 
   const result = await supervisor.run(opts.taskContent);

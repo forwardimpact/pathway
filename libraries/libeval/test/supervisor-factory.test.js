@@ -98,4 +98,16 @@ describe("Supervisor - createSupervisor factory", () => {
     assert.ok(s.supervisorRunner.mcpServers);
     assert.strictEqual(s.supervisorRunner.mcpServers.orchestration.type, "sdk");
   });
+
+  test("merges agentMcpServers into agent runner only", () => {
+    const s = createSupervisor({
+      ...baseOpts(),
+      agentMcpServers: {
+        guide: { type: "http", url: "http://localhost:3005" },
+      },
+    });
+    assert.strictEqual(s.agentRunner.mcpServers.orchestration.type, "sdk");
+    assert.strictEqual(s.agentRunner.mcpServers.guide.type, "http");
+    assert.strictEqual(s.supervisorRunner.mcpServers.guide, undefined);
+  });
 });

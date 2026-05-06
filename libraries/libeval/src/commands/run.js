@@ -5,6 +5,7 @@ import { createAgentRunner } from "../agent-runner.js";
 import { composeProfilePrompt } from "../profile-prompt.js";
 import { createTeeWriter } from "../tee-writer.js";
 import { SequenceCounter } from "../sequence-counter.js";
+import { createServiceConfig } from "@forwardimpact/libconfig";
 
 /**
  * Parse and validate run command options from parsed values.
@@ -35,6 +36,7 @@ function parseRunOptions(values) {
       values["allowed-tools"] ??
       "Bash,Read,Glob,Grep,Write,Edit,Agent,TodoWrite"
     ).split(","),
+    mcpServer: values["mcp-server"] ?? undefined,
   };
 }
 
@@ -56,6 +58,7 @@ export async function runRunCommand(values, _args) {
     outputPath,
     agentProfile,
     allowedTools,
+    mcpServer,
   } = parseRunOptions(values);
 
   // When --output is specified, stream text to stdout while writing NDJSON to file.
@@ -77,6 +80,19 @@ export async function runRunCommand(values, _args) {
       JSON.stringify({ source: "agent", seq: counter.next(), event }) + "\n",
     );
   };
+
+  let mcpServers = null;
+  if (mcpServer) {
+    const mcpConfig = await createServiceConfig("mcp");
+    mcpServers = {
+      [mcpServer]: {
+        type: "http",
+        url: mcpConfig.url,
+        headers: { Authorization: `Bearer ${mcpConfig.mcpToken()}` },
+      },
+    };
+    allowedTools.push(`mcp__${mcpServer}__*`);
+  }
 
   if (agentProfile) {
     process.env.LIBEVAL_AGENT_PROFILE = agentProfile;
@@ -100,6 +116,7 @@ export async function runRunCommand(values, _args) {
     settingSources: ["project"],
     systemPrompt,
     taskAmend,
+    mcpServers,
   });
 
   const result = await runner.run(taskContent);

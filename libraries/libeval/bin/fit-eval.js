@@ -59,6 +59,11 @@ const definition = {
           type: "string",
           description: "Comma-separated tool allowlist",
         },
+        "mcp-server": {
+          type: "string",
+          description:
+            "Connect to the MCP service (e.g. --mcp-server=guide); adds mcp__<name>__* to allowed tools",
+        },
       },
     },
     {
@@ -105,6 +110,11 @@ const definition = {
         "supervisor-allowed-tools": {
           type: "string",
           description: "Supervisor tool allowlist",
+        },
+        "mcp-server": {
+          type: "string",
+          description:
+            "Connect to the MCP service (e.g. --mcp-server=guide); adds mcp__<name>__* to allowed tools",
         },
       },
     },
