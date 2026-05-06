@@ -76,19 +76,32 @@ jobs:
         shell: bash
         timeout-minutes: 2
         run: |
-          # Quick gRPC connectivity check via grpcurl (available on ubuntu-latest)
-          grpcurl -plaintext 127.0.0.1:3004 list 2>&1 || echo "grpcurl not available or failed"
-          # Direct node test with timeout
+          # Test raw TCP connectivity first
+          node -e "
+            const net = await import('net');
+            const sock = net.createConnection(3004, '127.0.0.1');
+            sock.on('connect', () => { console.log('TCP connect OK to 127.0.0.1:3004'); sock.destroy(); process.exit(0); });
+            sock.on('error', (e) => { console.error('TCP connect FAILED:', e.message); process.exit(1); });
+            setTimeout(() => { console.error('TCP connect TIMEOUT'); process.exit(1); }, 5000);
+          "
+
+          # Test gRPC with deadline
           timeout 30 node -e "
-            const { createClient } = await import('@forwardimpact/librpc');
+            const { createClient, createGrpc } = await import('@forwardimpact/librpc');
             const { createLogger } = await import('@forwardimpact/libtelemetry');
             const { pathway } = await import('@forwardimpact/libtype');
+            const grpc = createGrpc();
             const logger = createLogger('smoke');
             const client = await createClient('pathway', logger);
-            console.log('SERVICE_SECRET loaded:', !!process.env.SERVICE_SECRET);
+            const channel = client.getChannel?.() || client.client?.getChannel?.();
+            if (channel) {
+              const state = channel.getConnectivityState(true);
+              console.log('Channel state:', state, '(0=IDLE, 1=CONNECTING, 2=READY, 3=TRANSIENT_FAILURE, 4=SHUTDOWN)');
+            }
             const req = pathway.ListJobsRequest.fromObject({});
-            console.log('Calling ListJobs...');
-            const result = await client.ListJobs(req);
+            console.log('Calling ListJobs with 10s deadline...');
+            const deadline = new Date(Date.now() + 10000);
+            const result = await client.ListJobs(req, { deadline });
             console.log('OK — content length:', result.content?.length ?? 0);
             process.exit(0);
           " || { echo 'gRPC call failed or timed out'; exit 1; }
