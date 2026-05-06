@@ -1,4 +1,3 @@
-import { DatabaseSync } from "node:sqlite";
 import { execFileSync } from "node:child_process";
 import {
   copyFileSync,
@@ -7,9 +6,15 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
-import { basename, join } from "node:path";
+import { createRequire } from "node:module";
+import { basename, join, resolve, sep } from "node:path";
 import { homedir } from "node:os";
 import { globSync } from "node:fs";
+
+// node:sqlite is loaded lazily via createRequire so this module can be imported
+// in test environments (bun, older node) that lack the built-in. The only call
+// site is openDb below; production runs on Node 22+ where node:sqlite resolves.
+const requireModule = createRequire(import.meta.url);
 
 const HOME = homedir();
 export const OUTDIR = join(HOME, ".cache/fit/outpost/apple_mail");
@@ -34,6 +39,7 @@ export function findDb() {
 
 /** Open a read-only SQLite connection, retrying once if the database is locked. */
 export function openDb(dbPath) {
+  const { DatabaseSync } = requireModule("node:sqlite");
   try {
     return new DatabaseSync(dbPath, { readOnly: true });
   } catch (err) {
@@ -210,6 +216,28 @@ export function fetchAttachments(db, messageIds) {
   return result;
 }
 
+const FALLBACK_ATTACHMENT_NAME = "unnamed";
+// biome-ignore lint/suspicious/noControlCharactersInRegex: intentional — stripping ASCII control bytes from attacker-controlled filenames.
+const CONTROL_CHARS_RE = /[\x00-\x1f\x7f]/g;
+
+/**
+ * Coerce an arbitrary `attachments.name` value into a single, non-empty
+ * basename safe to join under a per-thread destDir. Strips path separators
+ * (POSIX and win32), strips ASCII control bytes, then takes the last
+ * non-empty/non-dot segment. Returns `"unnamed"` for any input that
+ * collapses to empty, `.`, or `..`. Never throws.
+ */
+export function sanitiseAttachmentName(raw) {
+  if (typeof raw !== "string") return FALLBACK_ATTACHMENT_NAME;
+  const stripped = raw.replace(CONTROL_CHARS_RE, "");
+  const segments = stripped.split(/[/\\]/);
+  for (let i = segments.length - 1; i >= 0; i--) {
+    const seg = segments[i];
+    if (seg && seg !== "." && seg !== "..") return seg;
+  }
+  return FALLBACK_ATTACHMENT_NAME;
+}
+
 function indexAttachmentPath(path, attachmentIndex) {
   const parts = path.split("/Attachments/", 2);
   if (parts.length !== 2) return;
@@ -279,8 +307,9 @@ function copySingleAttachment(
   threadId,
   attachmentIndex,
   seenFilenames,
+  attachmentsDir = ATTACHMENTS_DIR,
 ) {
-  const name = att.name || "unnamed";
+  const name = sanitiseAttachmentName(att.name);
   const source = attachmentIndex.get(`${mid}:${att.attachment_id}`);
 
   if (!source || !existsSync(source)) {
@@ -291,24 +320,34 @@ function copySingleAttachment(
   if (seenFilenames.has(destName)) destName = `${mid}_${name}`;
   seenFilenames.add(destName);
 
-  const destDir = join(ATTACHMENTS_DIR, String(threadId));
+  const destDir = join(attachmentsDir, String(threadId));
   mkdirSync(destDir, { recursive: true });
   const destPath = join(destDir, destName);
+
+  const resolvedDir = resolve(destDir);
+  const resolvedPath = resolve(destPath);
+  const dirWithSep = resolvedDir.endsWith(sep)
+    ? resolvedDir
+    : resolvedDir + sep;
+  if (!resolvedPath.startsWith(dirWithSep)) {
+    return { name: destName, available: false, path: null };
+  }
 
   try {
     copyFileSync(source, destPath);
     return { name: destName, available: true, path: destPath };
   } catch {
-    return { name, available: false, path: null };
+    return { name: destName, available: false, path: null };
   }
 }
 
-/** Copy all attachments for a thread's messages into the cache directory, deduplicating filenames. */
+/** Copy all attachments for a thread's messages into the cache directory, deduplicating filenames. `attachmentsDir` defaults to the module-level `ATTACHMENTS_DIR`; tests inject a temp directory. */
 export function copyThreadAttachments(
   threadId,
   messages,
   attachmentsByMsg,
   attachmentIndex,
+  attachmentsDir = ATTACHMENTS_DIR,
 ) {
   const results = {};
   const seenFilenames = new Set();
@@ -319,7 +358,14 @@ export function copyThreadAttachments(
     if (msgAttachments.length === 0) continue;
 
     results[mid] = msgAttachments.map((att) =>
-      copySingleAttachment(att, mid, threadId, attachmentIndex, seenFilenames),
+      copySingleAttachment(
+        att,
+        mid,
+        threadId,
+        attachmentIndex,
+        seenFilenames,
+        attachmentsDir,
+      ),
     );
   }
   return results;
