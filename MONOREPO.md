@@ -1,4 +1,4 @@
-# Monorepo Structure
+# Monorepo Structure Standard
 
 > "A system is a network of interdependent components that work together to try
 > to accomplish the aim of the system. A system must have an aim. Without an
@@ -6,10 +6,13 @@
 >
 > — W. Edwards Deming, _The New Economics_
 
-This manifest describes the structural conventions of a repository shared by
-humans and coding agents — the top-level directories, the root manifest files,
-and the way jobs are captured and discovered. Everything else builds on this
-shape.
+This standard defines the structure of a repository shared by humans and coding
+agents — the top-level directories, the root files, and the way jobs are
+captured and discovered. Everything else builds on this shape.
+
+The Jobs To Be Done conventions described below supply that aim. Each job names
+the progress a persona seeks; each directory and file traces back to a job it
+serves. Structure without aim is arbitrary — aim without structure is invisible.
 
 ## Top-Level Directories
 
@@ -37,7 +40,7 @@ Two directories support the shippable code without being shipped themselves:
   balancer). Subdirectories carry their own READMEs for the specific
   deployment concern they cover.
 
-## Root Manifest Files
+## Root Files
 
 Three root files orient every contributor. Each has one job; none restates
 another.

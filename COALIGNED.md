@@ -1,14 +1,14 @@
-# Co-Aligned Teams of Humans & Coding Agents
+# Co-Aligned Instruction Architecture Standard
 
 > "The volume and complexity of what we know has exceeded our individual
 > ability to deliver its benefits correctly, safely, or reliably."
 >
 > — Atul Gawande, _The Checklist Manifesto_
 
-This is the design manifest for creating aligned coding agents. It is built on
-top of the repository's general structure — see [MONOREPO.md](MONOREPO.md) for
-the top-level directories, root manifest files, and the JTBD entry structure
-and tagging convention this manifest assumes.
+This standard defines the layered instruction architecture for creating aligned
+coding agents. It builds on the repository structure — see
+[MONOREPO.md](MONOREPO.md) for the top-level directories, root files, and the
+JTBD entry structure and tagging convention this standard assumes.
 
 It draws on two well-publicized ideas:
 

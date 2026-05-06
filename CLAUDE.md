@@ -119,11 +119,12 @@ consult the [Getting Started guides](websites/fit/docs/getting-started/).
 
 ### Jobs and Checklists
 
-Tagged jobs capture the progress each user hires a product to make. Tagged
-checklists gate pause points. Discover both with `rg`:
+Product-level jobs live in [JTBD.md](JTBD.md). Service and library jobs live in
+their respective README.md files. Tagged checklists gate pause points. Discover
+both with `rg`:
 
 ```sh
-rg '<job '                  # Jobs with Big Hires and Little Hires
+rg '<job '                  # Jobs To Be Done
 rg '<read_do_checklist'     # Entry gates — read each item, then do it
 rg '<do_confirm_checklist'  # Exit gates — do from memory, then confirm
 ```
