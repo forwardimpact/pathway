@@ -82,6 +82,25 @@ export async function createScriptConfig(
 }
 
 /**
+ * Creates and initializes a new product configuration instance asynchronously
+ * @param {string} name - Name of the product configuration
+ * @param {object} defaults - Default configuration values
+ * @param {object} process - Process environment access
+ * @param {(bucket: string, type?: string, process?: object) => StorageInterface} storageFn - Optional storage factory function
+ * @returns {Promise<Config>} Initialized Config instance for product namespace
+ */
+export async function createProductConfig(
+  name,
+  defaults = {},
+  process = global.process,
+  storageFn = createStorage,
+) {
+  const instance = new Config("product", name, defaults, process, storageFn);
+  await instance.load();
+  return instance;
+}
+
+/**
  * Creates and initializes a Config instance for init/supervision.
  * Used by rc.js to bootstrap services.
  * @param {object} process - Process environment access

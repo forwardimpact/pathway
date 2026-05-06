@@ -11,7 +11,10 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { query } from "@anthropic-ai/claude-agent-sdk";
-import { createServiceConfig } from "@forwardimpact/libconfig";
+import {
+  createProductConfig,
+  createServiceConfig,
+} from "@forwardimpact/libconfig";
 import { createAgentTraceFormatter } from "@forwardimpact/libformat";
 import { Repl } from "@forwardimpact/librepl";
 import { createStorage } from "@forwardimpact/libstorage";
@@ -144,11 +147,14 @@ const repl = new Repl({
       );
       process.exit(1);
     }
-    const config = await createServiceConfig("mcp");
-    process.env.ANTHROPIC_API_KEY = await config.anthropicToken();
-    mcpUrl = config.url;
-    mcpToken = config.mcpToken();
-    systemPrompt = config.systemPrompt;
+    const [guideConfig, mcpConfig] = await Promise.all([
+      createProductConfig("guide"),
+      createServiceConfig("mcp"),
+    ]);
+    process.env.ANTHROPIC_API_KEY = await mcpConfig.anthropicToken();
+    mcpUrl = mcpConfig.url;
+    mcpToken = mcpConfig.mcpToken();
+    systemPrompt = guideConfig.systemPrompt;
   },
 
   onLine: async (line, state, output) => {

@@ -5,6 +5,7 @@ import {
   createConfig,
   createServiceConfig,
   createExtensionConfig,
+  createProductConfig,
 } from "../src/index.js";
 import {
   assertThrowsMessage,
@@ -331,6 +332,25 @@ describe("libconfig - Config methods", () => {
 
     assert.strictEqual(config.name, "testextension");
     assert.strictEqual(config.namespace, "extension");
+    assert.strictEqual(config.custom, "value");
+  });
+
+  test("creates product config", async () => {
+    const proc = { cwd: () => "/test/dir", env: {} };
+    const storageFn = () =>
+      createMockStorage({
+        get: spy(() => Promise.resolve("")),
+      });
+
+    const config = await createProductConfig(
+      "testproduct",
+      { custom: "value" },
+      proc,
+      storageFn,
+    );
+
+    assert.strictEqual(config.name, "testproduct");
+    assert.strictEqual(config.namespace, "product");
     assert.strictEqual(config.custom, "value");
   });
 });

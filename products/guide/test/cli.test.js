@@ -27,8 +27,9 @@ describe("fit-guide CLI", () => {
     assert.ok(source.includes("query("));
   });
 
-  test("reads system prompt from config", () => {
-    assert.ok(source.includes("config.systemPrompt"));
+  test("reads system prompt from product config", () => {
+    assert.ok(source.includes("createProductConfig"));
+    assert.ok(source.includes("guideConfig.systemPrompt"));
     assert.ok(source.includes("options.systemPrompt = systemPrompt"));
   });
 
