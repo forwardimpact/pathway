@@ -1,0 +1,83 @@
+name: "Eval Guide"
+
+on:
+  workflow_dispatch:
+    inputs:
+      task-amend:
+        description: "Additional text appended to the task prompt for steering"
+        required: false
+        type: string
+
+concurrency:
+  group: eval-guide
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  eval-guide:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate installation token
+        id: ci-app
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
+        with:
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          token: ${{ steps.ci-app.outputs.token }}
+
+      - uses: ./.github/actions/bootstrap
+        with:
+          token: ${{ steps.ci-app.outputs.token }}
+          app-slug: kata-agent-team
+          app-id: ${{ secrets.KATA_APP_ID }}
+
+      - name: Build data pipeline
+        shell: bash
+        run: |
+          just data-init
+          just synthetic
+          just process-fast
+
+      - name: Start services
+        shell: bash
+        run: |
+          just env-setup
+          just rc-start
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3005/health > /dev/null 2>&1 && break
+            [ "$i" -eq 30 ] && { echo "::error::MCP service failed to start"; exit 1; }
+            sleep 1
+          done
+
+      - name: Prepare agent workspace
+        id: agent-workspace
+        shell: bash
+        run: echo "dir=$(mktemp -d)" >> "$GITHUB_OUTPUT"
+
+      - name: Run eval
+        uses: ./.github/actions/kata-action-eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ steps.ci-app.outputs.token }}
+          CLAUDE_CODE_USE_BEDROCK: "0"
+        with:
+          mode: "supervise"
+          task-text: "Ask the agent to find the engineering standard for data engineering. The agent has MCP tools to query the knowledge base. Review the agent's findings for accuracy and completeness, then call Conclude with a summary indicating success or failure."
+          supervisor-cwd: "."
+          agent-cwd: ${{ steps.agent-workspace.outputs.dir }}
+          model: "claude-opus-4-7[1m]"
+          max-turns: "200"
+          allowed-tools: "Bash,Read,Glob,Grep,Write,Edit"
+          mcp-server: "guide"
+          task-amend: ${{ inputs.task-amend }}
+
+      - name: Stop services
+        if: always()
+        shell: bash
+        run: just rc-stop || true

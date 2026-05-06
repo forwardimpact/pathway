@@ -54,6 +54,9 @@ inputs:
   task-amend:
     description: Additional text appended to the task prompt for steering
     required: false
+  mcp-server:
+    description: "MCP service name to connect to (e.g. guide); adds mcp__<name>__* to allowed tools"
+    required: false
   trace:
     description: Enable trace capture and artifact upload
     required: false
@@ -92,6 +95,7 @@ runs:
         FACILITATOR_PROFILE: ${{ inputs.facilitator-profile }}
         AGENT_PROFILES: ${{ inputs.agent-profiles }}
         TASK_AMEND: ${{ inputs.task-amend }}
+        MCP_SERVER: ${{ inputs.mcp-server }}
         TRACE_ENABLED: ${{ inputs.trace }}
         TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
         TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
@@ -122,6 +126,10 @@ runs:
 
         if [ -n "$TASK_AMEND" ]; then
           args+=("--task-amend=$TASK_AMEND")
+        fi
+
+        if [ -n "$MCP_SERVER" ]; then
+          args+=("--mcp-server=$MCP_SERVER")
         fi
 
         if [ "$TRACE_ENABLED" = "true" ] && [ -n "$TRACE_DIR" ]; then

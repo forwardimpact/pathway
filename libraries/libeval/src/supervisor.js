@@ -466,6 +466,7 @@ const devNull = new Writable({
  * @param {string} [deps.agentProfile] - Agent profile name; resolved into the main-thread system prompt via `composeProfilePrompt`.
  * @param {string} [deps.profilesDir] - Directory containing `<name>.md` profile files. Defaults to `<supervisorCwd>/.claude/agents`. Resolved once from the orchestrator's cwd so profiles travel with the project, not with a per-agent sandbox.
  * @param {string} [deps.taskAmend] - Opaque addendum appended to the task before delivery.
+ * @param {Record<string, object>} [deps.agentMcpServers] - Additional MCP servers exposed to the agent (merged alongside the orchestration server).
  * @returns {Supervisor}
  */
 export function createSupervisor({
@@ -482,6 +483,7 @@ export function createSupervisor({
   agentProfile,
   profilesDir,
   taskAmend,
+  agentMcpServers,
 }) {
   const resolvedProfilesDir =
     profilesDir ?? resolve(supervisorCwd, ".claude/agents");
@@ -521,7 +523,7 @@ export function createSupervisor({
     onLine,
     settingSources: ["project"],
     systemPrompt: systemPromptFor(agentProfile, AGENT_SYSTEM_PROMPT),
-    mcpServers: { orchestration: agentServer },
+    mcpServers: { orchestration: agentServer, ...agentMcpServers },
   });
 
   const defaultDisallowed = ["Agent", "Task", "TaskOutput", "TaskStop"];
