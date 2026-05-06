@@ -100,6 +100,7 @@ async function fetchMcpPrompt(url, token) {
 let mcpUrl = null;
 let mcpToken = null;
 let systemPrompt = null;
+let sessionId = null;
 
 const repl = new Repl({
   prompt: "❯ ",
@@ -108,7 +109,7 @@ const repl = new Repl({
     "**fit-guide** — Agent-aligned engineering standard knowledge agent.\n\n" +
     "Type a question about your agent-aligned engineering standard.",
   storage: createStorage("guide"),
-  state: { sessionId: null },
+  state: {},
   documentation: [
     {
       title: "Guide Overview",
@@ -234,8 +235,8 @@ const repl = new Repl({
       allowedTools: ["mcp__guide__*"],
     };
 
-    if (state.sessionId) {
-      options.resume = state.sessionId;
+    if (sessionId) {
+      options.resume = sessionId;
     } else {
       options.model = process.env.GUIDE_MODEL || "claude-sonnet-4-6";
       options.systemPrompt = systemPrompt;
@@ -251,7 +252,7 @@ const repl = new Repl({
     const iterator = query({ prompt: line, options });
     for await (const message of iterator) {
       if (message.type === "system" && message.subtype === "init") {
-        state.sessionId = message.session_id;
+        sessionId = message.session_id;
       }
 
       if (message.type === "assistant") {
