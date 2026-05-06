@@ -1,4 +1,4 @@
-name: "Website: Publish the Co-Aligned pages"
+name: "Website: Co-Aligned"
 
 on:
   push:

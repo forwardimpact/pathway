@@ -1,4 +1,4 @@
-name: "Website: Publish the Monorepo pages"
+name: "Website: Monorepo Team"
 
 on:
   push:

@@ -1,4 +1,4 @@
-name: "Website: Publish the Kata pages"
+name: "Website: Kata Agent Team"
 
 on:
   push:
