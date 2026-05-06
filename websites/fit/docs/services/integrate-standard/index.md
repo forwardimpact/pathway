@@ -44,7 +44,7 @@ Product B ──┘                     ├── data/pathway/tracks/
                                   └── data/pathway/behaviours/
 ```
 
-The service exposes six RPCs:
+The service exposes seven RPCs:
 
 | RPC                    | Purpose                                                    | Request type                          |
 | ---------------------- | ---------------------------------------------------------- | ------------------------------------- |
@@ -54,6 +54,7 @@ The service exposes six RPCs:
 | `DescribeAgentProfile` | Derive an agent profile for a discipline and track         | `pathway.DescribeAgentProfileRequest` |
 | `DescribeProgression`  | Compute the delta between two levels                       | `pathway.DescribeProgressionRequest`  |
 | `ListJobSoftware`      | Derive the software toolkit for a role                     | `pathway.ListJobSoftwareRequest`      |
+| `GetMarkersForProfile` | List skill markers expected at a discipline/level/track    | `pathway.GetMarkersForProfileRequest` |
 
 All RPCs return `tool.ToolCallResult` with a `content` field containing Turtle
 RDF.
