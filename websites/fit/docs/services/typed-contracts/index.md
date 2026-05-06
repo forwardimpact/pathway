@@ -39,6 +39,7 @@ call to one of the gRPC backend services. Each client session gets its own
 Agent SDK ──── HTTP/SSE ──── MCP service ──┬── gRPC ── graph
                                            ├── gRPC ── vector
                                            ├── gRPC ── pathway
+                                           ├── gRPC ── map
                                            └── resource index
 ```
 
@@ -90,6 +91,11 @@ The MCP service ships with these tools pre-configured:
 | `DescribeAgentProfile` | pathway              | Derives an agent profile                             |
 | `DescribeProgression`  | pathway              | Computes the delta between two levels                |
 | `ListJobSoftware`      | pathway              | Derives the software toolkit for a role              |
+| `GetMarkersForProfile` | pathway              | Lists skill markers expected at a discipline/level/track |
+| `GetUnscoredArtifacts` | map                  | Lists artifacts with no evidence rows, scoped by person, manager, or org |
+| `GetArtifact`          | map                  | Returns full detail for a single artifact by UUID    |
+| `WriteEvidence`        | map                  | Writes an evidence row linking an artifact to a skill marker |
+| `GetPerson`            | map                  | Returns an engineer's profile by email               |
 
 ## Start the MCP service
 
@@ -156,7 +162,7 @@ for (const tool of tools.tools) {
 Expected output:
 
 ```text
-Available tools: 10
+Available tools: 15
   GetOntology: Returns all entity types and relationship predicates in the knowledge graph.
   GetSubjects: Lists entity URIs in the graph, optionally filtered by type.
   QueryByPattern: Retrieves structured data by traversing graph relationships using triple patterns.
@@ -167,6 +173,11 @@ Available tools: 10
   DescribeAgentProfile: Describe stage agent profiles for a (discipline, track).
   DescribeProgression: Compute the progression delta between two levels of the same discipline.
   ListJobSoftware: List the software toolkit derived for a job.
+  GetMarkersForProfile: Get skill markers an engineer at (discipline, level, track) is expected to demonstrate.
+  GetUnscoredArtifacts: List artifacts that have no evidence rows, scoped by person email, manager email, or org-wide.
+  GetArtifact: Get full detail for a single artifact by its UUID.
+  WriteEvidence: Write one evidence row linking an artifact to a skill marker. Idempotent on (artifact_id, skill_id, level_id, marker_text). Call in parallel for multiple markers.
+  GetPerson: Get an engineer's profile (discipline, level, track) by email.
 ```
 
 ### Call a tool
