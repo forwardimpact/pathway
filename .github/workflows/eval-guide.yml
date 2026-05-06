@@ -72,24 +72,26 @@ jobs:
           echo "  graph files: $(find data/graphs -type f 2>/dev/null | wc -l)"
           echo "  resource files: $(find data/resources -type f 2>/dev/null | wc -l)"
 
-      - name: Smoke test gRPC + MCP
+      - name: Smoke test gRPC
         shell: bash
+        timeout-minutes: 2
         run: |
-          node -e "
+          # Quick gRPC connectivity check via grpcurl (available on ubuntu-latest)
+          grpcurl -plaintext 127.0.0.1:3004 list 2>&1 || echo "grpcurl not available or failed"
+          # Direct node test with timeout
+          timeout 30 node -e "
             const { createClient } = await import('@forwardimpact/librpc');
             const { createLogger } = await import('@forwardimpact/libtelemetry');
             const { pathway } = await import('@forwardimpact/libtype');
             const logger = createLogger('smoke');
-            console.log('SERVICE_SECRET set:', !!process.env.SERVICE_SECRET);
-            console.log('SERVICE_PATHWAY_URL:', process.env.SERVICE_PATHWAY_URL);
             const client = await createClient('pathway', logger);
-            console.log('Client config:', JSON.stringify({ host: client.config.host, port: client.config.port }));
+            console.log('SERVICE_SECRET loaded:', !!process.env.SERVICE_SECRET);
             const req = pathway.ListJobsRequest.fromObject({});
             console.log('Calling ListJobs...');
             const result = await client.ListJobs(req);
             console.log('OK — content length:', result.content?.length ?? 0);
             process.exit(0);
-          "
+          " || { echo 'gRPC call failed or timed out'; exit 1; }
 
       - name: Prepare agent workspace
         id: agent-workspace
