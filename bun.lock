@@ -14,6 +14,7 @@
         "eslint": "^10.3.0",
         "eslint-plugin-jsdoc": "^62.9.0",
         "serve": "^14.2.6",
+        "yaml": "^2.8.3",
       },
     },
     "libraries/libcli": {
