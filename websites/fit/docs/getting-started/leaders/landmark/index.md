@@ -180,11 +180,28 @@ recommendations into a single picture:
 
 ```sh
 npx fit-landmark health --manager alice@example.com
+npx fit-landmark health --manager alice@example.com --verbose
 ```
 
-For each driver Landmark shows the GetDX score with percentile comparisons, the
-skills that contribute to that driver, the evidence count for each skill, any
-engineer comments related to the driver, and growth recommendations from Summit.
+Default output is a compact table — one row per driver with the GetDX
+percentile, the `vs_org` anchor, and a `More` cell hinting how many additional
+percentile anchors are available. A deduped `Recommendations` trailer follows.
+Pass `--verbose` for the full per-driver paragraph layout: every percentile
+anchor (`vs_prev`, `vs_org`, `vs_50th`, `vs_75th`, `vs_90th`), contributing
+skills, evidence counts, GetDX comments, and growth recommendations.
+
+Sample default output:
+
+```
+  Team — health view
+
+  Drivers (6)
+  ────────────────────────────────────────────────────────────
+  #  Driver          Percentile  vs_org   More
+  1  Quality         42nd        -10      +4 anchors via --verbose
+  2  Reliability     n/a         n/a      -
+  …
+```
 
 ## Surface engineer voice
 
