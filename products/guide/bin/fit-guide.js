@@ -25,6 +25,67 @@ const VERSION = JSON.parse(
 ).version;
 
 // ---------------------------------------------------------------------------
+// MCP prompt fetch
+// ---------------------------------------------------------------------------
+
+async function fetchMcpPrompt(url, token) {
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json, text/event-stream",
+    Authorization: `Bearer ${token}`,
+  };
+
+  const init = await fetch(url, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 0,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-03-26",
+        capabilities: {},
+        clientInfo: { name: "fit-guide-cli", version: VERSION },
+      },
+    }),
+  });
+  if (!init.ok) return null;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      ...headers,
+      "Mcp-Session-Id": init.headers.get("mcp-session-id"),
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "prompts/get",
+      params: { name: "guide-default" },
+    }),
+  });
+  if (!res.ok) return null;
+
+  const contentType = res.headers.get("content-type") || "";
+  let body;
+  if (contentType.includes("text/event-stream")) {
+    for (const line of (await res.text()).split("\n")) {
+      if (!line.startsWith("data: ")) continue;
+      try {
+        const parsed = JSON.parse(line.slice(6));
+        if (parsed?.result) {
+          body = parsed;
+          break;
+        }
+      } catch {}
+    }
+  } else {
+    body = await res.json();
+  }
+  return body?.result?.messages?.[0]?.content?.text || null;
+}
+
+// ---------------------------------------------------------------------------
 // REPL
 // ---------------------------------------------------------------------------
 
@@ -154,7 +215,11 @@ const repl = new Repl({
     process.env.ANTHROPIC_API_KEY = await mcpConfig.anthropicToken();
     mcpUrl = mcpConfig.url;
     mcpToken = mcpConfig.mcpToken();
-    systemPrompt = guideConfig.systemPrompt;
+
+    const mcpPrompt = await fetchMcpPrompt(mcpUrl, mcpToken);
+    systemPrompt = mcpPrompt
+      ? `${guideConfig.systemPrompt}\n\n${mcpPrompt}`
+      : guideConfig.systemPrompt;
   },
 
   onLine: async (line, state, output) => {

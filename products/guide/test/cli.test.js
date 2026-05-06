@@ -27,9 +27,10 @@ describe("fit-guide CLI", () => {
     assert.ok(source.includes("query("));
   });
 
-  test("reads system prompt from product config", () => {
+  test("layers product identity with MCP scope prompt", () => {
     assert.ok(source.includes("createProductConfig"));
     assert.ok(source.includes("guideConfig.systemPrompt"));
+    assert.ok(source.includes("fetchMcpPrompt"));
     assert.ok(source.includes("options.systemPrompt = systemPrompt"));
   });
 
