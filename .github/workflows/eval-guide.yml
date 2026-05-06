@@ -85,24 +85,22 @@ jobs:
             setTimeout(() => { console.error('TCP connect TIMEOUT'); process.exit(1); }, 5000);
           "
 
-          # Test gRPC — bypass librpc auth wrapper to isolate the issue
+          # Test gRPC via generated PathwayClient
           timeout 30 node -e "
-            const grpc = (await import('@grpc/grpc-js')).default || await import('@grpc/grpc-js');
-            const { pathway: types } = await import('@forwardimpact/libtype');
-            const { definitions } = await import('@forwardimpact/libtype');
-
-            const serviceDef = definitions.pathway.Pathway;
-            const client = new serviceDef(
-              '127.0.0.1:3004',
-              grpc.credentials.createInsecure()
-            );
-            console.log('Raw gRPC client created, calling ListJobs...');
-            client.ListJobs({}, (err, response) => {
-              if (err) { console.error('gRPC error:', err.code, err.details); process.exit(1); }
-              console.log('OK — content length:', response?.content?.length ?? 0);
-              process.exit(0);
-            });
-          " || { echo 'Raw gRPC call failed'; exit 1; }
+            const { createClient } = await import('@forwardimpact/librpc');
+            const { pathway } = await import('@forwardimpact/libtype');
+            const client = await createClient('pathway');
+            const req = pathway.ListJobsRequest.fromObject({});
+            console.log('Calling ListJobs...');
+            try {
+              const result = await client.ListJobs(req);
+              console.log('OK — content length:', result.content?.length ?? 0);
+            } catch (e) {
+              console.error('gRPC error:', e.code, e.details || e.message);
+              process.exit(1);
+            }
+            process.exit(0);
+          " || { echo 'gRPC call failed or timed out'; exit 1; }
 
       - name: Prepare agent workspace
         id: agent-workspace
