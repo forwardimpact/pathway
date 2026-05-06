@@ -80,7 +80,10 @@ jobs:
             const { createLogger } = await import('@forwardimpact/libtelemetry');
             const { pathway } = await import('@forwardimpact/libtype');
             const logger = createLogger('smoke');
+            console.log('SERVICE_SECRET set:', !!process.env.SERVICE_SECRET);
+            console.log('SERVICE_PATHWAY_URL:', process.env.SERVICE_PATHWAY_URL);
             const client = await createClient('pathway', logger);
+            console.log('Client config:', JSON.stringify({ host: client.config.host, port: client.config.port }));
             const req = pathway.ListJobsRequest.fromObject({});
             console.log('Calling ListJobs...');
             const result = await client.ListJobs(req);
