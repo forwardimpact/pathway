@@ -44,11 +44,18 @@ jobs:
           just synthetic
           just process-fast
 
+      - name: Generate secrets
+        shell: bash
+        run: |
+          cp .env.local.example .env
+          just env-secrets
+
       - name: Start services
         shell: bash
         run: |
-          just env-setup
-          just rc-start
+          node -e "import('@forwardimpact/svcgraph/server.js')" &
+          node -e "import('@forwardimpact/svcpathway/server.js')" &
+          node -e "import('@forwardimpact/svcmcp/server.js')" &
           for i in $(seq 1 30); do
             curl -sf http://localhost:3005/health > /dev/null 2>&1 && break
             [ "$i" -eq 30 ] && { echo "::error::MCP service failed to start"; exit 1; }
@@ -80,4 +87,4 @@ jobs:
       - name: Stop services
         if: always()
         shell: bash
-        run: just rc-stop || true
+        run: pkill -f "svcgraph\|svcpathway\|svcmcp" || true
