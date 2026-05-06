@@ -44,34 +44,9 @@ jobs:
           just synthetic
           just process-fast
 
-      - name: Generate environment
+      - name: Initialize Guide environment
         shell: bash
-        run: |
-          cp .env.local.example .env
-          just env-secrets
-
-          # config/config.json is gitignored; services need it for tool
-          # definitions and MCP system prompt.
-          node -e "
-            const fs = require('fs');
-            const cfg = {
-              service: {
-                mcp: {
-                  systemPrompt: 'These tools query an agent-aligned engineering standard.',
-                  tools: {
-                    GetOntology:       { method: 'graph.Graph.GetOntology',             description: 'Returns all entity types and predicates.' },
-                    GetSubjects:       { method: 'graph.Graph.GetSubjects',             description: 'Lists entity URIs, optionally filtered by type.' },
-                    QueryByPattern:    { method: 'graph.Graph.QueryByPattern',          description: 'Retrieves data via triple pattern queries.' },
-                    ListJobs:          { method: 'pathway.Pathway.ListJobs',            description: 'List jobs defined in the pathway standard.' },
-                    DescribeJob:       { method: 'pathway.Pathway.DescribeJob',         description: 'Describe a job including skills and behaviours.' },
-                    DescribeProgression: { method: 'pathway.Pathway.DescribeProgression', description: 'Compute progression delta between two levels.' }
-                  }
-                }
-              }
-            };
-            fs.mkdirSync('config', { recursive: true });
-            fs.writeFileSync('config/config.json', JSON.stringify(cfg, null, 2));
-          "
+        run: bunx fit-guide init
 
       - name: Start services
         shell: bash
