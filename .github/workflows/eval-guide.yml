@@ -51,6 +51,13 @@ jobs:
         run: |
           node -e "const m = await import('./products/guide/src/commands/init.js'); await m.runInitCommand();"
 
+      - name: Disable IPv6
+        shell: bash
+        run: |
+          # gRPC on Ubuntu hangs when localhost resolves to ::1 first.
+          sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
+          sudo sysctl -w net.ipv6.conf.default.disable_ipv6=1
+
       - name: Start services
         shell: bash
         run: |
