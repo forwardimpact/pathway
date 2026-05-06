@@ -20,9 +20,13 @@ import { Repl } from "@forwardimpact/librepl";
 import { createStorage } from "@forwardimpact/libstorage";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const VERSION = JSON.parse(
-  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
-).version;
+// `bun build --compile` injects FIT_GUIDE_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_GUIDE_VERSION ||
+  JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"))
+    .version;
 
 // ---------------------------------------------------------------------------
 // MCP prompt fetch

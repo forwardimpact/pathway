@@ -21,10 +21,12 @@ const __dirname = dirname(__filename);
 const publicDir = join(__dirname, "..");
 const rootDir = join(__dirname, "../..");
 
-/** Package version for serving as /version.json */
-const VERSION = JSON.parse(
-  readFileSync(join(rootDir, "package.json"), "utf8"),
-).version;
+// `bun build --compile` injects FIT_PATHWAY_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_PATHWAY_VERSION ||
+  JSON.parse(readFileSync(join(rootDir, "package.json"), "utf8")).version;
 
 /**
  * Resolve package directory using Node's module resolution.
