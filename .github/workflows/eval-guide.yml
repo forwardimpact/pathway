@@ -20,8 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GRPC_DNS_RESOLVER: native
-      GRPC_VERBOSITY: DEBUG
-      GRPC_TRACE: connectivity_state,channel
     steps:
       - name: Generate installation token
         id: ci-app
@@ -64,6 +62,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p data/logs
+          bun run services/trace/server.js     > data/logs/trace.log   2>&1 &
           bun run services/graph/server.js    > data/logs/graph.log   2>&1 &
           bun run services/pathway/server.js  > data/logs/pathway.log 2>&1 &
           bun run services/mcp/server.js      > data/logs/mcp.log     2>&1 &
@@ -134,7 +133,7 @@ jobs:
         if: always()
         shell: bash
         run: |
-          for f in data/logs/graph.log data/logs/pathway.log data/logs/mcp.log; do
+          for f in data/logs/trace.log data/logs/graph.log data/logs/pathway.log data/logs/mcp.log; do
             echo "=== $f ==="
             cat "$f" 2>/dev/null || echo "(not found)"
           done
@@ -142,4 +141,4 @@ jobs:
       - name: Stop services
         if: always()
         shell: bash
-        run: pkill -f "svcgraph\|svcpathway\|svcmcp" || true
+        run: pkill -f "svcgraph\|svcpathway\|svcmcp\|svctrace" || true
