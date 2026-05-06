@@ -8,9 +8,13 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 import { VectorIndex } from "@forwardimpact/libvector/index/vector.js";
 import { VectorProcessor } from "@forwardimpact/libvector/processor/vector.js";
 
-const { version: VERSION } = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-);
+// `bun build --compile` injects FIT_PROCESS_VECTORS_VERSION via --define,
+// eliminating the readFileSync branch in the compiled binary (which would
+// ENOENT against the bunfs virtual mount). Source execution falls through.
+const VERSION =
+  process.env.FIT_PROCESS_VECTORS_VERSION ||
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+    .version;
 
 const definition = {
   name: "fit-process-vectors",

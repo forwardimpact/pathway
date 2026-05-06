@@ -29,9 +29,13 @@ import {
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const { version: VERSION } = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-);
+// `bun build --compile` injects FIT_TERRAIN_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_TERRAIN_VERSION ||
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+    .version;
 
 const documentation = [
   {

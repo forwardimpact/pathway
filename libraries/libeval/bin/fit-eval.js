@@ -10,9 +10,13 @@ import { runRunCommand } from "../src/commands/run.js";
 import { runSuperviseCommand } from "../src/commands/supervise.js";
 import { runFacilitateCommand } from "../src/commands/facilitate.js";
 
-const { version: VERSION } = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-);
+// `bun build --compile` injects FIT_EVAL_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_EVAL_VERSION ||
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+    .version;
 
 const definition = {
   name: "fit-eval",

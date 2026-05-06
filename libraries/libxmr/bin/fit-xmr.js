@@ -10,9 +10,13 @@ import { runChartCommand } from "../src/commands/chart.js";
 import { runSummarizeCommand } from "../src/commands/summarize.js";
 import { runRecordCommand } from "../src/commands/record.js";
 
-const { version: VERSION } = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-);
+// `bun build --compile` injects FIT_XMR_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_XMR_VERSION ||
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+    .version;
 
 const definition = {
   name: "fit-xmr",

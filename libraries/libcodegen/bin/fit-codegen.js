@@ -20,9 +20,13 @@ import {
 } from "@forwardimpact/libcodegen";
 import { createStorage } from "@forwardimpact/libstorage";
 
-const { version: VERSION } = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-);
+// `bun build --compile` injects FIT_CODEGEN_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_CODEGEN_VERSION ||
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+    .version;
 
 const definition = {
   name: "fit-codegen",
