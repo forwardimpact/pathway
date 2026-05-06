@@ -22,13 +22,13 @@ npm install @forwardimpact/guide
 
 ```sh
 npx fit-codegen --all    # provided by @forwardimpact/libcodegen (a dependency of guide)
-npx fit-guide init
+npx fit-guide --init
 ```
 
 The `fit-codegen` step generates gRPC service clients that Guide needs. Without
 it, imports fail with a missing module error.
 
-The `init` step generates:
+The `--init` step generates:
 
 - `.env` — service secrets (`MCP_TOKEN`) and port assignments
 - `config/config.json` — service startup configuration
@@ -38,7 +38,7 @@ The `init` step generates:
 Guide runs on the Anthropic API. Authenticate using one of:
 
 ```sh
-npx fit-guide login       # OAuth PKCE flow (recommended)
+npx fit-guide --login     # OAuth PKCE flow (recommended)
 ```
 
 Or set `ANTHROPIC_API_KEY` in `.env` manually. Guide validates credentials on
@@ -106,12 +106,12 @@ expectations, and markers — not generic career advice.
 Guide validates configuration before connecting. If you see errors about missing
 `ANTHROPIC_API_KEY` or `MCP_TOKEN`, check that:
 
-1. You ran `npx fit-guide init` (creates `.env` with `MCP_TOKEN`)
-2. You ran `npx fit-guide login` or set `ANTHROPIC_API_KEY` in `.env`
+1. You ran `npx fit-guide --init` (creates `.env` with `MCP_TOKEN`)
+2. You ran `npx fit-guide --login` or set `ANTHROPIC_API_KEY` in `.env`
 
 ### `Not authenticated` error
 
-Run `npx fit-guide login` to authenticate with Anthropic, or set
+Run `npx fit-guide --login` to authenticate with Anthropic, or set
 `ANTHROPIC_API_KEY` in `.env`.
 
 ### Data not found
@@ -128,7 +128,7 @@ Then restart the services.
 
 ### MCP endpoint unreachable
 
-Verify the MCP service is running. Check `npx fit-guide status` for health
+Verify the MCP service is running. Check `npx fit-guide --status` for health
 information, then restart the services:
 
 ```sh
