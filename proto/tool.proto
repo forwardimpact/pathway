@@ -42,7 +42,7 @@ message ToolCall {
   ToolFunction function = 2;
   optional string id = 3; // When calling
   optional QueryFilter filter = 4; // Filter to pass-on when calling
-  optional string llm_token = 5; // LLM API token to pass-on when calling
+  optional string anthropic_api_key = 5; // Anthropic API key to pass-on when calling
   optional string resource_id = 6; // For context-aware tools
 }
 

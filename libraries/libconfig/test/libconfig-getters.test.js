@@ -150,10 +150,10 @@ describe("libconfig - Config getters", () => {
     assert.strictEqual(config.ghToken(), "gh-token");
   });
 
-  test("llmToken throws when not set in environment", async () => {
+  test("embeddingBaseUrl returns custom URL from environment", async () => {
     const mockProcess = {
       cwd: spy(() => "/test/dir"),
-      env: {},
+      env: { EMBEDDING_BASE_URL: "https://custom.api.com" },
     };
 
     const config = await createConfig(
@@ -163,24 +163,6 @@ describe("libconfig - Config getters", () => {
       mockProcess,
       mockStorageFn,
     );
-    await assert.rejects(() => config.llmToken(), {
-      message: "LLM_TOKEN not found in environment",
-    });
-  });
-
-  test("llmBaseUrl returns custom URL from environment", async () => {
-    const mockProcess = {
-      cwd: spy(() => "/test/dir"),
-      env: { LLM_BASE_URL: "https://custom.api.com" },
-    };
-
-    const config = await createConfig(
-      "test",
-      "myservice",
-      {},
-      mockProcess,
-      mockStorageFn,
-    );
-    assert.strictEqual(config.llmBaseUrl(), "https://custom.api.com");
+    assert.strictEqual(config.embeddingBaseUrl(), "https://custom.api.com");
   });
 });

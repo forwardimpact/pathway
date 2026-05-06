@@ -39,7 +39,7 @@ export function createMockServiceConfig(name, overrides = {}) {
 export function createMockExtensionConfig(name, overrides = {}) {
   return createMockConfig(name, {
     secret: "test-secret",
-    llmToken: async () => "test-llm-token",
+    anthropicToken: async () => "test-anthropic-key",
     ...overrides,
   });
 }

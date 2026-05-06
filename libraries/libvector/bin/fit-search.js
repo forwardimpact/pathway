@@ -62,7 +62,7 @@ async function main() {
   const vectorIndex = new VectorIndex(storage);
 
   const llm = createEmbeddingClient(
-    await config.llmToken(),
+    await config.anthropicToken(),
     config.embeddingBaseUrl(),
   );
 

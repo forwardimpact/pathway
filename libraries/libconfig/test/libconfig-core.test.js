@@ -240,7 +240,7 @@ describe("libconfig - Config methods", () => {
     const mockProcess = {
       cwd: spy(() => "/test/dir"),
       env: {
-        LLM_TOKEN: "llm-token-123",
+        ANTHROPIC_API_KEY: "sk-ant-test-123",
       },
     };
 
@@ -258,22 +258,17 @@ describe("libconfig - Config methods", () => {
     );
   });
 
-  test("llmToken returns from environment", async () => {
-    const token = await config.llmToken();
-    assert.strictEqual(token, "llm-token-123");
-  });
-
-  test("llmBaseUrl throws when not set", () => {
+  test("embeddingBaseUrl throws when not set", () => {
     assertThrowsMessage(
-      () => config.llmBaseUrl(),
-      /LLM_BASE_URL not found in environment/,
+      () => config.embeddingBaseUrl(),
+      /EMBEDDING_BASE_URL not found in environment/,
     );
   });
 
   test("reset clears cached values", async () => {
     const mockProcess = {
       cwd: () => "/test/dir",
-      env: { LLM_TOKEN: "new-token" },
+      env: { ANTHROPIC_API_KEY: "sk-ant-new" },
     };
 
     const mockStorageFn = () => ({
@@ -290,11 +285,11 @@ describe("libconfig - Config methods", () => {
       mockStorageFn,
     );
 
-    await testConfig.llmToken();
+    await testConfig.anthropicToken();
     testConfig.reset();
 
-    const token = await testConfig.llmToken();
-    assert.strictEqual(token, "new-token");
+    const token = await testConfig.anthropicToken();
+    assert.strictEqual(token, "sk-ant-new");
   });
 
   test("creates service config", async () => {

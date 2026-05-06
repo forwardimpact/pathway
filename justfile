@@ -363,9 +363,6 @@ env-secrets:
 env-storage:
     bun scripts/env-storage.js
 
-# GitHub token utility
-env-github:
-    bun scripts/env-github.js
 
 # Reset config files from examples
 # config/config.example.json was removed in spec 580 (commit a353a4ab); cp removed accordingly.

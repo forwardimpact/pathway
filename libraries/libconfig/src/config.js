@@ -48,7 +48,6 @@ export class Config {
     "ANTHROPIC_API_KEY",
     "GH_TOKEN",
     "GITHUB_TOKEN",
-    "LLM_TOKEN",
     "MCP_TOKEN",
   ]);
 
@@ -144,31 +143,9 @@ export class Config {
     return this.#resolve(["GH_TOKEN", "GITHUB_TOKEN"]);
   }
 
-  /**
-   * @deprecated Use {@link Config#anthropicToken} instead. LLM_TOKEN is being
-   * phased out in favor of ANTHROPIC_API_KEY for Anthropic-backed callers.
-   * This method remains for OpenAI-compatible embedding APIs (libvector).
-   * @returns {Promise<string>} LLM API token (async for caller compatibility)
-   */
-  async llmToken() {
-    return this.#resolve(["LLM_TOKEN"]);
-  }
-
-  /** @returns {string} LLM API base URL with trailing slashes removed */
-  llmBaseUrl() {
-    return this.#resolve(["LLM_BASE_URL"], stripTrailingSlashes);
-  }
-
-  /**
-   * Embedding API base URL. Uses EMBEDDING_BASE_URL if set, otherwise
-   * falls back to LLM_BASE_URL (OpenAI-compatible /embeddings endpoint).
-   * @returns {string}
-   */
+  /** @returns {string} Embedding API base URL with trailing slashes removed */
   embeddingBaseUrl() {
-    return this.#resolve(
-      ["EMBEDDING_BASE_URL", "LLM_BASE_URL"],
-      stripTrailingSlashes,
-    );
+    return this.#resolve(["EMBEDDING_BASE_URL"], stripTrailingSlashes);
   }
 
   /** @returns {string} MCP bearer token */

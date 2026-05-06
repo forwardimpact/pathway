@@ -34,14 +34,6 @@ jobs:
           app-id: ${{ secrets.KATA_APP_ID }}
           private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
 
-      - name: Generate LLM token
-        id: llm-app
-        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
-        with:
-          app-id: ${{ secrets.LLM_APP_ID }}
-          private-key: ${{ secrets.LLM_APP_PRIVATE_KEY }}
-          owner: ${{ github.repository_owner }}
-
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           fetch-depth: 0
@@ -90,8 +82,6 @@ jobs:
         uses: ./.github/actions/kata-action-eval
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          LLM_TOKEN: ${{ steps.llm-app.outputs.token }}
-          LLM_BASE_URL: https://models.github.ai/orgs/forwardimpact
           GH_TOKEN: ${{ steps.ci-app.outputs.token }}
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:

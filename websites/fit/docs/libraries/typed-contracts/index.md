@@ -293,7 +293,7 @@ the proto definition exactly. `libmcp` uses the generated metadata to build a
 Zod schema from the request type's fields -- proto field types map to Zod
 validators (`string` to `z.string()`, `int32` to `z.number()`, `bool` to
 `z.boolean()`), repeated fields accept both single values and arrays, and system
-fields like `filter` and `llm_token` are excluded automatically.
+fields like `filter` and `anthropic_api_key` are excluded automatically.
 
 In the MCP service, registration is a single call:
 

@@ -120,10 +120,10 @@ requirements.
 
 ## Environment
 
-The `generate` verb requires `LLM_TOKEN` and `LLM_BASE_URL`:
+The `generate` verb requires `ANTHROPIC_API_KEY`:
 
 ```sh
-LLM_TOKEN=<your-token> LLM_BASE_URL=<endpoint> npx fit-terrain generate
+ANTHROPIC_API_KEY=<your-key> npx fit-terrain generate
 ```
 
 The `check`, `validate`, and `build` verbs require no LLM credentials — they

@@ -27,11 +27,11 @@ This skill is supervisor-initiated, not part of scheduled runs.
 
 ## LLM Availability
 
-`LLM_TOKEN` and `LLM_BASE_URL` are present in the shell — `libconfig` reads
-them. LLM-backed products (Guide, Outpost) should work without the agent
-configuring an API key. If the agent is asked to supply a token, that is a
+`ANTHROPIC_API_KEY` is present in the shell — `libconfig` reads it.
+LLM-backed products (Guide, Outpost) should work without the agent
+configuring an API key. If the agent is asked to supply a key, that is a
 **bug** — the zero-config promise is broken. Do not tell the agent the
-token is pre-configured.
+key is pre-configured.
 
 ## Checklists
 

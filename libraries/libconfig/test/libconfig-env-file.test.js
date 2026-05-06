@@ -35,7 +35,7 @@ describe("libconfig - .env file loading", () => {
   }
 
   test("loads allowed keys from .env file", async () => {
-    writeEnvFile("GITHUB_TOKEN=from-env-file\nLLM_TOKEN=my-llm-token\n");
+    writeEnvFile("GITHUB_TOKEN=from-env-file\nANTHROPIC_API_KEY=sk-ant-test\n");
 
     const config = await createConfig(
       "test",
@@ -46,8 +46,8 @@ describe("libconfig - .env file loading", () => {
     );
 
     assert.strictEqual(config.ghToken(), "from-env-file");
-    const token = await config.llmToken();
-    assert.strictEqual(token, "my-llm-token");
+    const token = await config.anthropicToken();
+    assert.strictEqual(token, "sk-ant-test");
   });
 
   test("process.env takes precedence over .env file", async () => {
@@ -122,7 +122,7 @@ describe("libconfig - .env file loading", () => {
   });
 
   test("strips surrounding quotes from values", async () => {
-    writeEnvFile("GITHUB_TOKEN=\"double-quoted\"\nLLM_TOKEN='single-quoted'\n");
+    writeEnvFile("GITHUB_TOKEN=\"double-quoted\"\nANTHROPIC_API_KEY='single-quoted'\n");
 
     const config = await createConfig(
       "test",
@@ -133,7 +133,7 @@ describe("libconfig - .env file loading", () => {
     );
 
     assert.strictEqual(config.ghToken(), "double-quoted");
-    const token = await config.llmToken();
+    const token = await config.anthropicToken();
     assert.strictEqual(token, "single-quoted");
   });
 
@@ -185,7 +185,7 @@ describe("libconfig - .env file loading", () => {
   });
 
   test("does not set .env values on the data object", async () => {
-    writeEnvFile("GITHUB_TOKEN=token\nLLM_TOKEN=llm\n");
+    writeEnvFile("GITHUB_TOKEN=token\nANTHROPIC_API_KEY=sk-ant-test\n");
 
     const config = await createConfig(
       "test",
@@ -197,7 +197,7 @@ describe("libconfig - .env file loading", () => {
 
     // These should only be accessible via getter methods, not as properties
     assert.strictEqual(config.GITHUB_TOKEN, undefined);
-    assert.strictEqual(config.LLM_TOKEN, undefined);
+    assert.strictEqual(config.ANTHROPIC_API_KEY, undefined);
   });
 
   test("reset clears .env overrides", async () => {
@@ -224,8 +224,6 @@ describe("libconfig - .env file loading", () => {
     writeEnvFile(
       [
         "GITHUB_TOKEN=gh-token",
-        "LLM_TOKEN=llm-tok",
-        "LLM_BASE_URL=https://llm.example.com",
         "EMBEDDING_BASE_URL=https://embed.example.com",
         "MCP_TOKEN=mcp-tok",
         "ANTHROPIC_API_KEY=sk-ant-test",
@@ -241,14 +239,13 @@ describe("libconfig - .env file loading", () => {
     );
 
     assert.strictEqual(config.ghToken(), "gh-token");
-    assert.strictEqual(await config.llmToken(), "llm-tok");
-    assert.strictEqual(config.llmBaseUrl(), "https://llm.example.com");
+    assert.strictEqual(await config.anthropicToken(), "sk-ant-test");
     assert.strictEqual(config.embeddingBaseUrl(), "https://embed.example.com");
     assert.strictEqual(config.mcpToken(), "mcp-tok");
   });
 
   test("values do not leak via Object.keys or JSON.stringify", async () => {
-    writeEnvFile("GITHUB_TOKEN=token\nLLM_TOKEN=secret\n");
+    writeEnvFile("GITHUB_TOKEN=token\nANTHROPIC_API_KEY=secret\n");
 
     const config = await createConfig(
       "test",
@@ -259,7 +256,7 @@ describe("libconfig - .env file loading", () => {
     );
 
     assert.ok(!Object.keys(config).includes("GITHUB_TOKEN"));
-    assert.ok(!Object.keys(config).includes("LLM_TOKEN"));
+    assert.ok(!Object.keys(config).includes("ANTHROPIC_API_KEY"));
     const serialized = JSON.stringify(config);
     assert.ok(!serialized.includes("token"));
     assert.ok(!serialized.includes("secret"));
@@ -283,7 +280,7 @@ describe("libconfig - .env file loading", () => {
     writeEnvFile(
       [
         "GITHUB_TOKEN=value\x00with-null",
-        "LLM_TOKEN=" + "a".repeat(10000),
+        "ANTHROPIC_API_KEY=" + "a".repeat(10000),
       ].join("\n"),
     );
 
@@ -296,7 +293,7 @@ describe("libconfig - .env file loading", () => {
     );
 
     assert.strictEqual(config.ghToken(), "value\x00with-null");
-    const token = await config.llmToken();
+    const token = await config.anthropicToken();
     assert.strictEqual(token.length, 10000);
   });
 });

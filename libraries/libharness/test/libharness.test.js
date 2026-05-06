@@ -43,7 +43,7 @@ describe("libharness", () => {
   test("createMockExtensionConfig includes extension properties", () => {
     const config = createMockExtensionConfig("test");
     assert.strictEqual(config.secret, "test-secret");
-    assert.ok(config.llmToken);
+    assert.ok(config.anthropicToken);
   });
 
   test("createMockStorage provides storage interface", async () => {

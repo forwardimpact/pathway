@@ -12,5 +12,5 @@ message TextQuery {
   // Text queries to search for using semantic similarity
   repeated string input = 1;
   optional tool.QueryFilter filter = 2;
-  optional string llm_token = 3;
+  optional string anthropic_api_key = 3;
 }

@@ -249,7 +249,7 @@ describe("buildZodSchema", () => {
         repeated: false,
         description: null,
       },
-      llm_token: {
+      anthropic_api_key: {
         type: "string",
         optional: true,
         repeated: false,
@@ -264,7 +264,7 @@ describe("buildZodSchema", () => {
     };
     const schema = buildZodSchema(fields);
     assert.ok(!schema.filter);
-    assert.ok(!schema.llm_token);
+    assert.ok(!schema.anthropic_api_key);
     assert.ok(!schema.resource_id);
   });
 

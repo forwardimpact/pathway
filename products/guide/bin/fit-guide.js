@@ -200,14 +200,6 @@ const repl = new Repl({
   },
 
   setup: async () => {
-    if (process.env.LLM_TOKEN && !process.env.ANTHROPIC_API_KEY) {
-      process.stderr.write(
-        "Guide has moved to Anthropic. LLM_TOKEN is no longer used.\n\n" +
-          "  Run: fit-guide --init    (regenerates .env)\n" +
-          "  Then: fit-guide --login  (or set ANTHROPIC_API_KEY)\n",
-      );
-      process.exit(1);
-    }
     const [guideConfig, mcpConfig] = await Promise.all([
       createProductConfig("guide"),
       createServiceConfig("mcp"),

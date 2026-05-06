@@ -60,9 +60,9 @@ async function main() {
   const vectorIndex = new VectorIndex(vectorStorage);
   let embeddingToken = null;
   try {
-    embeddingToken = await config.llmToken();
+    embeddingToken = await config.anthropicToken();
   } catch {
-    // LLM_TOKEN not set — auth is optional for local TEI
+    // auth is optional for local TEI
   }
   const llm = createEmbeddingClient(embeddingToken, config.embeddingBaseUrl());
 

@@ -136,7 +136,7 @@ from codegen metadata and builds a Zod schema for each tool:
   equivalents -- all marked optional so agents can omit fields they do not need
 - **Repeated fields** accept either a single value or an array -- `libmcp`
   normalizes single values into arrays before calling the gRPC method
-- **System fields** (`llm_token`, `filter`, `resource_id`) are excluded
+- **System fields** (`anthropic_api_key`, `filter`, `resource_id`) are excluded
   automatically -- agents never see them
 - **Nested message fields** are excluded -- only flat scalar parameters are
   exposed

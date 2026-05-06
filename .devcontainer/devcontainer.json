@@ -8,8 +8,7 @@
   },
   "onCreateCommand": "bash .devcontainer/setup.sh",
   "remoteEnv": {
-    "LLM_TOKEN": "${localEnv:LLM_TOKEN}",
-    "LLM_BASE_URL": "${localEnv:LLM_BASE_URL}"
+    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}"
   },
   "forwardPorts": [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008],
   "customizations": {

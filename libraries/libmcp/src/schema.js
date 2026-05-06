@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const SYSTEM_FIELDS = new Set(["llm_token", "filter", "resource_id"]);
+const SYSTEM_FIELDS = new Set(["anthropic_api_key", "filter", "resource_id"]);
 
 const ZOD_FACTORIES = {
   string: () => z.string(),

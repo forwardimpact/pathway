@@ -40,11 +40,6 @@ describe("fit-guide CLI", () => {
     assert.ok(source.includes("options.resume = state.sessionId"));
   });
 
-  test("checks for LLM_TOKEN migration", () => {
-    assert.ok(source.includes("LLM_TOKEN"));
-    assert.ok(source.includes("no longer used"));
-  });
-
   test("no process.exit(0) after repl.start()", () => {
     const startIdx = source.lastIndexOf("repl.start()");
     const afterStart = source.slice(startIdx);
