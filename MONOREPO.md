@@ -31,11 +31,14 @@ the jobs that directory exists to serve:
 These three READMEs are the canonical home for narrower jobs ("Little Hires") —
 captured next to the code that serves them.
 
-Two directories support the shippable code without being shipped themselves:
+Three directories support the shippable code without being shipped themselves:
 
 - **`websites/`** — Documentation hubs. The top-level `README.md` maps every
   guide to a Big Hire or Little Hire so documentation traces back to the jobs
   it serves.
+- **`wiki/`** — Shared working memory. Where humans and agents record what
+  they learn while working — observations, decisions, and context that help
+  the team get better over time.
 - **`infrastructure/`** — Deployment assets (Docker, gateway, database, load
   balancer). Subdirectories carry their own READMEs for the specific
   deployment concern they cover.
