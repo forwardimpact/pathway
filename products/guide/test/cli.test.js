@@ -27,9 +27,9 @@ describe("fit-guide CLI", () => {
     assert.ok(source.includes("query("));
   });
 
-  test("fetches prompt from MCP endpoint", () => {
-    assert.ok(source.includes("prompts/get"));
-    assert.ok(source.includes("guide-default"));
+  test("reads system prompt from config", () => {
+    assert.ok(source.includes("config.systemPrompt"));
+    assert.ok(source.includes("options.systemPrompt = systemPrompt"));
   });
 
   test("tracks session ID across turns", () => {

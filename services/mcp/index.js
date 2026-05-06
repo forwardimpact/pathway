@@ -1,15 +1,10 @@
 import crypto from "node:crypto";
-import { readFile } from "node:fs/promises";
 import { createServer } from "node:http";
-import { fileURLToPath } from "node:url";
-import path from "node:path";
 
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 
 import { registerToolsFromConfig } from "@forwardimpact/libmcp";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const SESSION_IDLE_MS = 30 * 60 * 1000;
 const SESSION_SWEEP_MS = 60_000;
@@ -75,9 +70,8 @@ async function dispatchNewSession(req, res, ctx) {
  * Creates a Guide MCP service instance.
  *
  * Each client session gets its own McpServer + transport pair, because the
- * MCP SDK's Protocol only supports one transport at a time. The CLI fetches
- * the prompt in one session, then the Agent SDK opens a second session for
- * tool use.
+ * MCP SDK's Protocol only supports one transport at a time. The system prompt
+ * is read from config.systemPrompt and served via the guide-default MCP prompt.
  *
  * @param {{ config: object, logger: object, graphClient: object, vectorClient: object, pathwayClient: object, mapClient: object, resourceIndex: object }} deps
  * @returns {{ start: () => Promise<void> }}
@@ -91,8 +85,6 @@ export function createMcpService({
   mapClient,
   resourceIndex,
 }) {
-  const promptPath = path.join(__dirname, "prompts", "guide-default.md");
-
   function makeServer(promptText) {
     const server = new McpServer({ name: "guide", version: "0.1.0" });
     registerToolsFromConfig(
@@ -119,7 +111,7 @@ export function createMcpService({
   }
 
   async function start() {
-    const promptText = await readFile(promptPath, "utf8");
+    const promptText = config.systemPrompt;
     const host = config.host || "0.0.0.0";
     const port = config.port || 3005;
     const expectedToken = config.mcpToken();

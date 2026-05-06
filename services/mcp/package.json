@@ -34,8 +34,7 @@
   },
   "files": [
     "index.js",
-    "server.js",
-    "prompts/"
+    "server.js"
   ],
   "scripts": {
     "test": "bun test test/*.test.js"

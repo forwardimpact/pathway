@@ -68,9 +68,10 @@ export async function runInitCommand() {
   });
   if (summary.shouldRender(true)) process.stdout.write("\n");
 
-  // Copy starter config into ./config/ (config.json only)
+  // Copy starter files into project
   const starterDir = new URL("../../starter", import.meta.url).pathname;
   const configDir = resolve("config");
+  const skillsDir = resolve(".claude", "skills");
 
   try {
     await fs.access(starterDir);
@@ -81,15 +82,31 @@ export async function runInitCommand() {
     process.exit(1);
   }
 
+  // Copy config.json → config/
+  const starterConfig = resolve(starterDir, "config.json");
   try {
     await fs.access(configDir);
     process.stdout.write(
       formatBullet("config/ already exists, skipping starter copy.", 0) + "\n",
     );
   } catch {
-    await fs.cp(starterDir, configDir, { recursive: true });
+    await fs.mkdir(configDir, { recursive: true });
+    await fs.cp(starterConfig, resolve(configDir, "config.json"));
     process.stdout.write(
       formatSuccess("config/ created with starter configuration.") + "\n",
     );
+  }
+
+  // Copy skills → .claude/skills/
+  const starterSkills = resolve(starterDir, "skills");
+  try {
+    await fs.access(starterSkills);
+    await fs.mkdir(skillsDir, { recursive: true });
+    await fs.cp(starterSkills, skillsDir, { recursive: true });
+    process.stdout.write(
+      formatSuccess(".claude/skills/ created with starter skills.") + "\n",
+    );
+  } catch {
+    // No starter skills directory — skip silently
   }
 }

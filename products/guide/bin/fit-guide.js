@@ -22,86 +22,12 @@ const VERSION = JSON.parse(
 ).version;
 
 // ---------------------------------------------------------------------------
-// MCP helpers
-// ---------------------------------------------------------------------------
-
-function parseFirstSseResult(raw) {
-  for (const line of raw.split("\n")) {
-    if (!line.startsWith("data: ")) continue;
-    try {
-      const parsed = JSON.parse(line.slice(6));
-      if (parsed?.result) return parsed;
-    } catch {
-      // skip non-JSON data lines
-    }
-  }
-  return null;
-}
-
-async function mcpRequest(url, token, body, sessionId) {
-  const headers = {
-    "Content-Type": "application/json",
-    Accept: "application/json, text/event-stream",
-    Authorization: `Bearer ${token}`,
-  };
-  if (sessionId) headers["Mcp-Session-Id"] = sessionId;
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) return null;
-
-  const contentType = res.headers.get("content-type") || "";
-  if (contentType.includes("text/event-stream")) {
-    return parseFirstSseResult(await res.text());
-  }
-  return res.json();
-}
-
-async function fetchGuidePrompt(url, token) {
-  const init = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json, text/event-stream",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify({
-      jsonrpc: "2.0",
-      id: 0,
-      method: "initialize",
-      params: {
-        protocolVersion: "2025-03-26",
-        capabilities: {},
-        clientInfo: { name: "fit-guide-cli", version: VERSION },
-      },
-    }),
-  });
-  if (!init.ok) return null;
-  const sessionId = init.headers.get("mcp-session-id");
-
-  const body = await mcpRequest(
-    url,
-    token,
-    {
-      jsonrpc: "2.0",
-      id: 1,
-      method: "prompts/get",
-      params: { name: "guide-default" },
-    },
-    sessionId,
-  );
-  return body?.result?.messages?.[0]?.content?.text || null;
-}
-
-// ---------------------------------------------------------------------------
 // REPL
 // ---------------------------------------------------------------------------
 
 let mcpUrl = null;
 let mcpToken = null;
+let systemPrompt = null;
 
 const repl = new Repl({
   prompt: "❯ ",
@@ -222,6 +148,7 @@ const repl = new Repl({
     process.env.ANTHROPIC_API_KEY = await config.anthropicToken();
     mcpUrl = config.url;
     mcpToken = config.mcpToken();
+    systemPrompt = config.systemPrompt;
   },
 
   onLine: async (line, state, output) => {
@@ -239,14 +166,6 @@ const repl = new Repl({
     if (state.sessionId) {
       options.resume = state.sessionId;
     } else {
-      const systemPrompt = await fetchGuidePrompt(mcpUrl, mcpToken);
-      if (!systemPrompt) {
-        output.write(
-          "Could not fetch guide-default prompt from MCP endpoint.\n" +
-            "Ensure the MCP service is running: npx fit-rc start\n",
-        );
-        return;
-      }
       options.model = process.env.GUIDE_MODEL || "claude-sonnet-4-6";
       options.systemPrompt = systemPrompt;
     }
