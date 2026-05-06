@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GRPC_DNS_RESOLVER: native
+      GRPC_VERBOSITY: DEBUG
+      GRPC_TRACE: connectivity_state,channel
     steps:
       - name: Generate installation token
         id: ci-app
