@@ -28,6 +28,25 @@ const VERSION = JSON.parse(
 // MCP prompt fetch
 // ---------------------------------------------------------------------------
 
+function parseSseResult(text) {
+  for (const line of text.split("\n")) {
+    if (!line.startsWith("data: ")) continue;
+    try {
+      const parsed = JSON.parse(line.slice(6));
+      if (parsed?.result) return parsed;
+    } catch {}
+  }
+  return undefined;
+}
+
+async function readJsonOrSse(res) {
+  const contentType = res.headers.get("content-type") || "";
+  if (contentType.includes("text/event-stream")) {
+    return parseSseResult(await res.text());
+  }
+  return res.json();
+}
+
 async function fetchMcpPrompt(url, token) {
   const headers = {
     "Content-Type": "application/json",
@@ -66,22 +85,7 @@ async function fetchMcpPrompt(url, token) {
   });
   if (!res.ok) return null;
 
-  const contentType = res.headers.get("content-type") || "";
-  let body;
-  if (contentType.includes("text/event-stream")) {
-    for (const line of (await res.text()).split("\n")) {
-      if (!line.startsWith("data: ")) continue;
-      try {
-        const parsed = JSON.parse(line.slice(6));
-        if (parsed?.result) {
-          body = parsed;
-          break;
-        }
-      } catch {}
-    }
-  } else {
-    body = await res.json();
-  }
+  const body = await readJsonOrSse(res);
   return body?.result?.messages?.[0]?.content?.text || null;
 }
 
