@@ -1,5 +1,5 @@
 ---
-title: Monorepo Structure
+title: Monorepo Team
 description: Structural conventions for repositories shared by humans and coding agents — top-level directories, root files, and a Jobs To Be Done catalogue.
 toc: false
 ---
