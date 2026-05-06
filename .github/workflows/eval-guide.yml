@@ -46,9 +46,7 @@ jobs:
 
       - name: Initialize Guide environment
         shell: bash
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-        run: bunx fit-guide init
+        run: node -e "const m = await import('./products/guide/src/commands/init.js'); await m.runInitCommand();"
 
       - name: Start services
         shell: bash
