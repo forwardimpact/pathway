@@ -209,13 +209,20 @@ No dependency on in-flight specs.
    distinct colors for at least the cast size of the largest existing workflow
    (five domain agents plus facilitator), and red is reserved for errors and
    never assigned to a profile.
-2. No tool-call line in the streamed log contains a `{` or `"` character from
-   the tool's input object. Each tool call renders as a tool name plus a
-   single-line human-readable hint.
-3. Every tool call in the streamed log is followed by exactly one preview line
-   describing the tool's result. Multi-line tool output never reaches the
-   streamed log. Previews for error results render in the reserved error color
-   regardless of the calling agent's assigned color.
+2. No tool-call line for a **non-MCP** tool in the streamed log contains a `{`
+   or `"` character from the tool's input object. Each non-MCP tool call
+   renders as a tool name plus a single-line human-readable hint.
+   **MCP-prefixed tools (`mcp__*`) are an explicit carve-out**: their tool-call
+   line shows the simplified method name plus the full input rendered as
+   compact single-line JSON (so `{` and `"` do appear). Readers of GitHub
+   workflow logs need the full MCP payload to understand what was sent across
+   the protocol.
+3. Every **failed** tool call in the streamed log is followed by exactly one
+   `Error:` preview line describing the failure, rendered in the reserved
+   error color regardless of the calling agent's assigned color. Successful
+   tool calls emit no preview line — the structured result is preserved in
+   the NDJSON trace, but the streamed log stays scannable. Multi-line tool
+   output never reaches the streamed log.
 4. No line in the streamed log is produced by an orchestrator `session_start`,
    `agent_start`, `ask_received`, `ask_answered`, `redirect`, or `summary`
    event, and the `--- Evaluation … ---` footer previously emitted by

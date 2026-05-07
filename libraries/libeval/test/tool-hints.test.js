@@ -8,7 +8,9 @@ import {
 } from "../src/render/tool-hints.js";
 
 /**
- * Assert a hint contains no `{`, `}`, or `"` characters — success criterion #2.
+ * Assert a hint contains no `{`, `}`, or `"` characters — success criterion #2,
+ * which applies to non-MCP tools only. MCP tools intentionally render full
+ * single-line JSON and DO contain `{` and `"`.
  * @param {string} hint
  */
 function assertNoJsonPunctuation(hint) {
@@ -144,29 +146,41 @@ describe("hintForCall", () => {
     assert.strictEqual(hint, "summarise the diff");
   });
 
-  test("mcp__orchestration__RollCall — no decorators, empty hint", () => {
+  test("mcp__orchestration__RollCall — empty input renders as `{}`", () => {
     const hint = hintForCall("mcp__orchestration__RollCall", {});
-    assert.strictEqual(hint, "");
+    assert.strictEqual(hint, "{}");
   });
 
-  test("mcp__orchestration__Ask — renders to decorator only", () => {
-    const hint = hintForCall("mcp__orchestration__Ask", {
-      to: "staff-engineer",
-      question: "go",
-    });
-    assert.strictEqual(hint, "to staff-engineer");
+  test("mcp__orchestration__Ask — renders full input as single-line JSON", () => {
+    const input = { to: "staff-engineer", question: "go" };
+    const hint = hintForCall("mcp__orchestration__Ask", input);
+    assert.strictEqual(hint, JSON.stringify(input));
   });
 
-  test("mcp__orchestration__Announce — no decorators, empty hint", () => {
-    const hint = hintForCall("mcp__orchestration__Announce", {
-      message: 'Say "hello"',
-    });
-    assert.strictEqual(hint, "");
+  test("mcp__orchestration__Announce — preserves embedded quotes via JSON", () => {
+    const input = { message: 'Say "hello"' };
+    const hint = hintForCall("mcp__orchestration__Announce", input);
+    assert.strictEqual(hint, JSON.stringify(input));
+    assert.ok(hint.includes('\\"'), "JSON should escape embedded quotes");
   });
 
-  test("mcp__github__list_branches — no decorators, empty hint", () => {
-    const hint = hintForCall("mcp__github__list_branches", { owner: "foo" });
-    assert.strictEqual(hint, "");
+  test("mcp__github__list_branches — renders full input as single-line JSON", () => {
+    const input = { owner: "foo" };
+    const hint = hintForCall("mcp__github__list_branches", input);
+    assert.strictEqual(hint, JSON.stringify(input));
+  });
+
+  test("MCP hint stays on a single line even with rich nested input", () => {
+    const input = {
+      owner: "forwardimpact",
+      repo: "monorepo",
+      issue_number: 1,
+      labels: ["bug", "p0"],
+      meta: { source: "ci" },
+    };
+    const hint = hintForCall("mcp__github__add_issue_comment", input);
+    assert.strictEqual(hint, JSON.stringify(input));
+    assert.ok(!hint.includes("\n"), "MCP hint must be single-line");
   });
 
   test("unknown tool — returns empty string", () => {

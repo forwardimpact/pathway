@@ -57,10 +57,13 @@ function renderAssistantTurn(turn, withPrefix) {
 
 /** @param {object} turn @param {boolean} withPrefix @returns {string[]} */
 function renderToolResultTurn(turn, withPrefix) {
+  // Successful tool results emit no preview line — the trace document keeps
+  // the structured turn, but readers of the streamed log only see errors.
+  if (!turn.isError) return [];
   return [
     renderToolResultLine({
       source: turn.source,
-      preview: previewForResult(turn.content, turn.isError),
+      preview: previewForResult(turn.content, true),
       withPrefix,
     }),
   ];

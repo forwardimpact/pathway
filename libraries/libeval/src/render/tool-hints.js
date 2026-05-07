@@ -6,6 +6,11 @@
  * tool (file path, command, pattern, …) sanitized to strip JSON punctuation
  * (`{`, `}`, `"`) and collapsed to a single line ≤ 80 chars.
  *
+ * MCP-prefixed tools (`mcp__*`) are an intentional carve-out: their hint is
+ * the full input rendered as compact single-line JSON, so `{` and `"` do
+ * appear on those lines. Readers of GitHub workflow logs need the full MCP
+ * payload to know what was actually sent across the protocol.
+ *
  * `previewForResult(content, isError)` collapses a tool result to a single
  * line ≤ 80 chars and flags errors so the renderer can apply the reserved
  * error color and the `Error:` label.
@@ -92,23 +97,17 @@ export function simplifyToolName(name) {
 }
 
 /**
- * MCP-prefixed tool names (e.g. `mcp__orchestration__Ask`) take a different
- * handler path. The method name itself is surfaced via `simplifyToolName`,
- * so this only adds the `to/from` decorators for orchestration calls.
- * Returns null if the name does not match any MCP prefix.
+ * MCP-prefixed tool names (e.g. `mcp__orchestration__Ask`, `mcp__github__…`)
+ * render their full input as compact single-line JSON. The method name is
+ * surfaced via `simplifyToolName`; this returns the rest of the line.
+ * Returns null if the name does not match an MCP prefix.
  * @param {string} name
  * @param {object} input
  * @returns {string|null}
  */
 function hintForMcp(name, input) {
-  if (name.startsWith("mcp__orchestration__")) {
-    const parts = [];
-    if (input.to) parts.push(`to ${sanitize(input.to)}`);
-    if (input.from) parts.push(`from ${sanitize(input.from)}`);
-    return truncate(parts.join(" "));
-  }
   if (name.startsWith("mcp__")) {
-    return "";
+    return JSON.stringify(input);
   }
   return null;
 }
