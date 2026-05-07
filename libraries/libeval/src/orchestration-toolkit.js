@@ -22,6 +22,7 @@ import { z } from "zod";
 export function createOrchestrationContext() {
   return {
     concluded: false,
+    verdict: null,
     summary: null,
     redirect: null,
     participants: [],
@@ -37,10 +38,11 @@ export function createOrchestrationContext() {
 
 // --- Handler factories ---
 
-/** Create a handler that marks the session as concluded and records the summary. */
+/** Create a handler that marks the session as concluded and records the verdict and summary. */
 export function createConcludeHandler(ctx) {
-  return async ({ summary }) => {
+  return async ({ verdict, summary }) => {
     ctx.concluded = true;
+    ctx.verdict = verdict;
     ctx.summary = summary;
     return { content: [{ type: "text", text: "Session concluded." }] };
   };
@@ -220,8 +222,8 @@ export function createSupervisorToolServer(ctx) {
       ),
       tool(
         "Conclude",
-        "End the session with a summary.",
-        { summary: z.string() },
+        "End the session with a verdict and a summary. verdict='success' if the agent's work meets the criteria stated in the task; 'failure' otherwise.",
+        { verdict: z.enum(["success", "failure"]), summary: z.string() },
         createConcludeHandler(ctx),
       ),
       tool(
@@ -307,8 +309,8 @@ export function createFacilitatorToolServer(ctx) {
       ),
       tool(
         "Conclude",
-        "End the session with a summary.",
-        { summary: z.string() },
+        "End the session with a verdict and a summary. verdict='success' if the agent's work meets the criteria stated in the task; 'failure' otherwise.",
+        { verdict: z.enum(["success", "failure"]), summary: z.string() },
         createConcludeHandler(ctx),
       ),
       tool(

@@ -36,7 +36,8 @@ export const SUPERVISOR_SYSTEM_PROMPT =
   "Answer replies to an ask the agent addressed to you. " +
   "Announce sends a message with no reply obligation. " +
   "Redirect interrupts the agent with replacement instructions. " +
-  "Conclude ends the session with a summary.";
+  "Conclude ends the session with a verdict ('success' or 'failure') and a summary; " +
+  "the verdict reflects whether the agent's work meets the criteria stated in the task.";
 
 /** System prompt appended for the agent runner in supervise mode. */
 export const AGENT_SYSTEM_PROMPT =
@@ -110,8 +111,14 @@ export class Supervisor {
     }
 
     if (this.ctx.concluded) {
-      this.emitSummary({ success: true, turns: 0, summary: this.ctx.summary });
-      return { success: true, turns: 0 };
+      const success = this.ctx.verdict === "success";
+      this.emitSummary({
+        success,
+        verdict: this.ctx.verdict,
+        turns: 0,
+        summary: this.ctx.summary,
+      });
+      return { success, turns: 0 };
     }
 
     let pendingRelay = null;
@@ -214,12 +221,14 @@ export class Supervisor {
     }
 
     if (this.ctx.concluded) {
+      const success = this.ctx.verdict === "success";
       this.emitSummary({
-        success: true,
+        success,
+        verdict: this.ctx.verdict,
         turns: turn,
         summary: this.ctx.summary,
       });
-      return { type: "exit", exit: { success: true, turns: turn } };
+      return { type: "exit", exit: { success, turns: turn } };
     }
 
     if (agentResult.aborted && this.ctx.redirect) {
@@ -308,12 +317,14 @@ export class Supervisor {
     }
 
     if (this.ctx.concluded) {
+      const success = this.ctx.verdict === "success";
       this.emitSummary({
-        success: true,
+        success,
+        verdict: this.ctx.verdict,
         turns: turn,
         summary: this.ctx.summary,
       });
-      return { exit: { success: true, turns: turn } };
+      return { exit: { success, turns: turn } };
     }
 
     if (this.#checkAsk("supervisor") === "recheck" && !this.ctx.concluded) {
@@ -323,12 +334,14 @@ export class Supervisor {
           formatMessages(reminders),
         );
         if (this.ctx.concluded) {
+          const success = this.ctx.verdict === "success";
           this.emitSummary({
-            success: true,
+            success,
+            verdict: this.ctx.verdict,
             turns: turn,
             summary: this.ctx.summary,
           });
-          return { exit: { success: true, turns: turn } };
+          return { exit: { success, turns: turn } };
         }
         this.#checkAsk("supervisor");
       }
@@ -426,7 +439,7 @@ export class Supervisor {
 
   /**
    * Emit a final orchestrator summary line, wrapped in the universal envelope.
-   * @param {{success: boolean, turns: number, summary?: string}} result
+   * @param {{success: boolean, verdict?: string|null, turns: number, summary?: string}} result
    */
   emitSummary(result) {
     this.output.write(
@@ -436,6 +449,7 @@ export class Supervisor {
         event: {
           type: "summary",
           success: result.success,
+          ...(result.verdict && { verdict: result.verdict }),
           turns: result.turns,
           ...(result.summary && { summary: result.summary }),
         },

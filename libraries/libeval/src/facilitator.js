@@ -26,7 +26,8 @@ export const FACILITATOR_SYSTEM_PROMPT =
   "Announce sends a message with no reply obligation. " +
   "Redirect interrupts a participant with replacement instructions. " +
   "RollCall lists participants. " +
-  "Conclude ends the session with a summary.";
+  "Conclude ends the session with a verdict ('success' or 'failure') and a summary; " +
+  "the verdict reflects whether the session met the criteria stated in the task.";
 
 /** System prompt appended for facilitated agent runners. */
 export const FACILITATED_AGENT_SYSTEM_PROMPT =
@@ -106,12 +107,14 @@ export class Facilitator {
       // messages and started processing concurrently.
       this.concludeResolve();
       await Promise.allSettled(agentPromises);
+      const success = this.ctx.verdict === "success";
       this.emitSummary({
-        success: true,
+        success,
+        verdict: this.ctx.verdict,
         turns: this.facilitatorTurns,
         summary: this.ctx.summary,
       });
-      return { success: true, turns: this.facilitatorTurns };
+      return { success, turns: this.facilitatorTurns };
     }
 
     // Abort agents promptly when Conclude is called during the event loop
@@ -134,12 +137,14 @@ export class Facilitator {
       throw err;
     }
 
+    const success = this.ctx.concluded && this.ctx.verdict === "success";
     const result = {
-      success: this.ctx.concluded,
+      success,
       turns: this.facilitatorTurns,
     };
     this.emitSummary({
-      success: result.success,
+      success,
+      verdict: this.ctx.verdict,
       turns: result.turns,
       summary: this.ctx.summary,
     });
@@ -344,7 +349,7 @@ export class Facilitator {
   }
 
   /**
-   * @param {{success: boolean, turns: number, summary?: string}} result
+   * @param {{success: boolean, verdict?: string|null, turns: number, summary?: string}} result
    */
   emitSummary(result) {
     this.output.write(
@@ -354,6 +359,7 @@ export class Facilitator {
         event: {
           type: "summary",
           success: result.success,
+          ...(result.verdict && { verdict: result.verdict }),
           turns: result.turns,
           ...(result.summary && { summary: result.summary }),
         },

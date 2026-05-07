@@ -19,7 +19,7 @@ const askMsg = (to, question) =>
   createToolUseMsg("Ask", { to, question }, { id: `ask-${to}` });
 const answerMsg = (message) =>
   createToolUseMsg("Answer", { message }, { id: "answer-1" });
-const concludeMsg = (summary) => createToolUseMsg("Conclude", { summary });
+const concludeMsg = (summary, verdict = "success") => createToolUseMsg("Conclude", { verdict, summary });
 
 function seedFacilitated(names) {
   const ctx = createOrchestrationContext();
