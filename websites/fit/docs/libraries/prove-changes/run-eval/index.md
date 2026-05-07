@@ -56,7 +56,7 @@ Pass criteria -- all must hold:
 
 If the agent strays, use `Redirect` to bring it back on task. If it claims
 to be done, verify the criteria yourself with `Read` and `Bash` before
-calling `Conclude`. Conclude with `success: false` if any criterion fails;
+calling `Conclude`. Conclude with `verdict: "failure"` if any criterion fails;
 include a one-paragraph summary of the gap.
 ```
 

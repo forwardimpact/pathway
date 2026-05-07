@@ -191,6 +191,49 @@ describe("TeeWriter", () => {
     assert.ok(textData.includes("\u001b["), "expected ANSI escapes");
   });
 
+  test("orchestrator summary verdict reaches the result footer", async () => {
+    const fileStream = new PassThrough();
+    const textStream = new PassThrough();
+    const writer = new TeeWriter({
+      fileStream,
+      textStream,
+      mode: "supervised",
+    });
+
+    const events = [
+      // SDK reports its per-runner subtype="success" (the runner exited
+      // cleanly), but the supervisor's verdict is "failure".
+      JSON.stringify({
+        source: "supervisor",
+        seq: 1,
+        event: {
+          type: "result",
+          subtype: "success",
+          duration_ms: 5000,
+          num_turns: 2,
+          total_cost_usd: 0.05,
+        },
+      }),
+      JSON.stringify({
+        source: "orchestrator",
+        seq: 2,
+        event: {
+          type: "summary",
+          success: false,
+          verdict: "failure",
+          turns: 2,
+          summary: "Agent ignored MCP tools.",
+        },
+      }),
+    ];
+
+    await writeLines(writer, events);
+    const textData = collect(textStream);
+
+    assert.ok(stripAnsi(textData).includes("--- Result: failure"));
+    assert.ok(!textData.includes("--- Result: success"));
+  });
+
   test("suppresses the six orchestrator lifecycle events from textStream", async () => {
     const fileStream = new PassThrough();
     const textStream = new PassThrough();

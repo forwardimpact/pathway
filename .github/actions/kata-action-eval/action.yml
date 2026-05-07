@@ -65,6 +65,10 @@ inputs:
     description: Maximum minutes the agent step may run before being cancelled
     required: false
     default: "45"
+  artifact-suffix:
+    description: Suffix appended to uploaded trace artifact names (required to disambiguate matrix runs)
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -201,7 +205,7 @@ runs:
       if: always() && inputs.trace == 'true' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
-        name: agent-trace
+        name: agent-trace${{ inputs.artifact-suffix && format('-{0}', inputs.artifact-suffix) || '' }}
         path: |
           ${{ (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && format('{0}/trace-agent.ndjson', steps.setup.outputs.trace-dir) || format('{0}/trace.ndjson', steps.setup.outputs.trace-dir) }}
 
@@ -209,21 +213,21 @@ runs:
       if: always() && inputs.trace == 'true' && inputs.mode == 'supervise' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
-        name: supervisor-trace
+        name: supervisor-trace${{ inputs.artifact-suffix && format('-{0}', inputs.artifact-suffix) || '' }}
         path: ${{ steps.setup.outputs.trace-dir }}/trace-supervisor.ndjson
 
     - name: Upload facilitator trace
       if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
-        name: facilitator-trace
+        name: facilitator-trace${{ inputs.artifact-suffix && format('-{0}', inputs.artifact-suffix) || '' }}
         path: ${{ steps.setup.outputs.trace-dir }}/trace-facilitator.ndjson
 
     - name: Upload per-agent traces
       if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
-        name: per-agent-traces
+        name: per-agent-traces${{ inputs.artifact-suffix && format('-{0}', inputs.artifact-suffix) || '' }}
         path: |
           ${{ steps.setup.outputs.trace-dir }}/trace-*.ndjson
           !${{ steps.setup.outputs.trace-dir }}/trace-facilitator.ndjson
@@ -233,5 +237,5 @@ runs:
       if: always() && inputs.trace == 'true' && (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
-        name: combined-trace
+        name: combined-trace${{ inputs.artifact-suffix && format('-{0}', inputs.artifact-suffix) || '' }}
         path: ${{ steps.setup.outputs.trace-dir }}/trace.ndjson

@@ -27,6 +27,8 @@ export class TraceCollector {
     this.turns = [];
     /** @type {object|null} */
     this.result = null;
+    /** @type {{verdict?: string, summary?: string, turns?: number}|null} */
+    this.orchestratorSummary = null;
     /** @type {number} */
     this.turnIndex = 0;
     /** @type {object|null} */
@@ -62,6 +64,16 @@ export class TraceCollector {
     // Orchestrator lifecycle events carry no content and are suppressed
     // from turns entirely — the NDJSON artifact keeps them separately.
     if (source === "orchestrator" && isSuppressedOrchestratorEvent(event)) {
+      // The summary event carries the supervisor/facilitator verdict —
+      // capture it before dropping the event, so the result footer can
+      // surface verdict="failure" instead of the SDK's per-runner status.
+      if (event.type === "summary") {
+        this.orchestratorSummary = {
+          ...(event.verdict && { verdict: event.verdict }),
+          ...(typeof event.summary === "string" && { summary: event.summary }),
+          ...(typeof event.turns === "number" && { turns: event.turns }),
+        };
+      }
       return;
     }
 
@@ -277,16 +289,20 @@ export class TraceCollector {
   }
 
   /**
-   * Format the trailing result summary line (spec 540).
+   * Format the trailing result summary line (spec 540). When an orchestrator
+   * summary is present (supervised / facilitated mode), the headline word is
+   * the supervisor's verdict ("success" / "failure") rather than the SDK's
+   * per-runner subtype, so the footer aligns with the CI exit code.
    * @returns {string}
    */
   #formatResultTail() {
     if (!this.result) return "";
     const duration = formatDuration(this.result.durationMs);
     const cost = Number(this.result.totalCostUsd).toFixed(4);
+    const headline = this.orchestratorSummary?.verdict ?? this.result.result;
     return (
       "\n" +
-      `--- Result: ${this.result.result} | Turns: ${this.result.numTurns} | Cost: $${cost} | Duration: ${duration} ---`
+      `--- Result: ${headline} | Turns: ${this.result.numTurns} | Cost: $${cost} | Duration: ${duration} ---`
     );
   }
 }

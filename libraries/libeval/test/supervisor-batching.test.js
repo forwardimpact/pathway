@@ -14,7 +14,8 @@ import {
   createTextBlockMsg as textBlock,
 } from "@forwardimpact/libharness";
 
-const concludeMsg = (summary) => createToolUseMsg("Conclude", { summary });
+const concludeMsg = (summary, verdict = "success") =>
+  createToolUseMsg("Conclude", { verdict, summary });
 const redirectMsg = (message) => createToolUseMsg("Redirect", { message });
 
 describe("Supervisor - batching at the default batchSize", () => {

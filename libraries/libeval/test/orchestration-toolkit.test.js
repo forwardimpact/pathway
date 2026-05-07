@@ -32,15 +32,26 @@ function stubBus() {
 }
 
 describe("OrchestrationToolkit - handlers", () => {
-  test("Conclude sets ctx.concluded and ctx.summary, returns ack", async () => {
+  test("Conclude sets ctx.concluded, ctx.verdict, and ctx.summary, returns ack", async () => {
     const ctx = createOrchestrationContext();
     const handler = createConcludeHandler(ctx);
-    const result = await handler({ summary: "All done" });
+    const result = await handler({ verdict: "success", summary: "All done" });
 
     assert.strictEqual(ctx.concluded, true);
+    assert.strictEqual(ctx.verdict, "success");
     assert.strictEqual(ctx.summary, "All done");
     assert.strictEqual(result.content[0].type, "text");
     assert.ok(result.content[0].text.includes("concluded"));
+  });
+
+  test("Conclude records verdict='failure' when supervisor judges the agent failed", async () => {
+    const ctx = createOrchestrationContext();
+    const handler = createConcludeHandler(ctx);
+    await handler({ verdict: "failure", summary: "Agent did not query MCP" });
+
+    assert.strictEqual(ctx.concluded, true);
+    assert.strictEqual(ctx.verdict, "failure");
+    assert.strictEqual(ctx.summary, "Agent did not query MCP");
   });
 
   test("Redirect sets ctx.redirect, returns ack", async () => {

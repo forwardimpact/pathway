@@ -212,7 +212,7 @@ Pass criteria -- all must hold:
 
 If the agent strays, use `Redirect` to bring it back on task. If it claims
 to be done, verify the criteria yourself with `Read` and `Bash` before
-calling `Conclude`. Conclude with `success: false` if any criterion fails;
+calling `Conclude`. Conclude with `verdict: "failure"` if any criterion fails;
 include a one-paragraph summary of the gap.
 ```
 
@@ -235,8 +235,8 @@ You are facilitating a release-readiness review. The participants are
 2. `Ask` each participant for their go/no-go, one at a time.
 3. If any participant reports a blocker, `Announce` the blocker so the
    others can react, then ask whether they want to revise their position.
-4. `Conclude` with `success: true` if all three are go; otherwise
-   `success: false` with a one-paragraph summary of the blocker.
+4. `Conclude` with `verdict: "success"` if all three are go; otherwise
+   `verdict: "failure"` with a one-paragraph summary of the blocker.
 ```
 
 ## 4. Run the eval

@@ -390,6 +390,30 @@ describe("TraceCollector", () => {
       assert.ok(text.includes("Duration: 5s"));
     });
 
+    test("orchestrator verdict overrides SDK subtype in result footer", () => {
+      const collector = collectFixture();
+      // After fixture replay the SDK reported subtype=success. Inject an
+      // orchestrator summary with verdict=failure (the supervisor judged
+      // the agent failed) and verify the footer reflects the verdict.
+      collector.addLine(
+        JSON.stringify({
+          source: "orchestrator",
+          seq: 99,
+          event: {
+            type: "summary",
+            success: false,
+            verdict: "failure",
+            turns: 2,
+            summary: "Agent did not query MCP tools.",
+          },
+        }),
+      );
+
+      const text = collector.toText();
+      assert.ok(text.includes("--- Result: failure"));
+      assert.ok(!text.includes("--- Result: success"));
+    });
+
     test("truncates long tool input hints", () => {
       const collector = new TraceCollector();
       const longCommand = "x".repeat(300);
