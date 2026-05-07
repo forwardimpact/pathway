@@ -36,7 +36,7 @@
   },
   "service": {
     "mcp": {
-      "systemPrompt": "These tools query an agent-aligned engineering standard — disciplines, levels, tracks, capabilities, skills, behaviours, and career progression. Ground every claim in tool results. Never fabricate entities, levels, or skills. If data is insufficient, say so.\n\nCall `GetOntology` first to learn entity types and predicates, then route:",
+      "systemPrompt": "These tools query an agent-aligned engineering standard. Terms like skills, capabilities, disciplines, behaviours, levels, and tracks are domain entities in this standard — not features of your runtime environment. Always use these tools to answer questions about the standard; never answer from general knowledge. Ground every claim in tool results. Never fabricate entities, levels, or skills. If data is insufficient, say so.\n\nCall `GetOntology` first to learn entity types and predicates, then route:",
       "tools": {
         "GetOntology": {
           "method": "graph.Graph.GetOntology",
@@ -45,7 +45,7 @@
         "GetSubjects": {
           "method": "graph.Graph.GetSubjects",
           "description": "Lists entity URIs in the graph, optionally filtered by type.",
-          "routing": ["Entity discovery"]
+          "routing": ["Entity discovery", "List capabilities", "List disciplines", "List skills"]
         },
         "QueryByPattern": {
           "method": "graph.Graph.QueryByPattern",

@@ -13,38 +13,46 @@ starter/config.json
 ├── product.guide
 │   └── systemPrompt    # Identity — "You are Guide…"
 └── service.mcp
-    ├── systemPrompt    # Tool routing preamble (how to use tools)
+    ├── systemPrompt    # Domain scope, grounding rules, disambiguation
     └── tools.<Name>
         ├── method      # gRPC route, e.g. "graph.Graph.QueryByPattern"
         ├── description # Shown in MCP tools/list — agent picks tools by this
         └── routing     # Optional intent phrases for prompt routing lines
 ```
 
-### How config becomes the agent's prompt
+### How config reaches the agent
 
-`bin/fit-guide.js` layers two prompts at startup:
+The MCP prompt is the universal surface — it reaches every client that connects
+to the MCP server (Guide CLI, eval agents, Claude Desktop, other agents).
+The identity prompt is Guide-specific.
 
-1. `product.guide.systemPrompt` — identity.
-2. The MCP `guide-default` prompt, built by `buildPromptText()` in
-   `services/mcp/index.js` from `service.mcp`:
+`buildPromptText()` in `services/mcp/index.js` assembles the MCP prompt from
+`service.mcp`:
 
 ```
-{service.mcp.systemPrompt}          ← static preamble
+{service.mcp.systemPrompt}          ← domain scope, grounding rules
 {routing[0]} -> {ToolName}          ← one line per (tool, routing statement)
 ```
 
 Tools without `routing` are registered and callable but get no routing line.
-The agent receives: identity + blank line + preamble + routing lines.
+This composed text is delivered two ways:
 
-### What the agent sees
+1. **MCP server `instructions`** — auto-injected by any MCP client that
+   respects the protocol (Claude Code, Claude Desktop, etc.). This is how
+   eval agents and external clients receive domain and tool guidance without
+   needing a product-specific identity prompt.
+2. **`guide-default` MCP prompt resource** — available via `prompts/get`.
+   The `fit-guide` CLI explicitly fetches this and prepends it to the
+   identity prompt (`product.guide.systemPrompt`) at startup.
 
-| Config field | Surfaces as | Purpose |
+### What each surface sees
+
+| Config field | fit-guide CLI | MCP clients (eval, Claude Desktop, etc.) |
 |---|---|---|
-| `product.guide.systemPrompt` | System prompt (top) | Who the agent is |
-| `service.mcp.systemPrompt` | System prompt (middle) | How to use tools |
-| `tools.*.description` | MCP `tools/list` | Tool picker signal |
-| `tools.*.routing` | System prompt (bottom) | Intent → tool mapping |
-| `tools.*.method` | Never (internal wiring) | gRPC dispatch |
+| `product.guide.systemPrompt` | System prompt (top) | Not seen |
+| `service.mcp.systemPrompt` + routing | Fetched via `guide-default` prompt | Auto-injected via MCP `instructions` |
+| `tools.*.description` | MCP `tools/list` | MCP `tools/list` |
+| `tools.*.method` | Never (internal wiring) | Never (internal wiring) |
 
 ### Adding a tool
 
@@ -64,18 +72,22 @@ delete its entry; it vanishes from both tool listing and prompt.
 
 ### Improving prompt behavior
 
-The most common issue is the agent not knowing _when_ to use a tool.
+The most common issue is the agent not knowing _when_ to use a tool. Because
+the MCP prompt reaches every surface, behavior fixes almost always belong in
+`service.mcp` — not in the identity prompt.
 
-- **Preamble** (`service.mcp.systemPrompt`) — general instructions: ground
-  claims in tool results, call `GetOntology` first, never fabricate. Edit when
-  overall behavior needs correction.
+- **Preamble** (`service.mcp.systemPrompt`) — domain scope, grounding rules,
+  and disambiguation (e.g. "skills are domain entities, not runtime features").
+  Edit when the agent misidentifies the domain or answers from general
+  knowledge instead of calling tools.
 - **Routing** (`tools.*.routing`) — intent-to-tool mappings. Add an entry when
   the agent fails to pick the right tool for a query type.
 - **Descriptions** (`tools.*.description`) — if the agent ignores a tool, the
   description may lack the right trigger words. Per-field descriptions come from
   proto comments via codegen and cannot be overridden in config.
 
-The identity prompt (`product.guide.systemPrompt`) rarely needs changes.
+The identity prompt (`product.guide.systemPrompt`) is Guide-specific and rarely
+needs changes — it only sets who the agent is, not how it uses tools.
 
 ## Eval Workflow
 

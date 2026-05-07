@@ -106,7 +106,10 @@ export function createMcpService({
   resourceIndex,
 }) {
   function makeServer(promptText) {
-    const server = new McpServer({ name: "guide", version: "0.1.0" });
+    const server = new McpServer(
+      { name: "guide", version: "0.1.0" },
+      { instructions: promptText },
+    );
     registerToolsFromConfig(
       server,
       config,
