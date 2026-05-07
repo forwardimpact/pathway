@@ -51,7 +51,7 @@
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libconfig": "^0.1.0",
     "@forwardimpact/libtelemetry": "^0.1.22",
-    "zod": "^4.4.1"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"
