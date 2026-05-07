@@ -36,7 +36,7 @@
   },
   "service": {
     "mcp": {
-      "systemPrompt": "These tools query an agent-aligned engineering standard — disciplines, levels, tracks, capabilities, skills, behaviours, and career progression. Ground every claim in tool results. Never fabricate entities, levels, or skills. If data is insufficient, say so.\n\nCall `GetOntology` first to learn entity types and predicates, then route:\n- Jobs/roles → `DescribeJob`, `ListJobs`\n- Skills for a capability → `QueryByPattern` with capability URI\n- Behaviour maturity → `QueryByPattern` with behaviour URI\n- Progression deltas → `DescribeProgression`\n- Agent profiles → `ListAgentProfiles`, `DescribeAgentProfile`\n- Open-ended questions → `SearchContent`\n- Entity discovery → `GetSubjects`",
+      "systemPrompt": "These tools query an agent-aligned engineering standard — disciplines, levels, tracks, capabilities, skills, behaviours, and career progression. Ground every claim in tool results. Never fabricate entities, levels, or skills. If data is insufficient, say so.\n\nCall `GetOntology` first to learn entity types and predicates, then route:",
       "tools": {
         "GetOntology": {
           "method": "graph.Graph.GetOntology",
@@ -44,35 +44,46 @@
         },
         "GetSubjects": {
           "method": "graph.Graph.GetSubjects",
-          "description": "Lists entity URIs in the graph, optionally filtered by type."
+          "description": "Lists entity URIs in the graph, optionally filtered by type.",
+          "routing": ["Entity discovery"]
         },
         "QueryByPattern": {
           "method": "graph.Graph.QueryByPattern",
-          "description": "Retrieves structured data by traversing graph relationships using triple patterns."
+          "description": "Retrieves structured data by traversing graph relationships using triple patterns.",
+          "routing": [
+            "Skills for a capability (use capability URI)",
+            "Behaviour maturity (use behaviour URI)"
+          ]
         },
         "SearchContent": {
           "method": "vector.Vector.SearchContent",
-          "description": "Find detailed content using semantic similarity search."
+          "description": "Find detailed content using semantic similarity search.",
+          "routing": ["Open-ended questions"]
         },
         "ListJobs": {
           "method": "pathway.Pathway.ListJobs",
-          "description": "List jobs (discipline x level x track) defined in the pathway standard."
+          "description": "List jobs (discipline x level x track) defined in the pathway standard.",
+          "routing": ["Jobs/roles"]
         },
         "DescribeJob": {
           "method": "pathway.Pathway.DescribeJob",
-          "description": "Describe a job at (discipline, level, optional track) including skills, behaviours, and responsibilities."
+          "description": "Describe a job at (discipline, level, optional track) including skills, behaviours, and responsibilities.",
+          "routing": ["Jobs/roles"]
         },
         "ListAgentProfiles": {
           "method": "pathway.Pathway.ListAgentProfiles",
-          "description": "List static agent profile (discipline, track) combinations."
+          "description": "List static agent profile (discipline, track) combinations.",
+          "routing": ["Agent profiles"]
         },
         "DescribeAgentProfile": {
           "method": "pathway.Pathway.DescribeAgentProfile",
-          "description": "Describe stage agent profiles for a (discipline, track)."
+          "description": "Describe stage agent profiles for a (discipline, track).",
+          "routing": ["Agent profiles"]
         },
         "DescribeProgression": {
           "method": "pathway.Pathway.DescribeProgression",
-          "description": "Compute the progression delta between two levels of the same discipline."
+          "description": "Compute the progression delta between two levels of the same discipline.",
+          "routing": ["Progression deltas"]
         },
         "ListJobSoftware": {
           "method": "pathway.Pathway.ListJobSoftware",

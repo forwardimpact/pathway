@@ -34,10 +34,17 @@ describe("fit-guide CLI", () => {
     assert.ok(source.includes("options.systemPrompt = systemPrompt"));
   });
 
-  test("tracks session ID across turns", () => {
-    assert.ok(source.includes("sessionId"));
+  test("tracks session ID across turns within a single process", () => {
+    assert.ok(source.includes("let sessionId = null"));
     assert.ok(source.includes("session_id"));
-    assert.ok(source.includes("options.resume = state.sessionId"));
+    assert.ok(source.includes("options.resume = sessionId"));
+  });
+
+  test("does not persist session ID to disk across process restarts", () => {
+    assert.ok(
+      !source.includes("state.sessionId"),
+      "sessionId must not live on librepl state — librepl persists state to storage and SDK sessions are ephemeral",
+    );
   });
 
   test("no process.exit(0) after repl.start()", () => {

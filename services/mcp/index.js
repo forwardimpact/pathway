@@ -10,6 +10,26 @@ const SESSION_IDLE_MS = 30 * 60 * 1000;
 const SESSION_SWEEP_MS = 60_000;
 const SHUTDOWN_TIMEOUT_MS = 5000;
 
+/**
+ * Builds the MCP prompt by appending one routing line per (tool, statement)
+ * pair. Tools omitted from config — including those stripped post-init for a
+ * particular environment — contribute no lines, keeping the prompt in sync
+ * with actual tool wiring.
+ *
+ * @param {string} systemPrompt - Static prompt text from config
+ * @param {Record<string, { routing?: string[] }>} [tools] - Tool definitions
+ * @returns {string} Composed prompt text
+ */
+export function buildPromptText(systemPrompt, tools) {
+  const lines = [];
+  for (const [name, def] of Object.entries(tools || {})) {
+    for (const stmt of def.routing || []) {
+      lines.push(`${stmt} -> ${name}`);
+    }
+  }
+  return lines.length ? `${systemPrompt}\n${lines.join("\n")}` : systemPrompt;
+}
+
 function sendJson(res, status, body) {
   res.writeHead(status, { "Content-Type": "application/json" });
   res.end(JSON.stringify(body));
@@ -111,7 +131,7 @@ export function createMcpService({
   }
 
   async function start() {
-    const promptText = config.systemPrompt;
+    const promptText = buildPromptText(config.systemPrompt, config.tools);
     const host = config.host || "0.0.0.0";
     const port = config.port || 3005;
     const expectedToken = config.mcpToken();

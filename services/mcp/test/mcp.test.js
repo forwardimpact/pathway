@@ -2,7 +2,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert";
 import { spy } from "@forwardimpact/libharness";
 
-import { createMcpService } from "../index.js";
+import { buildPromptText, createMcpService } from "../index.js";
 import { registerToolsFromConfig } from "@forwardimpact/libmcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
@@ -98,6 +98,48 @@ async function callTool(mcpServer, toolName, args = {}) {
   if (!tool) throw new Error(`Tool ${toolName} not registered`);
   return tool.handler({ name: toolName, arguments: args });
 }
+
+describe("buildPromptText", () => {
+  test("returns systemPrompt unchanged when no tools have routing", () => {
+    const result = buildPromptText("intro", {
+      A: { method: "x.X.A", description: "a" },
+    });
+    assert.strictEqual(result, "intro");
+  });
+
+  test("appends one line per (tool, routing statement) pair", () => {
+    const result = buildPromptText("intro", {
+      ListJobs: { method: "p.P.ListJobs", routing: ["Jobs/roles"] },
+      DescribeJob: { method: "p.P.DescribeJob", routing: ["Jobs/roles"] },
+      QueryByPattern: {
+        method: "g.G.QueryByPattern",
+        routing: ["Skills (capability URI)", "Behaviour maturity"],
+      },
+    });
+    assert.strictEqual(
+      result,
+      [
+        "intro",
+        "Jobs/roles -> ListJobs",
+        "Jobs/roles -> DescribeJob",
+        "Skills (capability URI) -> QueryByPattern",
+        "Behaviour maturity -> QueryByPattern",
+      ].join("\n"),
+    );
+  });
+
+  test("omits routing lines for tools that are removed", () => {
+    const result = buildPromptText("intro", {
+      ListJobs: { method: "p.P.ListJobs", routing: ["Jobs/roles"] },
+    });
+    assert.ok(!result.includes("SearchContent"));
+    assert.ok(result.includes("Jobs/roles -> ListJobs"));
+  });
+
+  test("handles missing tools object", () => {
+    assert.strictEqual(buildPromptText("intro", undefined), "intro");
+  });
+});
 
 describe("MCP service", () => {
   describe("tool registration", () => {
