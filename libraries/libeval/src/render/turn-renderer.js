@@ -25,12 +25,7 @@ import {
  * @returns {string[]} Array of rendered line strings
  */
 export function renderTurnLines(turn, withPrefix) {
-  if (turn.role === "assistant") return renderAssistantTurn(turn, withPrefix);
-  if (turn.role === "tool_result")
-    return renderToolResultTurn(turn, withPrefix);
-  if (turn.role === "system") return renderSystemTurn(turn, withPrefix);
-  if (turn.role === "user") return renderUserTurn(turn, withPrefix);
-  return [];
+  return TURN_RENDERERS[turn.role]?.(turn, withPrefix) ?? [];
 }
 
 /** @param {object} turn @param {boolean} withPrefix @returns {string[]} */
@@ -57,10 +52,13 @@ function renderAssistantTurn(turn, withPrefix) {
 
 /** @param {object} turn @param {boolean} withPrefix @returns {string[]} */
 function renderToolResultTurn(turn, withPrefix) {
+  // Successful tool results emit no preview line — the trace document keeps
+  // the structured turn, but readers of the streamed log only see errors.
+  if (!turn.isError) return [];
   return [
     renderToolResultLine({
       source: turn.source,
-      preview: previewForResult(turn.content, turn.isError),
+      preview: previewForResult(turn.content, true),
       withPrefix,
     }),
   ];
@@ -90,3 +88,10 @@ function renderUserTurn(turn, withPrefix) {
   }
   return lines;
 }
+
+const TURN_RENDERERS = {
+  assistant: renderAssistantTurn,
+  tool_result: renderToolResultTurn,
+  system: renderSystemTurn,
+  user: renderUserTurn,
+};

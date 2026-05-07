@@ -304,7 +304,7 @@ describe("TeeWriter", () => {
     assert.match(textData, /^staff-engineer: \u001b\[/);
   });
 
-  test("renders tool results tied to each tool call, errors in red", async () => {
+  test("suppresses success Result lines, renders Error lines in red", async () => {
     const fileStream = new PassThrough();
     const textStream = new PassThrough();
     const writer = new TeeWriter({
@@ -395,9 +395,20 @@ describe("TeeWriter", () => {
     const plain = stripAnsi(textData);
 
     assert.ok(plain.includes("Bash: pwd"));
-    assert.ok(plain.includes("Result: /home/user"));
     assert.ok(plain.includes("Read: /nope"));
     assert.ok(plain.includes("Error: ENOENT: no such file"));
+
+    // No per-tool-call success preview line: nothing should start with
+    // `Result:` (the trailing `--- Result: <verdict> ---` footer has a
+    // distinct shape and is filtered out below).
+    const previewLines = plain
+      .split("\n")
+      .filter(
+        (l) =>
+          (l.startsWith("Result:") || l.includes(": Result:")) &&
+          !l.startsWith("---"),
+      );
+    assert.deepStrictEqual(previewLines, []);
 
     // The error preview line carries the reserved red escape.
     const errorLine = textData
@@ -407,6 +418,71 @@ describe("TeeWriter", () => {
     assert.ok(
       errorLine.includes("\u001b[38;2;241;76;76m"),
       "error line should carry the reserved red escape",
+    );
+  });
+
+  test("MCP tool calls render the full input as single-line JSON", async () => {
+    const fileStream = new PassThrough();
+    const textStream = new PassThrough();
+    const writer = new TeeWriter({ fileStream, textStream, mode: "raw" });
+
+    const ghInput = {
+      owner: "forwardimpact",
+      repo: "monorepo",
+      issue_number: 1,
+      body: "hello",
+    };
+    const askInput = { to: "alice", from: "bob", message: "hi" };
+
+    const events = [
+      JSON.stringify({
+        source: "agent",
+        seq: 0,
+        event: {
+          type: "assistant",
+          message: {
+            content: [
+              {
+                type: "tool_use",
+                id: "t1",
+                name: "mcp__github__add_issue_comment",
+                input: ghInput,
+              },
+            ],
+            usage: { input_tokens: 1, output_tokens: 1 },
+          },
+        },
+      }),
+      JSON.stringify({
+        source: "agent",
+        seq: 1,
+        event: {
+          type: "assistant",
+          message: {
+            content: [
+              {
+                type: "tool_use",
+                id: "t2",
+                name: "mcp__orchestration__Ask",
+                input: askInput,
+              },
+            ],
+            usage: { input_tokens: 1, output_tokens: 1 },
+          },
+        },
+      }),
+    ];
+
+    await writeLines(writer, events);
+
+    const plain = stripAnsi(collect(textStream));
+    assert.ok(
+      plain.includes(`add_issue_comment: ${JSON.stringify(ghInput)}`),
+      `expected full JSON for github tool, got:\n${plain}`,
+    );
+    assert.ok(
+      plain.includes(`Ask: ${JSON.stringify(askInput)}`),
+      `expected full JSON for orchestration tool, got:\n${plain}`,
     );
   });
 

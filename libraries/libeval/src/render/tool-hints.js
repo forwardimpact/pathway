@@ -6,6 +6,11 @@
  * tool (file path, command, pattern, …) sanitized to strip JSON punctuation
  * (`{`, `}`, `"`) and collapsed to a single line ≤ 80 chars.
  *
+ * MCP-prefixed tools (`mcp__*`) are an intentional carve-out: their hint is
+ * the full input rendered as compact single-line JSON, so `{` and `"` do
+ * appear on those lines. Readers of GitHub workflow logs need the full MCP
+ * payload to know what was actually sent across the protocol.
+ *
  * `previewForResult(content, isError)` collapses a tool result to a single
  * line ≤ 80 chars and flags errors so the renderer can apply the reserved
  * error color and the `Error:` label.
@@ -92,34 +97,15 @@ export function simplifyToolName(name) {
 }
 
 /**
- * MCP-prefixed tool names (e.g. `mcp__orchestration__Ask`) take a different
- * handler path. The method name itself is surfaced via `simplifyToolName`,
- * so this only adds the `to/from` decorators for orchestration calls.
- * Returns null if the name does not match any MCP prefix.
- * @param {string} name
- * @param {object} input
- * @returns {string|null}
- */
-function hintForMcp(name, input) {
-  if (name.startsWith("mcp__orchestration__")) {
-    const parts = [];
-    if (input.to) parts.push(`to ${sanitize(input.to)}`);
-    if (input.from) parts.push(`from ${sanitize(input.from)}`);
-    return truncate(parts.join(" "));
-  }
-  if (name.startsWith("mcp__")) {
-    return "";
-  }
-  return null;
-}
-
-/**
  * Map a tool name and input to a one-line human hint.
  *
- * Unknown tools return an empty hint — the caller still shows the tool
- * name, just without extra detail. Sanitization is uniform: every branch
- * ends with `sanitize`, so the output is guaranteed free of `{`, `}`, `"`
- * from the input object (success criterion #2).
+ * Three branches, in priority order:
+ *  - A built-in tool with an entry in `HINT_HANDLERS` → sanitized hint, no
+ *    `{` / `"` from the input (spec 540 criterion #2 for non-MCP tools).
+ *  - An MCP-prefixed tool (`mcp__*`) → full input rendered as compact
+ *    single-line JSON; `{` and `"` intentionally appear so readers see
+ *    the actual MCP payload.
+ *  - Anything else → "" (the caller still shows the bare tool name).
  *
  * @param {string} name - Tool name (e.g. "Bash", "Read", "mcp__orchestration__Ask")
  * @param {object|null|undefined} input - Raw tool input object from the trace
@@ -132,8 +118,7 @@ export function hintForCall(name, input) {
   const handler = HINT_HANDLERS[name];
   if (handler) return handler(safeInput);
 
-  const mcp = hintForMcp(name, safeInput);
-  if (mcp !== null) return mcp;
+  if (name.startsWith("mcp__")) return JSON.stringify(safeInput);
 
   return "";
 }
@@ -154,32 +139,15 @@ export function previewForResult(content, isError) {
       : typeof content === "string"
         ? content
         : JSON.stringify(content);
-  const lines = normalized.split(/\r?\n/);
-  let firstNonBlank = "";
-  for (const line of lines) {
-    if (line.trim().length > 0) {
-      firstNonBlank = line.trim();
-      break;
-    }
-  }
+  const firstNonBlank =
+    normalized
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .find((l) => l.length > 0) ?? "";
 
-  if (isError) {
-    const body = firstNonBlank || "(no output)";
-    return {
-      text:
-        body.length <= MAX_HINT_CHARS
-          ? body
-          : body.slice(0, MAX_HINT_CHARS - 3) + "...",
-      isError: true,
-    };
-  }
-
-  if (!firstNonBlank) return { text: "(ok)", isError: false };
+  const fallback = isError ? "(no output)" : "(ok)";
   return {
-    text:
-      firstNonBlank.length <= MAX_HINT_CHARS
-        ? firstNonBlank
-        : firstNonBlank.slice(0, MAX_HINT_CHARS - 3) + "...",
-    isError: false,
+    text: truncate(firstNonBlank || fallback),
+    isError,
   };
 }

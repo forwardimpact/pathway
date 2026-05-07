@@ -371,13 +371,61 @@ describe("TraceCollector", () => {
       assert.ok(!text.includes("{"));
     });
 
-    test("includes a tool_result preview line tied to each tool call", () => {
+    test("successful tool_result emits no preview line", () => {
       const collector = collectFixture();
       const text = collector.toText();
 
-      // The fixture's tool_result content begins with `total 42\n...`.
-      // Preview is the first non-blank line, rendered as `  Result: total 42`.
-      assert.ok(text.includes("Result: total 42"));
+      // The fixture's tool_result is a success (`total 42\n...`). Per the
+      // updated rendering rule, successful tool results are silently dropped
+      // from text output — only `Error:` lines remain. The trailing
+      // `--- Result: <verdict> ---` footer is a different shape.
+      const previewLines = text
+        .split("\n")
+        .filter(
+          (l) =>
+            (l.startsWith("Result:") || l.includes(": Result:")) &&
+            !l.startsWith("---"),
+        );
+      assert.deepStrictEqual(previewLines, []);
+      assert.ok(!text.includes("Result: total 42"));
+    });
+
+    test("failing tool_result emits an Error: preview line", () => {
+      const collector = new TraceCollector();
+      collector.addLine(
+        JSON.stringify({
+          type: "assistant",
+          message: {
+            content: [
+              {
+                type: "tool_use",
+                id: "t1",
+                name: "Read",
+                input: { file_path: "/nope" },
+              },
+            ],
+          },
+        }),
+      );
+      collector.addLine(
+        JSON.stringify({
+          type: "user",
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "tool_result",
+                tool_use_id: "t1",
+                is_error: true,
+                content: "ENOENT: no such file",
+              },
+            ],
+          },
+        }),
+      );
+
+      const text = collector.toText();
+      assert.ok(text.includes("Error: ENOENT: no such file"));
     });
 
     test("includes result summary line", () => {
