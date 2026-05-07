@@ -24,7 +24,7 @@ read post-refactor field names. A captured baseline of generated file
 paths gates the parity claim.
 
 Libraries used: `libsyntheticgen` (new `activity/` module), `libutil`
-(`generateHash`, already imported), `yaml` (already imported).
+(`generateHash`, already imported by `activity-webhooks.js`).
 
 ## Field-shape decisions (cross-cutting)
 
@@ -34,7 +34,9 @@ Libraries used: `libsyntheticgen` (new `activity/` module), `libutil`
 | `ProseActivity.id` values                               | `"comment"`, `"webhook"`. Stable strings used as keys on `entities.activity` and as identifiers in tests/logs.                          |
 | `DriverImpact` shape                                    | `{ driver_id: string, trajectory: string, magnitude: number }`. Matches design typedef; no `driver_name`.                               |
 | Scalar derivation in `#buildPrompt`                     | `driver = drivers[0]?.driver_id`, `direction = drivers[0]?.trajectory === "declining" ? "declining" : "improving"`, `magnitude = drivers[0]?.magnitude`. `driverContext` block already iterates `drivers` (line 170). |
-| Comment-key `driver_name` field (template humanization) | Removed from `commentKeys` (no longer needed once `#buildPrompt` derives the scalar from `drivers[0].driver_id`). The template's `{{#scenario}}` block will render `the deep_work driver is declining` instead of `the Deep Work driver is declining` — explicit non-goal per spec § Scope (out) ("template wording … stay untouched unless the schema change makes them incorrect"). |
+| Comment-key `driver_name` field (render-side consumer)  | **Preserved** on each comment-key as a render-time convenience scalar (looked up from `ast.standard.drivers[topic_driver_id].name`). Required because `commentActivity.render` writes `driver_name` to `getdx/snapshots-comments/*.json` (today raw.js:301) and the downstream consumer at `products/map/src/activity/transform/getdx.js:256` reads it. The scalar is **not** part of `ProseContext` — `proseKeys` uses `topic_driver_id.replace(/_/g, " ")` for the topic phrasing. |
+| Comment-key scalar fields removed                       | `driver_id`, `trajectory`, `magnitude` (all collapsed into `drivers[0]`). `topic_driver_id` and `topic_trajectory` are kept locally for shuffle ordering by trajectory in `commentActivity.generate`. |
+| Prompt template humanization                            | The template's `{{#scenario}}` block will render `the deep_work driver is declining` instead of `the Deep Work driver is declining` (because `#buildPrompt` derives `driver` from `drivers[0].driver_id`, not from a humanized name). Explicit non-goal per spec § Scope (out) ("template wording … stay untouched unless the schema change makes them incorrect"). |
 | Comment render proseMap lookup                          | Substring-match fallback in `renderGetDXComments` (raw.js:285–294) preserved as-is when the logic moves into `comment.render`.          |
 | Validators' new field reads                             | `entities.activity.comment.keys` (was `entities.activity.commentKeys`); `entities.activity.webhook.events` (was `entities.activity.webhooks`); `entities.activity.webhook.keys` (was `entities.activity.webhookKeys`). |
 
@@ -97,14 +99,14 @@ Move comment generation, prose-context construction, and render into a single pe
 
 | Method       | Source today                                                                | Move + change                                                                                                                                                                                                                                                                                                                                                                  |
 | ------------ | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `generate`   | `engine/activity-comments.js` `generateCommentKeys` + helpers (entire file) | Move verbatim with two changes: (a) `collectAffectCandidates` (lines 39–60) returns one candidate per `dx_drivers` entry **carrying the full `drivers: DriverImpact[]` array** rather than collapsing to `drivers[0]` and emitting scalar `driver_id`/`trajectory`/`magnitude`. The top driver remains the *topic* driver (used for shuffle ordering by trajectory) but is no longer the only one carried forward. (b) Each emitted comment-key carries `drivers: DriverImpact[]` (full array) and a `topic_driver_id` scalar (for shuffle/ordering) — `driver_id`, `driver_name`, `trajectory`, `magnitude` are removed. Returns `{ keys: [...] }` (matches design `TOut` style). |
-| `proseKeys`  | `engine/prose-keys.js` `addSnapshotCommentKeys` (lines 120–140)             | Yields `[key, ProseContext]` tuples. `ProseContext.drivers = ck.drivers` (full array). Drops scalar `driver`/`direction`/`magnitude` from the context — `#buildPrompt` derives them in Step 7.                                                                                                                                                                                 |
-| `render`     | `render/raw.js` `renderGetDXComments` (lines 272–315)                       | Move verbatim. Reads `output.keys` (was `entities.activity.commentKeys`). proseMap substring-match fallback preserved.                                                                                                                                                                                                                                                          |
+| `generate`   | `engine/activity-comments.js` `generateCommentKeys` + helpers (entire file) | Relocate with two **substantive** changes (everything else is verbatim): (a) `collectAffectCandidates` (lines 39–60) builds the full `drivers: DriverImpact[]` array (sorted by `\|magnitude\|` descending) **without collapsing to `drivers[0]`**. The top driver remains the *topic* driver (used for shuffle ordering by trajectory) but the array is carried forward intact. (b) Each emitted comment-key carries `drivers: DriverImpact[]`, `topic_driver_id`, `topic_trajectory`, and `driver_name` (looked up from `ast.standard.drivers[topic_driver_id].name`, preserving today's render-time field). Scalars `driver_id`, `trajectory`, `magnitude` are **removed** (collapsed into `drivers[0]`). Returns `{ keys: [...] }`. |
+| `proseKeys`  | `engine/prose-keys.js` `addSnapshotCommentKeys` (lines 120–140; JSDoc 113–119) | Yields `[key, ProseContext]` tuples. `ProseContext.drivers = ck.drivers` (full array). Drops scalar `driver`/`direction`/`magnitude` from the context — `#buildPrompt` derives them in Step 8.                                                                                                                                                                          |
+| `render`     | `render/raw.js` `renderGetDXComments` (lines 272–315)                       | Relocate with field-shape adjustment: read `output.keys` (was `entities.activity.commentKeys`); the rendered JSON's `driver_name: ck.driver_name` line and the `${ck.driver_name} — ${ck.trajectory}` placeholder string both still resolve because Step 2(b) preserves `driver_name` and `topic_trajectory` on each key — substitute `ck.topic_trajectory` for the prior `ck.trajectory` read in the placeholder string. proseMap substring-match fallback preserved. |
 
 Sketch of `commentActivity.generate` driver-array section (replacing `activity-comments.js:44–59`):
 
 ```js
-function collectAffectCandidates(affect, scenario, people, teams) {
+function collectAffectCandidates(affect, scenario, people, teams, driverMap) {
   const team = teams.find((t) => t.id === affect.team_id);
   if (!team) return [];
   const teamPeople = people.filter((p) => p.team_id === team.id);
@@ -113,11 +115,13 @@ function collectAffectCandidates(affect, scenario, people, teams) {
     .sort((a, b) => Math.abs(b.magnitude) - Math.abs(a.magnitude));
   if (drivers.length === 0) return [];
   const topDriver = drivers[0];
+  const driverDef = driverMap.get(topDriver.driver_id);
   return teamPeople.map((person) => ({
     person, team, scenario,
     topic_driver_id: topDriver.driver_id,
-    topic_trajectory: topDriver.trajectory,  // kept locally for trajectory bucketing
-    drivers,                                  // FULL array — flows to ProseContext.drivers
+    topic_trajectory: topDriver.trajectory,           // kept locally for trajectory bucketing
+    driver_name: driverDef?.name || topDriver.driver_id, // render-time convenience scalar
+    drivers,                                          // FULL array — flows to ProseContext.drivers
   }));
 }
 ```
@@ -149,7 +153,7 @@ export const commentActivity = {
 };
 ```
 
-- **Verify:** new test (Step 9, Test 1) confirms emitted `commentKeys` carry `drivers: DriverImpact[]` of length ≥ number of declining drivers in the affect.
+- **Verify:** new test (Step 10, Test 1) confirms emitted `commentKeys` carry `drivers: DriverImpact[]` of length ≥ number of declining drivers in the affect.
 
 ## Step 3 — Webhook ProseActivity module
 
@@ -160,10 +164,10 @@ Move webhook event generation, key construction, and render into one module. `TO
 | Method      | Source today                                                                                                              | Move + change                                                                                                                                                            |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `generate`  | `engine/activity-webhooks.js` `generateWebhooks` + `generateWebhookKeys` + all module-private helpers                     | Move verbatim. Returns `{ events: <today's webhooks array>, keys: <today's webhookKeys array> }`. The webhook-prose `cap` slicing inside `generateWebhookKeys` is preserved. |
-| `proseKeys` | `engine/prose-keys.js` `addWebhookProseKeys` (lines 207–238)                                                              | Yields `[key, ProseContext]` for each `wk` in `output.keys`. Internal `prose_type === "pr_body"` vs `"review_body"` branching kept (allowed per design Decision #5).      |
-| `render`    | `render/raw.js` `renderGitHubWebhooks` + `injectWebhookProse` (lines 50–88)                                              | Move verbatim. Reads `output.events` (was `entities.activity.webhooks`). The `github/index.json` index still emits.                                                       |
+| `proseKeys` | `engine/prose-keys.js` `addWebhookProseKeys` (lines 207–239; JSDoc 200–206)                                               | Yields `[key, ProseContext]` for each `wk` in `output.keys`. Internal `prose_type === "pr_body"` vs `"review_body"` branching kept (allowed per design Decision #5).      |
+| `render`    | `render/raw.js` `renderGitHubWebhooks` (lines 70–88) + helper `injectWebhookProse` (lines 50–68)                          | Move verbatim. Reads `output.events` (was `entities.activity.webhooks`). The `github/index.json` index still emits.                                                       |
 
-- **Verify:** new test (Step 9, Test 2) — `webhookActivity.generate(...)` returns `{ events, keys }` and webhookEvents match the pre-refactor `activity.webhooks` array for the `MINI_TERRAIN` fixture.
+- **Verify:** new test (Step 10, Test 2) — `webhookActivity.generate(...)` returns `{ events, keys }` and webhookEvents match the pre-refactor `activity.webhooks` array for the `MINI_TERRAIN` fixture.
 
 ## Step 4 — Add a baseline file-path capture script (criterion #6)
 
@@ -171,8 +175,9 @@ Capture the file-path set produced by today's pipeline against the activity test
 
 - **Created:** `libraries/libsyntheticgen/test/fixtures/file-path-baseline.json`
 - **Created:** `libraries/libsyntheticgen/test/fixtures/file-path-baseline.terrain` — minimal DSL fixture extracted from `MINI_TERRAIN` in `activity.test.js` (or imported from a shared module).
+- **Created:** `libraries/libsyntheticgen/test/fixtures/README.md` — documents the regeneration command for `file-path-baseline.json`, the conditions under which it should be regenerated (only when the fixture itself changes, never silently after a refactor), and the fixed seed.
 
-`file-path-baseline.json` contains a sorted JSON array of every key produced by `renderRawDocuments(entities, undefined)` against the captured fixture. Generated by a one-off node script run on `main` HEAD before Step 5 lands; the script output is committed, the script itself is not. Document the regeneration command in `file-path-baseline.json`'s sibling `README.md`:
+`file-path-baseline.json` contains a sorted JSON array of every key produced by `renderRawDocuments(entities, undefined)` against the captured fixture. Generated by a one-off node script run on `main` HEAD before Step 5 lands; the script output is committed, the script itself is not. The sibling `README.md` (above) documents the regeneration one-liner. Sample shape:
 
 ```json
 [
@@ -185,7 +190,7 @@ Capture the file-path set produced by today's pipeline against the activity test
 ]
 ```
 
-- **Verify:** `cat libraries/libsyntheticgen/test/fixtures/file-path-baseline.json | jq 'length' > 0` and the file contains the prefixes `github/`, `getdx/`, `activity/`, `profiles/`. Hand-eyeball ≥ 1 entry per current top-level `renderRawDocuments` helper (8 helpers). The post-refactor parity test in Step 9, Test 5 asserts the new pipeline reproduces this exact set.
+- **Verify:** `cat libraries/libsyntheticgen/test/fixtures/file-path-baseline.json | jq 'length' > 0` and the file contains the prefixes `github/`, `getdx/`, `activity/`, `profiles/`. Hand-eyeball ≥ 1 entry per current top-level `renderRawDocuments` helper (8 helpers). The post-refactor parity test in Step 10, Test 5 asserts the new pipeline reproduces this exact set.
 
 ## Step 5 — Refactor `engine/activity.js` to consult the registration
 
@@ -193,7 +198,7 @@ Capture the file-path set produced by today's pipeline against the activity test
 - **Deleted:** `libraries/libsyntheticgen/src/engine/activity-comments.js`
 - **Deleted:** `libraries/libsyntheticgen/src/engine/activity-webhooks.js`
 
-Replace lines 7–9 (imports of `generateWebhooks`, `generateWebhookKeys`, `generateCommentKeys`) with one import:
+Replace the imports of `generateWebhooks`/`generateWebhookKeys` (line 7) and `generateCommentKeys` (line 9) — but **not** the `deriveInitiatives` import on line 8 — with one import:
 
 ```js
 import { PROSE_ACTIVITIES } from "../activity/index.js";
@@ -219,13 +224,13 @@ The non-prose outputs (`roster`, `activityTeams`, `snapshots`, `scores`, `eviden
 
 The deleted `activity-comments.js` and `activity-webhooks.js` files have no other importers in the repo (verified by grep — only references are from `activity.js` line 7–9 and the spec/design docs themselves).
 
-- **Verify:** `bun run test --filter libsyntheticgen` passes (existing `activity.test.js` will need a small update — see Step 9). `grep -RIn 'commentKeys\|webhookKeys\|webhooks' libraries/libsyntheticgen/src/engine/activity.js` returns zero matches in identifier or string-literal positions.
+- **Verify:** `bun run test --filter libsyntheticgen` passes (existing `activity.test.js` will need a small update — see Step 10). `grep -RIn 'commentKeys\|webhookKeys\|webhooks' libraries/libsyntheticgen/src/engine/activity.js` returns zero matches in identifier or string-literal positions.
 
 ## Step 6 — Refactor `engine/prose-keys.js` activity branches
 
 - **Modified:** `libraries/libsyntheticgen/src/engine/prose-keys.js`
 
-Delete `addSnapshotCommentKeys` (lines 113–140) and `addWebhookProseKeys` (lines 200–239). Replace the two `entities.activity?.commentKeys` and `entities.activity?.webhookKeys` branches in `collectProseKeys` (lines 184–195) with a single registration loop:
+Delete `addSnapshotCommentKeys` (lines 113–140 inclusive of JSDoc) and `addWebhookProseKeys` (lines 200–239 inclusive of JSDoc). Replace the two `entities.activity?.commentKeys` and `entities.activity?.webhookKeys` branches in `collectProseKeys` (lines 184–195) with a single registration loop:
 
 ```js
 import { PROSE_ACTIVITIES } from "../activity/index.js";
@@ -241,7 +246,7 @@ for (const pa of PROSE_ACTIVITIES) {
 
 The non-activity branches (`org_readme`, `projects`, `guideContent`, `outpostContent` — lines 152–182) stay unchanged.
 
-- **Verify:** `grep -n 'commentKeys\|webhookKeys\|addSnapshotCommentKeys\|addWebhookProseKeys' libraries/libsyntheticgen/src/engine/prose-keys.js` returns zero. Existing prose-key consumers see the same key set for `MINI_TERRAIN` (covered by Step 9 Test 4).
+- **Verify:** `grep -n 'commentKeys\|webhookKeys\|addSnapshotCommentKeys\|addWebhookProseKeys' libraries/libsyntheticgen/src/engine/prose-keys.js` returns zero. Existing prose-key consumers see the same key set for `MINI_TERRAIN` (covered by Step 10 Test 4).
 
 ## Step 7 — Refactor `render/raw.js` activity branches
 
@@ -271,17 +276,14 @@ export function renderRawDocuments(entities, proseMap) {
 
 The non-prose helpers (`renderGetDXPayloads`, `renderGetDXInitiatives`, `renderGetDXScorecards`, `renderRosterSnapshots`, `renderSummitYAML`, `renderPeopleYAML`) stay inline. Update the JSDoc top comment (lines 1–7) to reflect that webhook and comment rendering now live in `libsyntheticgen/activity/`.
 
-The `@forwardimpact/libsyntheticgen/activity` import requires an `exports` map entry in `libraries/libsyntheticgen/package.json`:
+The `@forwardimpact/libsyntheticgen/activity` import requires a new entry **added** to the existing `exports` map in `libraries/libsyntheticgen/package.json` (the existing 11 entries — `.`, `./dsl`, `./engine`, `./engine/entities`, `./engine/activity`, `./vocabulary`, `./vocabulary.js`, `./rng`, `./tools/faker`, `./tools/synthea`, `./tools/sdv` — must all remain). The new entry alone:
 
 ```json
-"exports": {
-  "./vocabulary.js": "./src/vocabulary.js",
-  "./activity": "./src/activity/index.js"
-}
+"./activity": "./src/activity/index.js"
 ```
 
-- **Modified:** `libraries/libsyntheticgen/package.json` — add the `./activity` export.
-- **Verify:** `grep -n 'webhook\|comment' libraries/libsyntheticrender/src/render/raw.js` returns matches **only** in the non-prose helpers' bodies (e.g. `renderGetDXPayloads` reads `entities.activity?.webhook?.events` indirectly? — no, only the new registration loop touches webhook/comment data). The string literals `"comment"`, `"webhook"`, `commentKeys`, `webhookKeys` no longer appear in raw.js.
+- **Modified:** `libraries/libsyntheticgen/package.json` — append `"./activity": "./src/activity/index.js"` to the existing `exports` map.
+- **Verify:** `grep -nE 'commentKeys|webhookKeys|addSnapshotCommentKeys|addWebhookProseKeys|renderGetDXComments|renderGitHubWebhooks|injectWebhookProse' libraries/libsyntheticrender/src/render/raw.js` returns zero matches (the deleted symbols and the old field names no longer appear). The string literals `"comment"` and `"webhook"` are absent at call sites — they appear only inside `PROSE_ACTIVITIES` registration in `libsyntheticgen/src/activity/index.js`.
 
 ## Step 8 — Update `#buildPrompt` to derive scalars from `drivers[0]`
 
@@ -318,7 +320,7 @@ In `#buildPrompt` (lines 169–190), derive scalar `driver`/`direction`/`magnitu
 
 The prompt template (`libraries/libsyntheticprose/src/prompts/prose-user.prompt.md`) is **not** edited — design § Comment driver-context fix line 113 says only `#buildPrompt` changes.
 
-- **Verify:** Step 9 Test 3 asserts `#buildPrompt` returns equal strings for two contexts with identical fields but different cache keys.
+- **Verify:** Step 10 Test 3 asserts `#buildPrompt` returns equal strings for two contexts with identical fields but different cache keys.
 
 ## Step 9 — Update validators to read post-refactor field shape
 
@@ -326,16 +328,18 @@ The prompt template (`libraries/libsyntheticprose/src/prompts/prose-user.prompt.
 
 Mechanical rename — six checks read the old field names and must be updated:
 
-| Function (line)                        | Old read                            | New read                                |
+| Function (body line)                   | Old read                            | New read                                |
 | -------------------------------------- | ----------------------------------- | --------------------------------------- |
-| `checkWebhookPayloadSchemas` (15)      | `entities.activity?.webhooks`       | `entities.activity?.webhook?.events`    |
-| `checkWebhookDeliveryIds` (34)         | `entities.activity?.webhooks`       | `entities.activity?.webhook?.events`    |
-| `checkWebhookSenderUsernames` (49)     | `entities.activity?.webhooks`       | `entities.activity?.webhook?.events`    |
-| `checkCommentSnapshotRefs` (234)       | `entities.activity?.commentKeys`    | `entities.activity?.comment?.keys`      |
-| `checkCommentEmailRefs` (253)          | `entities.activity?.commentKeys`    | `entities.activity?.comment?.keys`      |
-| `checkCommentTeamRefs` (268)           | `entities.activity?.commentKeys`    | `entities.activity?.comment?.keys`      |
+| `checkWebhookPayloadSchemas` (14)      | `entities.activity?.webhooks`       | `entities.activity?.webhook?.events`    |
+| `checkWebhookDeliveryIds` (33)         | `entities.activity?.webhooks`       | `entities.activity?.webhook?.events`    |
+| `checkWebhookSenderUsernames` (48)     | `entities.activity?.webhooks`       | `entities.activity?.webhook?.events`    |
+| `checkCommentSnapshotRefs` (233)       | `entities.activity?.commentKeys`    | `entities.activity?.comment?.keys`      |
+| `checkCommentEmailRefs` (252)          | `entities.activity?.commentKeys`    | `entities.activity?.comment?.keys`      |
+| `checkCommentTeamRefs` (267)           | `entities.activity?.commentKeys`    | `entities.activity?.comment?.keys`      |
 
-No other validator touches these fields (`grep -n 'commentKeys\|webhookKeys\|activity?.webhooks' libraries/libsyntheticrender/src/validate-activity.js` confirms scope). Test files for validate-activity (if any) update with the same renames.
+No other validator touches these fields (`grep -n 'commentKeys\|webhookKeys\|activity?.webhooks' libraries/libsyntheticrender/src/validate-activity.js` confirms scope).
+
+**Test-file updates (mechanical, same renames):** `libraries/libsyntheticrender/test/validate.test.js` builds `entities.activity.webhooks` fixtures at lines 40, 255, 267, 288 and asserts against the validator messages — rename to `entities.activity.webhook = { events: [...] }` (and any `commentKeys` references to `comment = { keys: [...] }`). Run `grep -nE 'activity\.(webhooks|webhookKeys|commentKeys)' libraries/libsyntheticrender/test/` after the edit to confirm zero matches.
 
 - **Verify:** `bun run test --filter libsyntheticrender` passes. `grep -n 'commentKeys\|webhookKeys' libraries/libsyntheticrender/src/validate-activity.js` returns zero.
 
@@ -348,7 +352,7 @@ No other validator touches these fields (`grep -n 'commentKeys\|webhookKeys\|act
 
 | #   | Test                                                                                                                                                                                                                                                                                                            | File                                                  | Spec criterion |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | -------------- |
-| 1   | "comment proseKeys carries multi-driver array" — fixture extends `MINI_TERRAIN` so `pressure` scenario `affect alpha` declares `dx_drivers` with two declining drivers (`deep_work -6`, `ease_of_release -4`); for any comment-key whose author is on team `alpha`, assert `ProseContext.drivers.length === 2` and contains both `driver_id`s with their magnitudes. | `prose-activity.test.js`                              | #3             |
+| 1   | "comment proseKeys carries multi-driver array" — uses the existing `MINI_TERRAIN` fixture in `activity.test.js:26–141` (its `affect alpha` already declares two declining drivers: `deep_work -6`, `ease_of_release -4`); for any comment-key whose author is on team `alpha`, assert `ProseContext.drivers.length === 2` and contains both `driver_id`s with their magnitudes. | `prose-activity.test.js`                              | #3             |
 | 2   | "webhook generate emits {events, keys}" — `webhookActivity.generate({ ast, rng, entities: { people, teams } })` returns object with `events: object[]` and `keys: object[]`; `events.length > 0` and each event has `delivery_id` + `event_type`.                                                              | `prose-activity.test.js`                              | #1             |
 | 3   | "buildPrompt is a function of context alone" — construct two `ProseContext` entries with identical `topic`/`tone`/`length`/`scenario`/`role`/`drivers`; pass them to a `ProseGenerator` instance with a stub `promptLoader.render` (echoes its template + locals) under different cache keys; assert both rendered prompts are byte-equal. | `build-prompt.test.js`                                | #4             |
 | 4   | "registration is the single source of truth" — `assert.deepStrictEqual(PROSE_ACTIVITIES.map(p=>p.id).sort(), ["comment","webhook"])`. Static `grep` test using `node:fs.readFileSync`: assert that `engine/activity.js`, `engine/prose-keys.js`, and `render/raw.js` source contains zero matches for `/commentKeys|webhookKeys|addSnapshotCommentKeys|addWebhookProseKeys/`. | `prose-activity.test.js`                              | #1, #2         |
@@ -356,7 +360,13 @@ No other validator touches these fields (`grep -n 'commentKeys\|webhookKeys\|act
 | 6   | "snapshot comment generation under multi-driver-declining input" (per-output unit test, criterion #5) — same fixture as Test 1; assert `commentActivity.generate(ctx).keys` is non-empty and every comment-key carries `drivers: DriverImpact[]` of length `≥ 1`.                                              | `prose-activity.test.js`                              | #5             |
 | 7   | "webhook proseKeys yields PR + review entries with drivers" (per-output unit test, criterion #5) — for `MINI_TERRAIN` fixture, collect tuples from `webhookActivity.proseKeys(output, pkCtx)`; assert at least one `pr_body_*` and one `review_body_*` key, each with `drivers: DriverImpact[]`.                | `prose-activity.test.js`                              | #5             |
 
-The `activity.test.js` modifications are mechanical: `activity.commentKeys` → `activity.comment.keys`, `activity.webhooks` → `activity.webhook.events`, plus a stub of the new `drivers` field where the existing test asserts comment-key field presence (line 293–304). The "comment keys are stable when upstream RNG drifts" test (lines 306–324) keeps working because the isolated `commentRng` lives inside `commentActivity.generate`.
+The `activity.test.js` modifications are mechanical:
+
+- Rename `activity.commentKeys` → `activity.comment.keys` everywhere (lines 286, 293, 308, 317, 320, 321, 330–334).
+- Rename `activity.webhooks` → `activity.webhook.events` if any reference exists (none in the current file — confirmed).
+- The "comment keys have required metadata" test (lines 291–304) **drops** these four assertions on `commentKeys[0]`: `ck.driver_id` (line 298), `ck.driver_name` (line 299), `ck.trajectory` (line 300), `ck.magnitude` (line 301). Replace with: `assert.ok(Array.isArray(ck.drivers) && ck.drivers.length >= 1, "drivers array present")`, `assert.ok(ck.driver_name, "render-time driver_name preserved")`, `assert.ok(ck.topic_driver_id, "topic_driver_id present")`, `assert.ok(ck.topic_trajectory, "topic_trajectory present")`. Keep the existing assertions on `snapshot_id`, `email`, `team_id`, `timestamp`, `scenario_name`, `team_name`.
+- The "comment keys are stable when upstream RNG drifts" test (lines 306–324) keeps working without edits beyond the `activity.commentKeys` → `activity.comment.keys` rename, because the isolated `commentRng` lives inside `commentActivity.generate`.
+- The "declining drivers weighted higher" test (lines 326–342) needs the same rename plus replace `ck.trajectory` → `ck.topic_trajectory`.
 
 - **Verify:** `bun run test` passes from monorepo root. CI passes.
 
@@ -371,7 +381,7 @@ No documentation pages on `websites/fit/docs/` reference these internal modules 
 
 ## Risks (implementer-blind)
 
-- **`libsyntheticrender` import path on `@forwardimpact/libsyntheticgen/activity`.** `libsyntheticgen/package.json` does not currently expose `src/activity/index.js` as an entry point (only `vocabulary.js` is in `exports`). Step 7 adds the export. Test the import resolves under both Node (`node --input-type=module -e "import('@forwardimpact/libsyntheticgen/activity').then(m=>console.log(m))"`) and Bun before relying on it.
+- **`libsyntheticrender` import path on `@forwardimpact/libsyntheticgen/activity`.** `libsyntheticgen/package.json` already has 11 export entries (`.`, `./dsl`, `./engine`, `./engine/entities`, `./engine/activity`, `./vocabulary`, `./vocabulary.js`, `./rng`, `./tools/faker`, `./tools/synthea`, `./tools/sdv`); Step 7 **adds** `./activity` as a 12th entry without disturbing the others. Note that an existing `./engine/activity` entry already maps to `src/engine/activity.js` — it does **not** collide with the new `./activity` entry because subpath resolution is exact-match. Test that both `import('@forwardimpact/libsyntheticgen/activity')` (new) and `import('@forwardimpact/libsyntheticgen/engine/activity')` (existing — `generateActivity`) resolve under both Node and Bun before relying on either.
 - **Webhook prose `cap` slicing semantics.** `generateWebhookKeys` (lines 438–443) slices the keys array down to `ast.snapshots?.webhook_prose_cap` if set. Move-verbatim into `webhookActivity.generate` must preserve this — easy to drop accidentally because `events` (uncapped) and `keys` (capped) live in the same `TOut`.
 - **Cross-module RNG isolation.** `activity-comments.js` line 106 builds an isolated RNG (`createSeededRNG(${ast.seed}:comments)`) and explicitly ignores the shared `rng` parameter. `commentActivity.generate({ ast, rng, ... })` must keep the isolated RNG and the `void rng` discipline; otherwise the "comment keys are stable when upstream RNG drifts" test fails.
 - **`drivers` field name collision in webhook keys.** Today's `webhookKeys` already carry a `drivers` field that is itself a `DriverImpact[]` (built in `extractDriversFromAffect`, lines 314–320) — that field is exactly what `proseKeys` passes to `ProseContext.drivers`. No change needed for webhook semantics; risk is only that a sloppy refactor renames the field in one place but not the other.
