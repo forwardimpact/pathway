@@ -98,15 +98,14 @@ Generate all artifacts with a single command:
 npx fit-codegen --all
 ```
 
-Expected output:
+Expected output (file count varies with proto count):
 
 ```
-Generated 14 files in ./generated/
-
-  types/         Protocol Buffer types
-  proto/         Proto source files
-  services/      Service bases and clients
-  definitions/   Service definitions
+Generated 28 files in ./generated/
+  definitions/  — Service definitions
+  proto/        — Proto source files
+  services/     — Service bases and clients
+  types/        — Protocol Buffer types
 
 Code generation complete (types, services, clients, definitions, metadata).
 ```
