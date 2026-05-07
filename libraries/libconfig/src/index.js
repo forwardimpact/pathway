@@ -10,6 +10,7 @@ import { Config } from "./config.js";
  * @param {object} defaults - Default configuration values
  * @param {object} process - Process environment access
  * @param {(bucket: string, type?: string, process?: object) => StorageInterface} storageFn - Optional storage factory function that takes basePath and returns storage instance
+ * @param {(command: string, options?: object) => Buffer | string} [execSyncFn] - Optional child_process.execSync override (for testing)
  * @returns {Promise<Config>} Initialized Config instance
  */
 export async function createConfig(
@@ -18,8 +19,16 @@ export async function createConfig(
   defaults = {},
   process = global.process,
   storageFn = createStorage,
+  execSyncFn,
 ) {
-  const instance = new Config(namespace, name, defaults, process, storageFn);
+  const instance = new Config(
+    namespace,
+    name,
+    defaults,
+    process,
+    storageFn,
+    execSyncFn,
+  );
   await instance.load();
   return instance;
 }

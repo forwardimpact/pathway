@@ -61,6 +61,7 @@ export class Config {
   #storage = null;
   #process;
   #storageFn;
+  #execSync;
 
   /**
    * Creates a new Config instance
@@ -69,6 +70,7 @@ export class Config {
    * @param {object} defaults - Default configuration values
    * @param {object} process - Process environment access
    * @param {(bucket: string, type?: string, process?: object) => StorageInterface} storageFn - Optional storage factory function that takes basePath and returns storage instance
+   * @param {(command: string, options?: object) => Buffer | string} execSyncFn - Optional child_process.execSync override (for testing)
    */
   constructor(
     namespace,
@@ -76,9 +78,11 @@ export class Config {
     defaults = {},
     process = global.process,
     storageFn = createStorage,
+    execSyncFn = execSync,
   ) {
     this.#process = process;
     this.#storageFn = storageFn;
+    this.#execSync = execSyncFn;
 
     this.name = name;
     this.namespace = namespace;
@@ -338,7 +342,7 @@ export class Config {
 
     let token;
     try {
-      token = execSync("gh auth token", {
+      token = this.#execSync("gh auth token", {
         encoding: "utf8",
         stdio: ["ignore", "pipe", "ignore"],
         env: this.#process.env,
