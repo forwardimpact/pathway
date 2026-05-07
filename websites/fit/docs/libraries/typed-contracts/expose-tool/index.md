@@ -97,26 +97,13 @@ parameter schema automatically.
 
 ## Verify the tool is registered
 
-Restart the MCP server, then check that the tool appears. The server logs each
-registered tool at startup. You can also verify by connecting an MCP client and
-listing available tools:
+Restart the MCP server, then check that the tool appears. Two ways to confirm:
 
-```sh
-npx fit-guide tools
-```
-
-Expected output includes your new tool name alongside the existing tools:
-
-```text
-GetOntology              Returns all entity types and relationship predicates in the knowledge graph.
-GetSubjects              Lists entity URIs in the graph, optionally filtered by type.
-QueryByPattern           Retrieves structured data by traversing graph relationships using triple patterns.
-SearchContent            Find detailed content using semantic similarity search.
-ListJobs                 List jobs (discipline x level x track) defined in the pathway standard.
-DescribeJob              Describe a job at (discipline, level, optional track) including skills, behaviours, and responsibilities.
-DescribeProgression      Compute the progression delta between two levels of the same discipline.
-...
-```
+- **Inspect the config** — every tool declared under `service.mcp.tools` in
+  `config/config.json` is registered at startup. The keys in that object are
+  exactly the tool names agents see.
+- **Connect an MCP client** — call the `tools/list` JSON-RPC method against the
+  running MCP server and look for your new tool name in the response.
 
 If the tool does not appear, check:
 
@@ -164,7 +151,8 @@ These comments produce tool parameters described as "Discipline id (e.g.
 - [ ] Description is a single sentence that helps agents decide when to use the
       tool
 - [ ] Codegen has been run after adding or changing the proto method
-- [ ] The tool appears in `npx fit-guide tools` output
+- [ ] The tool key appears under `service.mcp.tools` in `config/config.json`,
+      and the running MCP server's `tools/list` response includes it
 - [ ] Proto field comments are descriptive enough for agents to understand each
       parameter without reading the proto file
 
