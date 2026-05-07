@@ -50,6 +50,22 @@ jobs:
         shell: bash
         run: node -e "const m = await import('./products/guide/src/commands/init.js'); await m.runInitCommand();"
 
+      # SearchContent depends on the vector index, which `just process-fast`
+      # skips because building embeddings is heavy. Strip the tool here so the
+      # eval doesn't expose a wired-up tool that has no data behind it. The
+      # starter config keeps SearchContent for normal users who run the full
+      # `just process` pipeline.
+      - name: Strip SearchContent from eval config
+        shell: bash
+        run: |
+          node -e "
+            const fs = require('node:fs');
+            const path = 'config/config.json';
+            const cfg = JSON.parse(fs.readFileSync(path, 'utf8'));
+            delete cfg.service.mcp.tools.SearchContent;
+            fs.writeFileSync(path, JSON.stringify(cfg, null, 2) + '\n');
+          "
+
       - name: Start services
         shell: bash
         run: |
