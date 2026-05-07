@@ -24,14 +24,20 @@ jobs:
         case:
           - id: discipline-core-skills
             task: >-
-              Ask the agent: "What are the core skills of the Data Engineering
-              discipline?" The agent has MCP tools to query the engineering
-              standard knowledge base. Ground your conclusion only in
-              data/synthetic/story.dsl — read that file directly to verify the
-              agent's answer. Conclude with verdict="success" only if the agent lists exactly
-              these three core skills: data_integration, data_modeling,
-              performance_optimization. Otherwise, Conclude with verdict="failure" and
-              explain what was wrong.
+              Ask the agent: "In the engineering standard, the Data Engineering
+              discipline groups skills into three tiers: 'core', 'supporting',
+              and 'broad'. List ONLY the skills assigned to the 'core' tier.
+              Do not include any supporting-tier or broad-tier skills." The
+              agent has MCP tools to query the engineering standard. Ground
+              your conclusion only in data/synthetic/story.dsl — read that
+              file directly to verify (line 622: `core [data_integration,
+              data_modeling, performance_optimization]`). Conclude with
+              verdict="success" only if the agent's answer contains exactly
+              these three skills and no others: data_integration,
+              data_modeling, performance_optimization. If the agent includes
+              any supporting or broad skill (e.g. architecture_design,
+              cloud_platforms, stakeholder_management, regulatory_compliance),
+              Conclude with verdict="failure" and call out the leak.
 
           - id: capability-skills
             task: >-
@@ -43,12 +49,18 @@ jobs:
               observability, change_management. Otherwise, Conclude with verdict="failure"
               and explain.
 
-          - id: level-title
+          - id: job-title
             task: >-
-              Ask the agent: "What is the title of level J090 in the engineering
-              standard?" Ground your conclusion only in data/synthetic/story.dsl
-              — read that file directly to verify. Conclude with verdict="success" only if the
-              agent answers "Staff Engineer". Otherwise, Conclude with verdict="failure".
+              Ask the agent: "Use the DescribeJob tool to look up the job at
+              discipline=software_engineering, level=J080. What is the full
+              job title that DescribeJob returns?" Ground your conclusion only
+              in data/synthetic/story.dsl — read that file directly. The
+              expected answer is "Lead Engineer Software Engineer", composed
+              from the level title at J080 ("Lead Engineer", line 574) and
+              the software_engineering discipline's roleTitle ("Software
+              Engineer", line 612). Conclude with verdict="success" only if
+              the agent's answer contains both parts in that order.
+              Otherwise, Conclude with verdict="failure".
 
           - id: project-team-managers
             task: >-
