@@ -76,12 +76,12 @@ A passing run prints the data summary:
 Validation passed
 
 Data Summary
-  Skills       -- 3
-  Behaviours   -- 1
-  Disciplines  -- 1
-  Tracks       -- 2
-  Levels       -- 2
-  Drivers      -- 3
+  Skills       — 3
+  Behaviours   — 1
+  Disciplines  — 1
+  Tracks       — 2
+  Levels       — 2
+  Drivers      — 3
 ```
 
 Check the Skills count -- it should reflect the skill you added or removed.
