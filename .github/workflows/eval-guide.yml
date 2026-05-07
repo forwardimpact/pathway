@@ -18,6 +18,61 @@ permissions:
 jobs:
   eval-guide:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        case:
+          - id: discipline-core-skills
+            task: >-
+              Ask the agent: "What are the core skills of the Data Engineering
+              discipline?" The agent has MCP tools to query the engineering
+              standard knowledge base. Ground your conclusion only in
+              data/synthetic/story.dsl — read that file directly to verify the
+              agent's answer. Conclude success only if the agent lists exactly
+              these three core skills: data_integration, data_modeling,
+              performance_optimization. Otherwise, Conclude with failure and
+              explain what was wrong.
+
+          - id: capability-skills
+            task: >-
+              Ask the agent: "Which skills make up the Reliability capability?"
+              The agent has MCP tools to query the engineering standard. Ground
+              your conclusion only in data/synthetic/story.dsl — read that file
+              directly to verify the agent's answer. Conclude success only if
+              the agent lists exactly: sre_practices, incident_management,
+              observability, change_management. Otherwise, Conclude with failure
+              and explain.
+
+          - id: level-title
+            task: >-
+              Ask the agent: "What is the title of level J090 in the engineering
+              standard?" Ground your conclusion only in data/synthetic/story.dsl
+              — read that file directly to verify. Conclude success only if the
+              agent answers "Staff Engineer". Otherwise, Conclude with failure.
+
+          - id: project-team-managers
+            task: >-
+              Ask the agent: "Which teams work on the MolecularForge project,
+              and who manages each of those teams?" The agent has MCP tools to
+              query the knowledge graph. Ground your conclusion only in
+              data/synthetic/story.dsl — read that file directly to verify.
+              Conclude success only if the agent identifies both teams (Platform
+              Engineering and Data Science & AI) and both managers (Athena and
+              Prometheus). Otherwise, Conclude with failure and explain.
+
+          - id: nonexistent-discipline
+            task: >-
+              Ask the agent: "Describe the Security Engineering discipline in
+              the engineering standard — what are its core skills and
+              responsibilities?" Ground your conclusion only in
+              data/synthetic/story.dsl — read that file directly to verify. The
+              standard defines exactly five disciplines: software_engineering,
+              data_engineering, engineering_management, clinical_informatics,
+              and quality_engineering. "security" is a track, not a discipline.
+              Conclude success only if the agent reports that no Security
+              Engineering discipline exists in the standard. Conclude failure
+              if the agent fabricates skills, responsibilities, or any other
+              content for it.
     env:
       GRPC_DNS_RESOLVER: native
     steps:
@@ -93,7 +148,7 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           mode: "supervise"
-          task-text: "Ask the agent to find the engineering standard for data engineering. The agent has MCP tools to query the knowledge base. Review the agent's findings for accuracy and completeness, then call Conclude with a summary indicating success or failure."
+          task-text: ${{ matrix.case.task }}
           supervisor-cwd: "."
           agent-cwd: ${{ steps.agent-workspace.outputs.dir }}
           model: "claude-opus-4-7[1m]"
@@ -101,6 +156,7 @@ jobs:
           allowed-tools: "Bash,Read,Glob,Grep,Write,Edit"
           mcp-server: "guide"
           task-amend: ${{ inputs.task-amend }}
+          artifact-suffix: ${{ matrix.case.id }}
 
       - name: Dump service logs
         if: failure()
