@@ -25,12 +25,7 @@ import {
  * @returns {string[]} Array of rendered line strings
  */
 export function renderTurnLines(turn, withPrefix) {
-  if (turn.role === "assistant") return renderAssistantTurn(turn, withPrefix);
-  if (turn.role === "tool_result")
-    return renderToolResultTurn(turn, withPrefix);
-  if (turn.role === "system") return renderSystemTurn(turn, withPrefix);
-  if (turn.role === "user") return renderUserTurn(turn, withPrefix);
-  return [];
+  return TURN_RENDERERS[turn.role]?.(turn, withPrefix) ?? [];
 }
 
 /** @param {object} turn @param {boolean} withPrefix @returns {string[]} */
@@ -93,3 +88,10 @@ function renderUserTurn(turn, withPrefix) {
   }
   return lines;
 }
+
+const TURN_RENDERERS = {
+  assistant: renderAssistantTurn,
+  tool_result: renderToolResultTurn,
+  system: renderSystemTurn,
+  user: renderUserTurn,
+};
