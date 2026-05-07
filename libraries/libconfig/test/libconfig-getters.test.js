@@ -89,6 +89,9 @@ describe("libconfig - Config getters", () => {
       cwd: spy(() => "/test/dir"),
       env: {},
     };
+    const mockExecSync = spy(() => {
+      throw new Error("gh: command not found");
+    });
 
     const config = await createConfig(
       "test",
@@ -96,6 +99,7 @@ describe("libconfig - Config getters", () => {
       {},
       mockProcess,
       mockStorageFn,
+      mockExecSync,
     );
     assert.throws(() => config.ghToken(), /GH_TOKEN not found in environment/);
   });
@@ -151,8 +155,9 @@ describe("libconfig - Config getters", () => {
   test("ghToken falls back to gh auth token when env vars are unset", async () => {
     const mockProcess = {
       cwd: spy(() => "/test/dir"),
-      env: { PATH: process.env.PATH, HOME: process.env.HOME },
+      env: {},
     };
+    const mockExecSync = spy(() => "fake-gh-cli-token\n");
 
     const config = await createConfig(
       "test",
@@ -160,16 +165,22 @@ describe("libconfig - Config getters", () => {
       {},
       mockProcess,
       mockStorageFn,
+      mockExecSync,
     );
-    const token = config.ghToken();
-    assert.ok(typeof token === "string" && token.length > 0);
+    assert.strictEqual(config.ghToken(), "fake-gh-cli-token");
+    assert.strictEqual(mockExecSync.mock.callCount(), 1);
+    assert.strictEqual(
+      mockExecSync.mock.calls[0].arguments[0],
+      "gh auth token",
+    );
   });
 
   test("ghToken caches gh auth token result", async () => {
     const mockProcess = {
       cwd: spy(() => "/test/dir"),
-      env: { PATH: process.env.PATH, HOME: process.env.HOME },
+      env: {},
     };
+    const mockExecSync = spy(() => "fake-gh-cli-token");
 
     const config = await createConfig(
       "test",
@@ -177,10 +188,12 @@ describe("libconfig - Config getters", () => {
       {},
       mockProcess,
       mockStorageFn,
+      mockExecSync,
     );
     const first = config.ghToken();
     const second = config.ghToken();
     assert.strictEqual(first, second);
+    assert.strictEqual(mockExecSync.mock.callCount(), 1);
   });
 
   test("embeddingBaseUrl returns custom URL from environment", async () => {
