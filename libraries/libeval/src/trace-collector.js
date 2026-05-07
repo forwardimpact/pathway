@@ -299,8 +299,7 @@ export class TraceCollector {
     if (!this.result) return "";
     const duration = formatDuration(this.result.durationMs);
     const cost = Number(this.result.totalCostUsd).toFixed(4);
-    const headline =
-      this.orchestratorSummary?.verdict ?? this.result.result;
+    const headline = this.orchestratorSummary?.verdict ?? this.result.result;
     return (
       "\n" +
       `--- Result: ${headline} | Turns: ${this.result.numTurns} | Cost: $${cost} | Duration: ${duration} ---`

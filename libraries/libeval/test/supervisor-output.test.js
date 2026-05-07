@@ -11,7 +11,8 @@ import {
 import { createMockRunner } from "./mock-runner.js";
 import { createToolUseMsg } from "@forwardimpact/libharness";
 
-const concludeMsg = (summary, verdict = "success") => createToolUseMsg("Conclude", { verdict, summary });
+const concludeMsg = (summary, verdict = "success") =>
+  createToolUseMsg("Conclude", { verdict, summary });
 const redirectMsg = (message) => createToolUseMsg("Redirect", { message });
 
 describe("Supervisor - output and events", () => {

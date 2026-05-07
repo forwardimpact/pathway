@@ -15,7 +15,8 @@ import { MessageBus } from "../src/message-bus.js";
 import { createMockRunner } from "./mock-runner.js";
 import { createToolUseMsg } from "@forwardimpact/libharness";
 
-const concludeMsg = (summary, verdict = "success") => createToolUseMsg("Conclude", { verdict, summary });
+const concludeMsg = (summary, verdict = "success") =>
+  createToolUseMsg("Conclude", { verdict, summary });
 const askMsg = (to, question) =>
   createToolUseMsg("Ask", { to, question }, { id: `ask-${to}` });
 const answerMsg = (message) =>
