@@ -190,11 +190,11 @@ npx fit-pathway job --list
 ```
 
 ```text
-software_engineering  J050  —
-software_engineering  J060  —
-software_engineering  J060  platform
-site_reliability      J060  —
-site_reliability      J060  platform
+software_engineering J040, Software Engineer Level I
+software_engineering J060, Software Engineer Level II
+software_engineering J060 platform, Software Engineer Level II - Platform
+site_reliability J060, Site Reliability Engineer Level II
+site_reliability J060 platform, Site Reliability Engineer Level II - Platform
 ```
 
 The new discipline appears with every level it supports.

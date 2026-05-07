@@ -97,9 +97,9 @@ Expected output:
 Validation passed
 
 Data Summary
-  Skills       -- 20
+  Skills       — 20
   ...
-  Levels       -- 2
+  Levels       — 2
 ```
 
 ## Step 2: Define capabilities and skills

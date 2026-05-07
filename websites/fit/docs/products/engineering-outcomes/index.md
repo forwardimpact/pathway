@@ -38,13 +38,15 @@ npx fit-map validate
 ```
 
 ```text
-Validating standard data...
-  disciplines/software_engineering.yaml  ✓
-  capabilities/task_completion.yaml      ✓
-  behaviours/ownership.yaml             ✓
-  drivers.yaml                          ✓
+Validation passed
 
-Validation passed. 0 errors, 0 warnings.
+Data Summary
+  Skills       — 12
+  Behaviours   — 6
+  Disciplines  — 3
+  Tracks       — 2
+  Levels       — 5
+  Drivers      — 4
 ```
 
 If any errors appear, resolve them using the guidance in
