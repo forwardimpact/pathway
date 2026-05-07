@@ -100,6 +100,12 @@ export class TeeWriter extends Writable {
 
     // Universal envelope: { source, seq, event }
     if (parsed.event) {
+      // Always forward to the collector so it can capture orchestrator
+      // metadata (e.g. the summary verdict for the result footer); the
+      // collector adds no turn for suppressed events, so flushTurns stays
+      // a no-op when we skip it below.
+      this.collector.addLine(line);
+
       // Orchestrator lifecycle events are suppressed from the text stream
       // entirely (spec 540). They still reached fileStream above.
       if (
@@ -108,7 +114,6 @@ export class TeeWriter extends Writable {
       ) {
         return;
       }
-      this.collector.addLine(line);
       this.flushTurns();
       return;
     }
