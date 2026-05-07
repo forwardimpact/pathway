@@ -165,9 +165,7 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.throws(() => config.ghToken(), {
-      message: "GH_TOKEN not found in environment",
-    });
+    assert.throws(() => config.ghToken(), /GH_TOKEN not found in environment/);
   });
 
   test("throws on non-ENOENT errors (e.g. permission denied)", async () => {
@@ -217,9 +215,7 @@ describe("libconfig - .env file loading", () => {
     config.reset();
 
     // After reset, .env overrides are cleared and no process env either
-    assert.throws(() => config.ghToken(), {
-      message: "GH_TOKEN not found in environment",
-    });
+    assert.throws(() => config.ghToken(), /GH_TOKEN not found in environment/);
   });
 
   test("loads all allowed keys", async () => {

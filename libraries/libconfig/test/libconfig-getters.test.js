@@ -84,7 +84,7 @@ describe("libconfig - Config getters", () => {
     assert.strictEqual(config.rootDir, "/project/root");
   });
 
-  test("ghToken throws when not set in environment", async () => {
+  test("ghToken throws when not set in environment and gh cli fails", async () => {
     const mockProcess = {
       cwd: spy(() => "/test/dir"),
       env: {},
@@ -97,9 +97,7 @@ describe("libconfig - Config getters", () => {
       mockProcess,
       mockStorageFn,
     );
-    assert.throws(() => config.ghToken(), {
-      message: "GH_TOKEN not found in environment",
-    });
+    assert.throws(() => config.ghToken(), /GH_TOKEN not found in environment/);
   });
 
   test("ghToken returns from environment", async () => {
@@ -148,6 +146,41 @@ describe("libconfig - Config getters", () => {
       mockStorageFn,
     );
     assert.strictEqual(config.ghToken(), "gh-token");
+  });
+
+  test("ghToken falls back to gh auth token when env vars are unset", async () => {
+    const mockProcess = {
+      cwd: spy(() => "/test/dir"),
+      env: { PATH: process.env.PATH, HOME: process.env.HOME },
+    };
+
+    const config = await createConfig(
+      "test",
+      "myservice",
+      {},
+      mockProcess,
+      mockStorageFn,
+    );
+    const token = config.ghToken();
+    assert.ok(typeof token === "string" && token.length > 0);
+  });
+
+  test("ghToken caches gh auth token result", async () => {
+    const mockProcess = {
+      cwd: spy(() => "/test/dir"),
+      env: { PATH: process.env.PATH, HOME: process.env.HOME },
+    };
+
+    const config = await createConfig(
+      "test",
+      "myservice",
+      {},
+      mockProcess,
+      mockStorageFn,
+    );
+    const first = config.ghToken();
+    const second = config.ghToken();
+    assert.strictEqual(first, second);
   });
 
   test("embeddingBaseUrl returns custom URL from environment", async () => {

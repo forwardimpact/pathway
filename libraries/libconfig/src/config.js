@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import path from "node:path";
 import { readFile } from "node:fs/promises";
 import { createStorage } from "@forwardimpact/libstorage";
@@ -138,9 +139,13 @@ export class Config {
     Object.assign(this, data);
   }
 
-  /** @returns {string} GitHub token (GH_TOKEN, or GITHUB_TOKEN as fallback) */
+  /** @returns {string} GitHub token (GH_TOKEN → GITHUB_TOKEN → `gh auth token`) */
   ghToken() {
-    return this.#resolve(["GH_TOKEN", "GITHUB_TOKEN"]);
+    try {
+      return this.#resolve(["GH_TOKEN", "GITHUB_TOKEN"]);
+    } catch {
+      return this.#resolveGhCli();
+    }
   }
 
   /** @returns {string} Embedding API base URL with trailing slashes removed */
@@ -321,6 +326,37 @@ export class Config {
     }
 
     throw new Error(`${cacheKey} not found in environment`);
+  }
+
+  /**
+   * Spawns `gh auth token` and caches the result under the GH_TOKEN key.
+   * @returns {string}
+   * @private
+   */
+  #resolveGhCli() {
+    if (this.#cache.has("GH_TOKEN")) return this.#cache.get("GH_TOKEN");
+
+    let token;
+    try {
+      token = execSync("gh auth token", {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+        env: this.#process.env,
+      }).trim();
+    } catch {
+      throw new Error(
+        "GH_TOKEN not found in environment and `gh auth token` failed",
+      );
+    }
+
+    if (!token) {
+      throw new Error(
+        "GH_TOKEN not found in environment and `gh auth token` returned empty",
+      );
+    }
+
+    this.#cache.set("GH_TOKEN", token);
+    return token;
   }
 
   /**
