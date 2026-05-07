@@ -45,7 +45,12 @@
         "GetSubjects": {
           "method": "graph.Graph.GetSubjects",
           "description": "Lists entity URIs in the graph, optionally filtered by type.",
-          "routing": ["Entity discovery", "List capabilities", "List disciplines", "List skills"]
+          "routing": [
+            "Entity discovery",
+            "List capabilities",
+            "List disciplines",
+            "List skills"
+          ]
         },
         "QueryByPattern": {
           "method": "graph.Graph.QueryByPattern",
