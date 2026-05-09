@@ -94,6 +94,22 @@ npx fit-wiki pull
 
 Designed for use in Claude Code hooks (`SessionStart` → `npx fit-wiki pull`).
 
+### Authentication
+
+`init`, `pull`, and `push` authenticate against the wiki remote when an
+environment variable is set. Precedence: `GITHUB_TOKEN`, then `GH_TOKEN`.
+
+GitHub wikis (`<repo>.wiki.git`) require a **classic personal access token**
+with `repo` scope (or `public_repo` for public wikis). Fine-grained PATs have
+no Wiki permission in their permission catalogue and **cannot push to wikis**.
+Set the classic PAT as `GITHUB_TOKEN`. Reads of public wikis succeed
+anonymously when no token is set.
+
+The wiki URL is always derived against `https://github.com/<org>/<repo>.wiki.git`,
+even when the parent repository's `origin` remote points at a local proxy
+(common in remote Claude Code environments). The proxy is bypassed for wiki
+operations.
+
 ### Exit codes
 
 | Code | Meaning                                                    |

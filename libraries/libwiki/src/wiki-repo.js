@@ -1,7 +1,18 @@
 import { spawnSync } from "node:child_process";
 
+/**
+ * Token precedence: GITHUB_TOKEN before GH_TOKEN.
+ *
+ * GitHub wiki pushes (`<repo>.wiki.git`) require a classic personal access
+ * token with the `repo` scope (or `public_repo` for public wikis).
+ * Fine-grained personal access tokens have no `Wiki` permission in their
+ * catalogue, so they cannot push to wikis at all. The repo convention is
+ * GITHUB_TOKEN = classic PAT, GH_TOKEN = fine-grained PAT, so wiki ops
+ * prefer GITHUB_TOKEN. The fallback is best-effort: if only GH_TOKEN is
+ * set, push will fail at the auth wall and surface that to the caller.
+ */
 const CREDENTIAL_HELPER_BODY =
-  '!f() { echo username=x-access-token; echo "password=${GH_TOKEN:-$GITHUB_TOKEN}"; }; f';
+  '!f() { echo username=x-access-token; echo "password=${GITHUB_TOKEN:-$GH_TOKEN}"; }; f';
 
 /** Error thrown when a wiki pull encounters a rebase conflict that cannot be resolved automatically. */
 export class WikiPullConflict extends Error {
@@ -175,7 +186,7 @@ export class WikiRepo {
   }
 
   #authGit(args) {
-    const token = process.env.GH_TOKEN || process.env.GITHUB_TOKEN;
+    const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
     const fullArgs = buildAuthArgs(args, token);
     return spawnSync("git", fullArgs, {
       stdio: "pipe",

@@ -24,6 +24,7 @@ export function seedBareRepo(bare) {
   execFileSync("git", ["clone", bare, tmp], { stdio: "pipe" });
   git(tmp, "config", "user.name", "Seed");
   git(tmp, "config", "user.email", "seed@example.com");
+  git(tmp, "config", "commit.gpgsign", "false");
   git(tmp, "checkout", "-b", "master");
   writeFileSync(join(tmp, "README.md"), "# Wiki\n");
   git(tmp, "add", "-A");
@@ -41,5 +42,6 @@ export function cloneRepo(bare, name) {
   const wikiDir = join(parent, "wiki");
   git(wikiDir, "config", "user.name", "Test User");
   git(wikiDir, "config", "user.email", "test@example.com");
+  git(wikiDir, "config", "commit.gpgsign", "false");
   return { parent, wikiDir };
 }

@@ -149,6 +149,7 @@ describe("WikiRepo", () => {
     git(seedDir, "checkout", "master");
     git(seedDir, "config", "user.name", "Seed");
     git(seedDir, "config", "user.email", "seed@example.com");
+    git(seedDir, "config", "commit.gpgsign", "false");
     git(
       seedDir,
       "update-index",
@@ -204,7 +205,10 @@ describe("buildAuthArgs", () => {
     assert.equal(result[2], "-c");
     assert.ok(result[3].startsWith("credential.helper=!f()"));
     assert.ok(result[3].includes("x-access-token"));
-    assert.ok(result[3].includes("GH_TOKEN"));
+    assert.ok(
+      result[3].includes("${GITHUB_TOKEN:-$GH_TOKEN}"),
+      "credential helper must prefer GITHUB_TOKEN (classic PAT) over GH_TOKEN (fine-grained PAT) — fine-grained PATs have no Wiki permission",
+    );
     assert.deepEqual(result.slice(4), args);
   });
 
