@@ -15,26 +15,24 @@ between the command handler, the formatters, and JSON consumers.
 
 ## Components
 
-| Component                          | Location                                                  | Role                                                                                                        |
-| ---------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Command handler                    | `products/summit/src/commands/what-if.js`                 | Resolves source (and, for move, destination) targets; computes per-team `before`/`after` snapshots; calls diffs; assembles the `WhatIfReport` value passed to formatters. |
-| Per-team diff struct (new typedef) | same file (typedef in `aggregation/what-if.js`)           | `{ teamId, role, coverageDiff, riskDiff }` — one entry per team rendered.                                    |
-| `WhatIfReport` (new typedef)       | `aggregation/what-if.js`                                  | `{ scenario, teamDiffs }` — single shape every formatter consumes.                                           |
-| Text / JSON / Markdown formatters  | `products/summit/src/formatters/what-if/{text,json,markdown}.js` | Consume `WhatIfReport`. Render N labelled sections (N=1 keeps the legacy layout byte-for-byte; N=2 only when `scenario.type === "move"`). |
-| CLI definition                     | `products/summit/bin/fit-summit.js` (the `what-if` block) | Help strings for the `<team>` positional and the `--move` / `--to` options name source/destination roles.    |
-| Snapshot fixtures (new)            | `products/summit/test/fixtures/what-if/`                  | Pre-change captured output for the five non-move scenarios; tests assert byte-identity post-change.          |
+| Component                                | Location                                                         | Role                                                                                                                                                              |
+| ---------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Command handler                          | `products/summit/src/commands/what-if.js`                        | Resolves the source (and, for move, destination) targets; computes per-team `before`/`after` snapshots; calls `buildWhatIfReport`; passes the result to formatters. |
+| `WhatIfReport` + `TeamDiff` (new typedefs) and `buildWhatIfReport` (new helper) | `products/summit/src/aggregation/what-if.js`                     | Pure assembly of the per-team list from `before`/`after` snapshots and a scenario. Lives next to the existing diff functions so all what-if domain types share one home. |
+| Text / JSON / Markdown formatters        | `products/summit/src/formatters/what-if/{text,json,markdown}.js` | Consume `WhatIfReport`. Render N labelled sections (N=1 keeps the legacy layout byte-for-byte; N=2 only when `scenario.type === "move"`).                            |
+| CLI definition                           | `products/summit/bin/fit-summit.js` (the `what-if` block)        | Help strings for the `<team>` positional (subcommand `description` + `examples`) and the `--move` / `--to` option `description`s name source/destination roles.    |
+| Snapshot fixtures (new)                  | `products/summit/test/fixtures/what-if/`                         | Pre-change captured output for the five non-move scenarios; tests assert byte-identity post-change.                                                                |
 
 ## Data flow
 
 ```mermaid
 flowchart LR
-  argv[argv + roster + data] --> CMD[runWhatIfCommand]
-  CMD --> SRC[snapshot: source team]
-  CMD --> AS[applyScenario - one call]
+  ROSTER[roster - unmutated] --> SRC[snapshot: source before]
+  ROSTER -.move only.-> DST[snapshot: destination before]
+  ROSTER --> AS[applyScenario - one call]
   AS --> MUT[mutated roster]
   MUT --> SRC2[snapshot: source after]
   MUT -.move only.-> DST2[snapshot: destination after]
-  CMD -.move only.-> DST[snapshot: destination before]
   SRC --> DSRC[diffCoverage / diffRisks]
   SRC2 --> DSRC
   DST --> DDST[diffCoverage / diffRisks]
@@ -47,9 +45,11 @@ flowchart LR
   FMT --> MD[markdown]
 ```
 
-`applyScenario` is called exactly once. The destination-team `before` snapshot
-is taken from the unmutated roster; both `after` snapshots come from the same
-`mutated` roster. This satisfies success criterion 7 by construction.
+Solid edges fire on every scenario; dotted edges (labelled `move only`) fire
+only when `scenario.type === "move"`. Both `before` snapshots are taken against
+the unmutated roster; both `after` snapshots come from the same `mutated`
+roster, which is the single output of one `applyScenario` call. This satisfies
+success criterion 7 by construction.
 
 ## Internal contract
 
@@ -71,17 +71,24 @@ The destination team's `coverageDiff` / `riskDiff` are the existing pure
 functions called against the destination team's pre/post snapshots — no new
 diff logic is introduced.
 
+The internal `coverageDiff` / `riskDiff` field names are **not** the JSON wire
+names. The JSON formatter projects each `TeamDiff` into the wire shape
+`{ teamId, role, capabilityChanges, riskChanges }`, where `capabilityChanges`
+is `coverageDiff.capabilityChanges` and `riskChanges` is the entire `riskDiff`
+object — matching the existing flat JSON keys.
+
 ## JSON output shape
 
-| Scenario         | JSON top-level under `diff`                                    | Rationale                                                                |
-| ---------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| add/remove/promote | `{ capabilityChanges, riskChanges }` (current shape)         | Preserves byte-identity required by spec criterion 4.                    |
-| move             | `{ teams: [ { teamId, role, capabilityChanges, riskChanges }, … ] }` | Each entry is self-describing (`teamId` + `role`); two entries always.  |
+| Scenario           | JSON top-level under `diff`                                                                                          | Rationale                                                                |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| add/remove/promote | `{ capabilityChanges, riskChanges }` (current shape)                                                                 | Preserves byte-identity required by spec criterion 4.                    |
+| move               | `{ teams: [ { teamId, role, capabilityChanges, riskChanges }, { teamId, role, capabilityChanges, riskChanges } ] }` | Exactly two entries, each self-describing via `teamId` + `role`. Order is `[source, destination]`. |
 
 JSON consumers branch on `scenario.type === "move"` to choose which shape to
-read, exactly as spec criterion 2 calls for. The formatter keeps the legacy
-shape on the non-move path by reading `teamDiffs[0]` and emitting the
-flat `{capabilityChanges, riskChanges}` object verbatim.
+read, exactly as spec criterion 2 calls for. On the non-move path the JSON
+formatter reads `teamDiffs[0]` and emits the flat
+`{ capabilityChanges, riskChanges }` object verbatim — the existing
+`whatIfToJson` return shape, unchanged.
 
 ## Text and markdown rendering
 
