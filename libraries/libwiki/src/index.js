@@ -10,3 +10,4 @@ export { scanMarkers } from "./marker-scanner.js";
 export { renderBlock } from "./block-renderer.js";
 export { WikiRepo } from "./wiki-repo.js";
 export { listSkills } from "./skill-roster.js";
+export { deriveWikiUrl, parseOrgRepo } from "./wiki-url.js";

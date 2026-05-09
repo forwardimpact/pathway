@@ -92,10 +92,16 @@ export class WikiRepo {
     }
   }
 
-  /** Stage all changes, commit with the given message, fetch, rebase on origin/master (falling back to a merge with -X ours if rebase fails), and push. */
+  /** Stage all changes, commit with the given message, fetch, rebase on origin/master (falling back to a merge with -X ours if rebase fails), and push.
+   *
+   * Returns `{ pushed: false, reason: "clean" }` if the working tree was clean,
+   * `{ pushed: false, reason: "push-failed", stderr }` if the network push was
+   * rejected (the local commit is preserved), or `{ pushed: true, reason: "pushed" }`
+   * on success.
+   */
   commitAndPush(message) {
     if (this.isClean()) return { pushed: false, reason: "clean" };
-    this.#git(["add", "-A"]);
+    this.#addAllExcludingGitlinks();
     this.#git(["commit", "-m", message]);
     this.fetch();
     const rebase = this.#git(["rebase", "origin/master"]);
@@ -103,8 +109,54 @@ export class WikiRepo {
       this.#git(["rebase", "--abort"]);
       this.#git(["merge", "origin/master", "-X", "ours", "--no-edit"]);
     }
-    this.#authGit(["-C", this.#wikiDir, "push", "origin", "master"]);
+    const push = this.#authGit([
+      "-C",
+      this.#wikiDir,
+      "push",
+      "origin",
+      "master",
+    ]);
+    if (push.status !== 0) {
+      return {
+        pushed: false,
+        reason: "push-failed",
+        stderr: push.stderr?.toString().trim() ?? "",
+      };
+    }
     return { pushed: true, reason: "pushed" };
+  }
+
+  /** Stage all changes in the working tree, excluding gitlink entries.
+   *
+   * The wiki is managed as a standalone repo. Any gitlink (`160000`) entries in
+   * the wiki's own index are foreign — likely artifacts of an unrelated push —
+   * and `git add -A` fails on them when the corresponding submodule directory
+   * is not populated. Exclude those paths via pathspec so the add succeeds.
+   */
+  #addAllExcludingGitlinks() {
+    const gitlinkPaths = this.#listGitlinkPaths();
+    if (gitlinkPaths.length === 0) {
+      this.#git(["add", "-A"]);
+      return;
+    }
+    const args = ["add", "-A", "--", "."];
+    for (const p of gitlinkPaths) args.push(`:(exclude)${p}`);
+    this.#git(args);
+  }
+
+  /** Return paths of gitlink entries (mode 160000) currently in the index. */
+  #listGitlinkPaths() {
+    const r = this.#git(["ls-files", "--stage"]);
+    if (r.status !== 0) return [];
+    const out = r.stdout?.toString() ?? "";
+    const paths = [];
+    for (const line of out.split("\n")) {
+      if (!line.startsWith("160000 ")) continue;
+      const tab = line.indexOf("\t");
+      if (tab < 0) continue;
+      paths.push(line.slice(tab + 1));
+    }
+    return paths;
   }
 
   #parentConfig(key) {

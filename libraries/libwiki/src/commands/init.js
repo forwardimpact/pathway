@@ -5,6 +5,7 @@ import fsAsync from "node:fs/promises";
 import { Finder } from "@forwardimpact/libutil";
 import { WikiRepo } from "../wiki-repo.js";
 import { listSkills } from "../skill-roster.js";
+import { deriveWikiUrl as deriveWikiUrlFromOrigin } from "../wiki-url.js";
 
 function deriveWikiUrl(parentDir) {
   const r = spawnSync("git", ["-C", parentDir, "remote", "get-url", "origin"], {
@@ -12,9 +13,7 @@ function deriveWikiUrl(parentDir) {
     stdio: "pipe",
   });
   if (r.status !== 0) return null;
-  const origin = r.stdout.trim();
-  const base = origin.replace(/\.git$/, "");
-  return base + ".wiki.git";
+  return deriveWikiUrlFromOrigin(r.stdout.trim());
 }
 
 /** Clone the wiki if not already present (URL derived from origin remote), copy git identity from the parent repo, and create metric directories for each kata skill. */

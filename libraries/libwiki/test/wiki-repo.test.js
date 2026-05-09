@@ -140,6 +140,37 @@ describe("WikiRepo", () => {
     assert.equal(diff, "");
   });
 
+  test("commitAndPush succeeds when the wiki contains an unpopulated gitlink", () => {
+    const bareWithGitlink = createBareRepo();
+    seedBareRepo(bareWithGitlink);
+
+    const seedDir = mkdtempSync(join(tmpdir(), "wiki-gitlink-seed-"));
+    execFileSync("git", ["clone", bareWithGitlink, seedDir], { stdio: "pipe" });
+    git(seedDir, "checkout", "master");
+    git(seedDir, "config", "user.name", "Seed");
+    git(seedDir, "config", "user.email", "seed@example.com");
+    git(
+      seedDir,
+      "update-index",
+      "--add",
+      "--cacheinfo",
+      "160000,0000000000000000000000000000000000000001,nested",
+    );
+    git(seedDir, "commit", "-m", "introduce gitlink");
+    git(seedDir, "push", "origin", "master");
+
+    const { parent, wikiDir } = cloneRepo(bareWithGitlink, "gitlink-push");
+    git(wikiDir, "checkout", "master");
+    const repo = new WikiRepo({ wikiDir, parentDir: parent });
+
+    writeFileSync(join(wikiDir, "page.md"), "regular content");
+    const result = repo.commitAndPush("wiki: add page alongside gitlink");
+    assert.equal(result.pushed, true);
+
+    const log = git(wikiDir, "log", "-1", "--oneline");
+    assert.ok(log.includes("wiki: add page alongside gitlink"));
+  });
+
   test("commitAndPush recovers via merge -X ours on divergence", () => {
     const { wikiDir: w1 } = cloneRepo(bare, "merge1");
     const { parent: p2, wikiDir: w2 } = cloneRepo(bare, "merge2");

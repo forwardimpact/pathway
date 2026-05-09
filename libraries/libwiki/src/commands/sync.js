@@ -16,9 +16,15 @@ export function runPushCommand(values, _args, cli) {
   const result = repo.commitAndPush("wiki: update from session");
   if (result.pushed) {
     process.stdout.write("push: committed and pushed\n");
-  } else {
-    process.stdout.write("push: nothing to push\n");
+    return;
   }
+  if (result.reason === "push-failed") {
+    process.stderr.write(
+      `push: commit succeeded but push to origin failed:\n${result.stderr}\n`,
+    );
+    process.exit(1);
+  }
+  process.stdout.write("push: nothing to push\n");
 }
 
 /** Fetch and rebase the local wiki on origin/master; on rebase conflict, exit the process with code 1 and a message to resolve manually or push first. */
