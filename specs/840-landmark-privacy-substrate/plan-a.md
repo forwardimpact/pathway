@@ -19,7 +19,10 @@ Libraries used: `@supabase/supabase-js` (`auth.admin.{listUsers,createUser,updat
 
 ### 1. Enable Supabase Auth and surface its env vars
 
-- **Modified:** `products/map/supabase/config.toml`
+- **Modified:** `products/map/supabase/config.toml` — replace the existing
+  `[auth]` block (currently only `enabled = false`) with the block below; the
+  new `[auth.email]` block is appended (no existing `[auth.email]` block to
+  merge with):
 
 ```toml
 [auth]
@@ -42,7 +45,7 @@ process.stdout.write(`  export MAP_SUPABASE_ANON_KEY=${status.anon_key}\n`);
 process.stdout.write(`  export MAP_SUPABASE_JWT_SECRET=${status.jwt_secret}\n\n`);
 ```
 
-Verify: `bunx fit-map activity start` prints all four env vars; `bunx fit-map activity status` reports the Auth service `RUNNING`; `bun test products/map/test/activity/supabase-cli.test.js` (extended in step 8) asserts the new export lines.
+Verify: `bunx fit-map activity start` prints all four env vars; `bunx fit-map activity status` reports the Auth service `RUNNING`; `bun test products/map/test/activity-start.test.js` (added in step 8) asserts the new export lines.
 
 ### 2. RLS + retention migration
 
@@ -157,8 +160,10 @@ BEGIN
 END $fn$;
 
 CREATE OR REPLACE FUNCTION activity.retention_blob(p_table TEXT)
-RETURNS TEXT LANGUAGE sql STABLE SET search_path = '' AS $$
-  SELECT obj_description(format('activity.%I', p_table)::regclass, 'pg_class');
+RETURNS TEXT LANGUAGE sql STABLE SECURITY INVOKER SET search_path = '' AS $$
+  SELECT obj_description(format('activity.%I', p_table)::regclass, 'pg_class')
+  WHERE p_table IN ('organization_people','evidence','github_artifacts',
+    'getdx_snapshot_comments','getdx_snapshot_team_scores','getdx_snapshots');
 $$;
 GRANT EXECUTE ON FUNCTION activity.retention_blob(TEXT) TO authenticated, service_role;
 
@@ -293,13 +298,8 @@ export async function buildContext({ dataDir, options, needsSupabase, identity }
 }
 ```
 
-`createLandmarkClient`'s only caller is `buildContext`; every command receives
-`supabase` from `ctx`, so the signature flip in step 5 ripples no further than
-this file.
-
 - **Modified:** `products/landmark/bin/fit-landmark.js` — add `resolveIdentity`
-  import and the chokepoint in `main()`. Before/after the existing block at
-  `bin/fit-landmark.js:240-247`:
+  import and the chokepoint in `main()`. Before/after the existing block:
 
 ```js
 // before
@@ -339,10 +339,6 @@ And in the existing `catch` block (`bin/fit-landmark.js:268-275`), prepend the
 }
 ```
 
-Existing `--email`/`--manager` handler arguments are preserved as JS-side
-filters within the RLS-clamped result set (per design § Tier derivation and
-behavior changes); no handler signatures change.
-
 Verify: `bun test products/landmark/test/dispatcher.test.js` (added in step 8) asserts exit codes 0/3/4 by spawning the binary via `node:child_process.spawnSync`; manual smoke `LANDMARK_AUTH_TOKEN= fit-landmark voice --email a@b` exits 4, `fit-landmark marker x` exits 0.
 
 ### 7. New verbs
@@ -356,9 +352,14 @@ NO_SOURCES_FOR_PERSON: (email) =>
   `No sources retained for ${email} that you can see.`,
 ```
 
+- **Created:** `products/map/src/activity/retention.js` (consumed by `sources.js`
+  in this same step). Body and the matching `exports` entry are listed in
+  step 9 alongside the docs that document the retention contract; create the
+  file here so the import resolves.
+
 - **Created:** `products/landmark/src/commands/sources.js` — exports
-  `runSourcesCommand({ args, options, supabase })` returning `{ meta, items }`
-  per design § Interfaces.
+  `runSourcesCommand({ args, options, supabase })` returning `{ view, meta }`
+  per design § Interfaces (`view.items[]` is the design's `items[]` field).
 
 ```js
 import { readRetention } from "@forwardimpact/map/activity/retention";
@@ -392,7 +393,7 @@ const CLASSES = [
     } },
 ];
 
-export async function runSourcesCommand({ options, supabase, format }) {
+export async function runSourcesCommand({ args: _args, options, supabase, format }) {
   const email = options.email;
   if (!email) throw new Error("sources: --email <e> is required");
   const items = [];
@@ -415,9 +416,9 @@ export async function runSourcesCommand({ options, supabase, format }) {
       window: ret.window, falloff });
   }
   if (!items.length) {
-    return { items: [], meta: { format, emptyState: EMPTY_STATES.NO_SOURCES_FOR_PERSON(email) } };
+    return { view: null, meta: { format, emptyState: EMPTY_STATES.NO_SOURCES_FOR_PERSON(email) } };
   }
-  return { items, meta: { format, email } };
+  return { view: { email, items }, meta: { format } };
 }
 
 function addIso(ts, p) {
@@ -433,12 +434,30 @@ function addIso(ts, p) {
 }
 ```
 
-- **Modified:** step 2 migration — append `snapshot_ids_for_person(p_email)` SQL
-  helper that UNIONs `getdx_snapshot_comments.snapshot_id` filtered by email
-  with `getdx_snapshot_team_scores.snapshot_id` joined through
-  `organization_people.getdx_team_id`. Mark it `LANGUAGE sql STABLE SECURITY
-  INVOKER` so RLS still applies inside the union; grant EXECUTE to
-  `authenticated, service_role`.
+- **Modified:** step 2 migration — append the SQL helper `sources.js` calls.
+  RLS still applies inside the union because the function is `SECURITY
+  INVOKER` (sql functions default to invoker; declared explicitly for
+  clarity).
+
+```sql
+CREATE OR REPLACE FUNCTION activity.snapshot_ids_for_person(p_email TEXT)
+RETURNS TABLE (snapshot_id TEXT)
+LANGUAGE sql STABLE SECURITY INVOKER SET search_path = '' AS $$
+  SELECT DISTINCT snapshot_id FROM activity.getdx_snapshot_comments
+    WHERE email = p_email
+  UNION
+  SELECT DISTINCT s.snapshot_id FROM activity.getdx_snapshot_team_scores s
+    JOIN activity.organization_people op
+      ON op.getdx_team_id = s.getdx_team_id
+    WHERE op.email = p_email;
+$$;
+GRANT EXECUTE ON FUNCTION activity.snapshot_ids_for_person(TEXT)
+  TO authenticated, service_role;
+```
+
+The Landmark client's `db.schema = "activity"` makes
+`supabase.rpc("snapshot_ids_for_person", …)` resolve to the
+`activity.`-qualified function above.
 - **Created:** `products/landmark/src/formatters/sources.js` — text/json/markdown
   exports mirroring `org.js` formatter shape, keyed off `result.items[]`.
 - **Modified:** `products/landmark/src/formatters/index.js` — add `sources`
@@ -478,7 +497,7 @@ async function listAuthUsers(supabase) {
   return out;
 }
 
-export async function runProvisionCommand({ supabase }) {
+export async function runProvisionCommand({ args: _args, options: _options, supabase }) {
   process.stdout.write(formatHeader("Provisioning auth.users from organization_people") + "\n\n");
   const { data: roster, error } = await supabase.from("organization_people").select("email");
   if (error) throw new Error(`organization_people: ${error.message}`);
@@ -514,12 +533,6 @@ export async function runProvisionCommand({ supabase }) {
 }
 ```
 
-`supabase.auth.admin.*` reaches GoTrue via the service-role JWT; it is
-unaffected by the PostgREST schema scoping that `createMapClient` applies for
-`from(...)`. The existing `activity` schema scoping is fine — the `from(
-"organization_people")` call lands on `activity.organization_people` because
-`config.toml` puts `activity` on `extra_search_path`.
-
 - **Modified:** `products/map/bin/fit-map.js`:
   - `dispatchPeople` adds the `provision` case:
 
@@ -527,8 +540,8 @@ unaffected by the PostgREST schema scoping that `createMapClient` applies for
 case "provision": {
   const supabase = await mapClient(values);
   const { runProvisionCommand } = await import("../src/commands/people-provision.js");
-  const { summary } = await runProvisionCommand({ supabase });
-  return summary.created || summary.restored || summary.decommissioned ? 0 : 0;
+  await runProvisionCommand({ args: rest, options: values, supabase });
+  return 0;
 }
 ```
 
@@ -553,11 +566,11 @@ all are run by the existing top-level `bun run test`.
 | `products/landmark/test/lib/supabase.test.js` (new) | `createLandmarkClient` fails fast on missing url/anon/jwt; sets the `Authorization` header. |
 | `products/landmark/test/lib/no-service-role-in-src.test.js` (new) | criterion 3a: greps `products/landmark/src/` for `MAP_SUPABASE_SERVICE_ROLE_KEY` and `auth.admin.` — both must be zero. Greps `products/landmark/src/` for `sign-test-token` — must be zero. |
 | `products/landmark/test/dispatcher.test.js` (new) | criterion 3b — `spawnSync(process.execPath, ["bin/fit-landmark.js", "voice", "--email", "a@b"], { env: {} })` exits 4 and writes the auth-required message; same harness with `marker x` exits 0; with `LANDMARK_AUTH_TOKEN` set but `MAP_SUPABASE_URL` unset exits 3. The "no Supabase query before error" half is enforced structurally — `resolveIdentity` runs before `buildContext`, which is the only construction site for the client. |
-| `products/map/test/activity/supabase-cli.test.js` (extended) | step 1 patch — `start()` prints both `MAP_SUPABASE_ANON_KEY` and `MAP_SUPABASE_JWT_SECRET` lines. |
+| `products/map/test/activity-start.test.js` (new) | step 1 patch — invokes `start()` with a stubbed `supabaseCli` returning a known `status` JSON; asserts the printed block contains all four `MAP_SUPABASE_*` exports in order. (The existing `products/map/test/supabase-cli.test.js` covers the supabase-cli wrapper, not `activity.start()` printing.) |
 | `products/landmark/test/sources.test.js` (new) | criterion 5 — populated classes appear with five fields; zero-count classes omitted; criterion 6 retention mutation reflected; criterion 7 — out-of-scope email returns `NO_SOURCES_FOR_PERSON`. |
-| `products/landmark/test/regression-scope.test.js` (new) | criterion 9 — committed golden fixtures (`products/landmark/test/golden/sources-{voice,evidence,readiness,coverage,timeline}-self.json`) are captured *before* the migration lands by running each command on the unmigrated fixture set; the new test re-runs each command under an Engineer-scope JWT bound to the same fixture self and asserts deep equality against the golden file. Fixture capture is a one-time pre-PR step recorded in the PR body. |
+| `products/landmark/test/regression-scope.test.js` (new) | criterion 9 — committed golden fixtures (`products/landmark/test/golden/{voice,evidence,readiness,coverage,timeline}-self.json`) capture the result of each `--email <self>` command against the **unmigrated** fixture data set. The capture script `products/landmark/test/golden/capture.mjs` (also new) is the deterministic, repeatable producer: it runs against `git stash`-protected pre-migration code, writes the JSON, and the test re-runs each command under an Engineer-scope JWT bound to the same fixture self, asserting the criterion-9 tolerance shape (rows present, field values equal; row ordering, header timestamps, and error wording ignored). The capture script is committed to the PR so re-runs are reproducible. |
 | `products/map/test/activity/integration.test.js` (extended) | criterion 8 — end-to-end seed → migrate → `activity verify` passes against the migrated schema. |
-| `products/landmark/test/empty-state.test.js` (extended) | `NO_SOURCES_FOR_PERSON(email)` returns a function whose output includes the email. |
+| `products/landmark/test/empty-state.test.js` (extended) | `EMPTY_STATES.NO_SOURCES_FOR_PERSON` is a function; calling it with an email returns a string that contains the email. |
 
 Tests that need a live Postgres use the `bunx fit-map activity start` harness
 the integration tests already rely on (`products/map/test/activity/`); pure
@@ -567,7 +580,12 @@ Verify: `bun run test` green; `bun run check` green; `bun run format`.
 
 ### 9. Retention reader, docs
 
-- **Created:** `products/map/src/activity/retention.js`
+- **Created:** `products/map/src/activity/retention.js` and the matching entry
+  in `products/map/package.json` `exports`:
+
+```json
+"./activity/retention": "./src/activity/retention.js"
+```
 
 ```js
 const TOKEN = /retention\.(window|clock)=([A-Za-z0-9_]+)/g;
