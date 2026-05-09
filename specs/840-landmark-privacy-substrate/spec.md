@@ -5,7 +5,7 @@
 Landmark's stated promise to engineers is *"demonstrate engineering progress
 without making individuals feel surveilled"*
 ([JTBD.md § Engineering Leaders: Measure Engineering Outcomes](../../JTBD.md#engineering-leaders-measure-engineering-outcomes)).
-Today the data substrate cannot honor that promise. Three concrete gaps are
+Today the data substrate cannot honor that promise. Four concrete gaps are
 visible at HEAD `9891ab23`:
 
 - **No row-level security.**
@@ -34,6 +34,19 @@ visible at HEAD `9891ab23`:
   pass — nothing structurally prevents a caller from passing
   `--manager <anyone>` on any command that accepts it. See
   `products/landmark/bin/fit-landmark.js:62-168` for the full surface.
+- **No operator-facing path to provision authenticatable engineers.** Any
+  identity-derived RLS regime — including the one this spec lands — has to
+  read a per-engineer claim from somewhere. Supabase exposes that claim
+  through the `auth.users` table (queried by `auth.email()`, `auth.uid()`,
+  etc. inside RLS expressions). `auth.users` is empty today: there is no
+  command, no script, no documented path that pairs `auth.users` rows to
+  the `activity.organization_people` rows ingestion already maintains. An
+  operator facing the privacy substrate today would have to hand-create
+  rows through Supabase Studio — not a procedure the test harness, CI, or
+  a deployment can use. Without a programmatic provisioning surface, the
+  RLS migration in this spec is correct in isolation but unreachable in
+  practice: no caller can authenticate, and the privacy contract cannot be
+  exercised end-to-end.
 
 These gaps are already thin for the data Landmark holds today (GetDX comments
 attributed to email; per-engineer evidence rows; GitHub artifact rows joined
@@ -69,7 +82,11 @@ scope from the authenticated caller's identity rather than from request
 fields. Engineers can list the rows retained about them with `fit-landmark
 sources --email <self>` and see the retention window for each row class. The
 service-role key remains the write-path credential (used by Map's ingestion
-pipelines) but is no longer reachable from any Landmark read path.
+pipelines) but is no longer reachable from any Landmark read path. A new
+admin verb on the `fit-map` CLI provisions Supabase Auth users that pair
+with `activity.organization_people` rows by email, so the privacy substrate
+can be exercised end-to-end — by the test harness, CI fixtures, and any
+production rollout — without manual Auth-dashboard setup.
 
 ### Architectural precondition (named, not designed here)
 
@@ -93,15 +110,26 @@ the design adds).
 | Source inventory CLI | New `fit-landmark sources --email <e>` verb (CLI definition, skill `## Documentation` list, and a `websites/fit/docs/products/<slug>/index.md` page must update together per `products/CLAUDE.md` § "CLIs and progressive documentation"). | Lists every row class retained about engineer `<e>`, grouped per row class, including the columns named in success criterion 5. Wiring (file layout, dispatcher registration, doc-slug name) is a design choice. |
 | Retention metadata | `products/map/supabase/migrations/<new>.sql` | Each row class in the migration carries a declared retention window in schema metadata. Mechanism (per-table `COMMENT`, an `activity.retention_policies` table, etc.) is a design choice. The metadata is the single source of truth that the source-inventory command renders from. |
 | Empty/error contract | `products/landmark/src/lib/empty-state.js` | RLS-induced empty results render an empty-state message (existing or new key — design choice), not a "table not found" error. Auth-resolution failures (no caller identity) error explicitly, identifying authentication as the missing step; specific copy is a design choice. |
-| Tests | `products/map/test/`, `products/landmark/test/` | Cover policy enforcement (per-row-class scope rules above); cover the source-inventory command output shape; cover error behavior when no caller identity resolves. |
+| Admin user provisioning | New admin verb on `fit-map` (operator surface; consumes the existing service-role credential the write path already uses). The verb's name, whether it nests under the existing `people` subcommand or sits under a new namespace, the file layout under `products/map/src/`, and the skill `## Documentation` + `websites/fit/docs/products/<slug>/index.md` page that ships with it (per `products/CLAUDE.md` § "CLIs and progressive documentation") are design choices. | For every row in `activity.organization_people`, ensure a corresponding `auth.users` row exists whose `email` equals that row's `email`. The command is operator-only — registered on `fit-map` (not `fit-landmark`) and not reachable from any Landmark CLI surface. The command is idempotent: re-running against an unchanged roster produces no duplicate `auth.users` rows. The decommissioning rule for an `auth.users` row whose `organization_people` counterpart has been removed (delete, disable, soft-flag, or no-op) is a design choice; whichever rule the design picks is verified by the success criterion. |
+| Tests | `products/map/test/`, `products/landmark/test/` | Cover policy enforcement (per-row-class scope rules above); cover the source-inventory command output shape; cover error behavior when no caller identity resolves; cover the admin provisioning command's idempotency and decommissioning rule. |
 
 ## Scope (out)
 
 - **Slices 2–4 of #829.** `claude_code_sessions` ingestion, `evaluate-evidence`
   trace integration, and Copilot ingestion are deferred under the umbrella
   issue and are not covered here.
-- **Authentication mechanism.** *How* a caller's identity is resolved is a
-  design decision (see Architectural precondition above).
+- **Identity-carrier mechanism.** *Which* claim the RLS expressions read
+  from `auth.users` (email, uid, a custom claim) and *how* a JWT carrying
+  that claim reaches Postgres are design decisions (see Architectural
+  precondition above).
+- **Engineer-side login flow.** The path by which an engineer's provisioned
+  `auth.users` row turns into a JWT in their CLI environment — a
+  `fit-landmark login` verb, magic-link delivery, password-reset flow,
+  SSO bridge, API token storage — is a follow-up. This spec covers
+  admin-side provisioning of `auth.users` rows themselves; the
+  engineer-facing JWT-issuance flow remains a separate concern. The test
+  harness mints JWTs against the local Supabase JWT secret without going
+  through any login flow.
 - **Higher-than-Manager scope tiers.** No resolved director-tier source
   exists in `activity.organization_people` today. This spec requires only
   Engineer and Manager. Adding higher tiers is a follow-up.
@@ -163,6 +191,8 @@ satisfy.
 | 7 | A Manager-scope caller running `fit-landmark sources --email <not-self-not-report>` returns zero rows; the command renders an empty-state message keyed off the empty-state registry (`EMPTY_STATES` in `products/landmark/src/lib/empty-state.js`), not a "table not found" error. | Behavioural test: as Manager M with reports A, B, invoke `fit-landmark sources --email C` (C outside M's subtree); assert exit 0; assert the rendered string is the empty-state registry value (existing or new key — design choice). |
 | 8 | The service-role key remains the write-path credential. Map's ingestion pipelines continue to write to `activity.*` tables unchanged. | Behavioural test: run `bunx fit-map activity verify` (per `products/map/bin/fit-map.js`'s registered subcommands) against a seeded fixture on the migrated schema; assert verification passes. Static inspection: Map's ingestion code paths still construct a service-role client. |
 | 9 | For every Landmark command that accepts `--email` (`voice`, `evidence`, `readiness`, `coverage`, `timeline` — verified at `products/landmark/bin/fit-landmark.js:62-168`), an Engineer-scope caller bound to `<self>` invoking the command with `--email <self>` returns the same row set the pre-change command returned for the same input. | Test: capture pre-change row sets for each of the five commands invoked with `--email <self>` against a fixture; rerun post-change under an Engineer-scope caller bound to `<self>`; assert row-set equality (rows present, field values equal). Tolerated drift: row ordering when not user-meaningful, header timestamps, error wording. Substantive drift (missing/added rows, mutated field values) fails the test. Commands that do not accept `--email` are exercised by criterion 4's scope test. |
+| 10 | The new admin `fit-map` provisioning verb, run against a seeded `activity.organization_people` fixture, leaves every roster `email` paired to exactly one `auth.users` row with the same `email`; a second run against the same roster produces no duplicate `auth.users` rows; the command does not appear on the `fit-landmark` CLI surface. | Behavioural test: seed `activity.organization_people` with N rows; invoke the new `fit-map` provisioning verb with the operator credential the design names; for each seeded `email`, assert exactly one `auth.users` row exists with the matching `email` (e.g. via `supabase.auth.admin.listUsers()` in the test harness); re-run the verb; assert the `auth.users` row count for those emails is unchanged. Static inspection: the verb is registered on `products/map/bin/fit-map.js`'s command list; no equivalent verb is registered on `products/landmark/bin/fit-landmark.js`. |
+| 11 | Removing a row from the roster and re-running the admin provisioning verb produces the decommissioning state the design names — and the same row reappearing on a later roster restores it to active. | Behavioural test: seed `activity.organization_people` with rows A and B; run the provisioning verb. Remove A from the roster; re-run the verb; assert the design-named decommissioning state for A's `auth.users` row (deleted, disabled, soft-flagged, or unchanged — whichever the design picks). Re-add A to the roster; re-run; assert A's `auth.users` row is once again in the active state the design names. |
 
 ## Notes — evidence pointers (for design)
 
@@ -193,6 +223,18 @@ satisfy.
 - Existing empty-state registry: `products/landmark/src/lib/empty-state.js`
   (`EMPTY_STATES` already carries entries the design can reuse or extend; the
   spec does not pre-decide which key the source-inventory command uses).
+- Existing operator write path on `fit-map`:
+  `products/map/src/commands/people.js:48-80` (`push`) — already consumes a
+  service-role-keyed client and runs `extractPeopleFile` →
+  `transformPeople` against `activity.organization_people`. The new admin
+  provisioning verb is a sibling on the same surface (operator credential,
+  same `fit-map` CLI), not a `landmark` verb. Whether it lives at
+  `fit-map people provision`, `fit-map auth provision`, or another shape
+  is a design choice. Supabase's Auth admin API — `auth.admin.createUser`,
+  `auth.admin.listUsers`, `auth.admin.updateUserById`,
+  `auth.admin.deleteUser` — is the underlying mechanism the design picks
+  from to satisfy the create / idempotency / decommissioning shape; the
+  spec does not pre-decide which.
 - Source issue: [#829](https://github.com/forwardimpact/monorepo/issues/829),
   §"Privacy architecture this requires" and §"Recommended posture".
 - Sequencing: This is Slice 1 of #829. Slice 2 (`claude_code_sessions` +
