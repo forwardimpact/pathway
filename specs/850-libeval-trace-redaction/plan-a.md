@@ -213,11 +213,9 @@ decision 6 (walk-then-serialise):
   this.buffer.push(line);
   if (this.onLine) this.onLine(line);
   if (this.onBatch) state.pendingBatch.push(line);
-  // session-id / text-block tracking still reads the ORIGINAL `message` —
-  // session_id, message.subtype, and tool_use block.name/.input.skill are
-  // not secret carriers, and reading from the redacted shape would be a
-  // gratuitous semantic shift if a future allowlist entry happens to match
-  // a session id.
+  // Session-id / text-block tracking continues to read the ORIGINAL
+  // `message` (these fields are not secret carriers — see design § Walk-
+  // then-serialise rationale).
   if (message.type === "system" && message.subtype === "init") {
     this.sessionId = message.session_id;
   }
@@ -290,13 +288,8 @@ emitLine(line) {
 ```
 
 Apply the same `this.redactor.redactValue(...)` wrap inside `emitOrchestratorEvent`
-(line 430) and `emitSummary` (line 444). The `event` field inside `emitLine`
-has *already* been redacted by `AgentRunner.#recordLine` (the bytes the
-runner wrote to `devNull` — and pushed to `runner.buffer` — are pre-redacted),
-so the inner walk is a no-op on those carriers; the outer redact catches the
-`{source, seq}` envelope and any future field added to it. `emitSummary` is
-the highest-risk seam — `result.summary` originates as untrusted text from
-the `Conclude` MCP handler and never traverses `#recordLine`.
+(line 430) and `emitSummary` (line 444). See design § Components for the
+seam catalogue and the `emitSummary` / `Conclude` rationale.
 
 Factory `createSupervisor` (line 486–579): build `agentRunner` and
 `supervisorRunner` with the same `redactor` instance the caller passed in,
@@ -356,42 +349,39 @@ Add `createFacilitator throws on missing redactor` test mirroring step 3.
 
 - **Modified:** `libraries/libeval/src/commands/run.js`
 
-Build the redactor as the **first observable side-effect after option
-parsing**, before any `process.env =` write the command does. The existing
-`process.env.LIBEVAL_AGENT_PROFILE = ...` line (98) writes after the
-factory builds — moving the redactor construction above that write is what
-the design's snapshot-determinism contract requires.
+Three local edits — keep the existing destructured `parseRunOptions` return
+shape so downstream references (`taskContent`, `cwd`, `outputPath`,
+`agentProfile`, etc.) stay valid; only insert the redactor and route it
+through `onLine` and `createAgentRunner`. Per design key decision 7, the
+redactor is built immediately after `parseRunOptions(values)` returns —
+before the existing `process.env.LIBEVAL_AGENT_PROFILE = agentProfile`
+write at line 98 (which precedes `createAgentRunner` at line 108).
+
+(a) Insert the redactor construction directly after `parseRunOptions`
+(between current lines 62 and 64):
 
 ```js
-// before (line 51–62, after parseRunOptions)
-export async function runRunCommand(values, _args) {
-  const { taskContent, taskAmend, cwd, model, /* ... */ } = parseRunOptions(values);
-
-  const fileStream = outputPath ? createWriteStream(outputPath) : null;
-  const output = fileStream ? createTeeWriter({ /* ... */ }) : process.stdout;
-
-// after — insert redactor construction immediately after parse
-export async function runRunCommand(values, _args) {
-  const opts = parseRunOptions(values);
-  const redactor = createRedactor({
-    enabled: process.env.LIBEVAL_REDACTION_DISABLED !== "1",
-  });
-
-  const fileStream = opts.outputPath ? createWriteStream(opts.outputPath) : null;
-  const output = fileStream ? createTeeWriter({ /* ... */ }) : process.stdout;
+// new — between current lines 62 and 64
+const redactor = createRedactor({
+  enabled: process.env.LIBEVAL_REDACTION_DISABLED !== "1",
+});
 ```
 
-The `onLine` callback (line 77–82) wraps the SDK line in a
-`{source, seq, event}` envelope and writes directly to `output`. That
-envelope path bypasses `#recordLine` (it constructs the wrapper from the
-already-stringified `line`), so it must run through the redactor too —
-this is the design's named "outer envelope redact" defence-in-depth:
+Add the matching `import { createRedactor } from "../redaction.js";` at the
+top.
+
+(b) Wrap the `onLine` envelope (current lines 77–82) so the
+`{source, seq, event}` wrapper passes through the redactor — this path
+constructs its envelope from the already-stringified `line` and so does
+not transit `#recordLine`:
 
 ```js
-// before (line 77–82)
+// before (lines 77–82)
 const onLine = (line) => {
   const event = JSON.parse(line);
-  output.write(JSON.stringify({ source: "agent", seq: counter.next(), event }) + "\n");
+  output.write(
+    JSON.stringify({ source: "agent", seq: counter.next(), event }) + "\n",
+  );
 };
 
 // after
@@ -402,11 +392,8 @@ const onLine = (line) => {
 };
 ```
 
-Pass `redactor` to `createAgentRunner` (line 108–120):
-
-```js
-const runner = createAgentRunner({ cwd, query, output: devNull, /* ... */, redactor });
-```
+(c) Add `redactor` to the `createAgentRunner({ ... })` call at lines
+108–120 — append the field; do not change any other field.
 
 - **Modified:** `libraries/libeval/src/commands/supervise.js` (line 60+) —
   same redactor construction, passed to `createSupervisor`. Supervise mode
@@ -451,11 +438,11 @@ covers most supervisor/facilitator tests transitively.
 | File | Construction sites | Change |
 | --- | --- | --- |
 | `libraries/libeval/test/mock-runner.js` | `new AgentRunner` (line 44) | Pass `redactor: createNoopRedactor()`. Import from `../src/redaction.js`. |
-| `libraries/libeval/test/agent-runner.test.js` | 12 `new AgentRunner` sites + 1 `createAgentRunner` factory site | Add a shared `noop` const at the top of the describe block; pass it on every construction. The existing "throws on missing X" tests stay untouched — they assert pre-redactor failures fire first. The new "throws on missing redactor" test from step 2 lives next to them. |
+| `libraries/libeval/test/agent-runner.test.js` | 15 `new AgentRunner` sites + 1 `createAgentRunner` factory site (3 of the 15 are pre-existing throws-on-missing-{cwd,query,output} tests at lines 27, 37, 45 left untouched — they assert pre-redactor failures fire first; the remaining 12 + the factory site need the noop pass) | Add a shared `noop` const at the top of the describe block; pass it on every construction-that-needs-it. The new "throws on missing redactor" test from step 2 lives next to the existing throws tests. |
 | `libraries/libeval/test/agent-runner-batching.test.js` | 9 `new AgentRunner` sites | Same noop const + pass-through pattern. |
 | `libraries/libeval/test/agent-runner-skill-env.test.js` | 3 `new AgentRunner` sites | Same. |
 | `libraries/libeval/test/supervisor-output.test.js` | 5 `new Supervisor` sites | Same. The mock runners are built via `createMockRunner` (already fixed via mock-runner.js). |
-| `libraries/libeval/test/supervisor-run.test.js` | 8 `new Supervisor` sites + 3 throws-on-missing tests | Same. |
+| `libraries/libeval/test/supervisor-run.test.js` | 9 `new Supervisor` sites total (3 are throws-on-missing-{agentRunner,supervisorRunner,output} at lines 38, 49, 60 left untouched; 6 active sites need the noop pass) | Same. |
 | `libraries/libeval/test/supervisor-intervention.test.js` | 3 `new Supervisor` sites | Same. |
 | `libraries/libeval/test/supervisor-batching.test.js` | 2 `new Supervisor` sites | Same. |
 | `libraries/libeval/test/supervisor-factory.test.js` | factory-shape baseOpts() | Add `redactor: createNoopRedactor()` to `baseOpts()`; the new throws-on-missing test from step 3 sits beside it. |
@@ -471,17 +458,24 @@ suite (no behavioral change; redactor is identity for all of these).
 
 - **Created:** `libraries/libeval/test/redaction-pipeline.test.js`
 
-Covers spec criteria 1, 2, 4, 5 against the assembled producer pipeline
-(`AgentRunner` → `TeeWriter` → file bytes; `TraceCollector.toText()` over
-the captured trace).
+Covers spec criteria 1, 2, 4, 5 against the assembled producer pipeline.
+Important: this test instantiates a **real** `AgentRunner` with a
+script-driven async-generator `query` (the same shape used by
+`agent-runner.test.js`) — *not* `createMockRunner`, whose
+`runner.run`/`runner.resume` overrides bypass `#recordLine` (where the
+runner-level redactor lives). For the `Supervisor` case below, the
+runners passed into `createSupervisor` are also real `AgentRunner`
+instances; the `query` is a stub that yields the scripted messages.
+File-byte capture uses a `PassThrough` (or test-only `Writable`) wrapping
+`fileStream`; assertions read from the buffered chunks.
 
 | Case | Setup | Assertion |
 | --- | --- | --- |
-| Sentinel in every carrier shape never reaches `fileStream` | `process.env` set to unique sentinels for each default-allowlist name; mock query yields messages with the sentinels in `tool_use.input.command`, `tool_result.content` (string and JSON-stringified object forms), assistant `text`, and a `system` `init` payload field. AgentRunner output is a TeeWriter wrapping a `Buffer.from()` collecting `fileStream`. | After the run, the captured bytes contain no sentinel substring; every sentinel position is `[REDACTED:env:NAME]`. JSON-stable sentinel guard helper enforced (criterion 1, design § Test surfaces). |
+| Sentinel in every carrier shape never reaches `fileStream` | `process.env` set to unique sentinels for each default-allowlist name. Real `AgentRunner` driven by a stub async-generator `query` that yields scripted messages with the sentinels in `tool_use.input.command`, `tool_result.content` (string and JSON-stringified object forms), assistant `text`, and a `system` `init` payload field. Output is a `TeeWriter` whose `fileStream` is a `PassThrough` collected into a buffer. | The collected bytes contain no sentinel substring; every sentinel position is `[REDACTED:env:NAME]`. JSON-stable sentinel guard helper enforced (criterion 1, design § Test surfaces). |
 | Pattern hits with no env set | Same harness with `process.env` cleared of allowlist names; messages carry an `sk-ant-`+80-char body, `ghp_`+36, `ghs_`+36, `gho_`+36, `github_pat_`+82. | Each yields `[REDACTED:pattern:KIND]` (criterion 2). |
-| Default-on, opt-out warning | `LIBEVAL_REDACTION_DISABLED=1` set; capture stderr via a `Writable` collector. | Stderr contains the documented warning string exactly once; sentinels reach `fileStream` unredacted (criterion 4). |
+| Default-on, opt-out warning | `LIBEVAL_REDACTION_DISABLED=1` set. Stderr capture is direct: replace `process.stderr.write` with a spy for the duration of the test (`const orig = process.stderr.write; process.stderr.write = (chunk) => { captured.push(String(chunk)); return true; }; try { … } finally { process.stderr.write = orig; }`). The redactor warns via `process.stderr.write` (step 1), so the spy collects exactly the warning bytes. | `captured.join("")` contains the documented warning string exactly once; sentinels reach `fileStream` unredacted (criterion 4). |
 | `toText()` byte-for-byte placeholder fidelity | Run sentinel + pattern fixture, capture NDJSON, replay through `TraceCollector` + `toText()`. | Both placeholder forms appear in the rendered output identically to their NDJSON form (criterion 5). |
-| `Supervisor.emitSummary` covers Conclude-handler text | `createSupervisor` with a mock `Conclude` MCP tool whose `summary` argument carries a sentinel; run end-to-end. | The `summary` event in `fileStream` carries `[REDACTED:env:NAME]`, not the sentinel. This case is the one design risk the unit test of `redaction.js` cannot reach — the path goes through `Supervisor.emitSummary`, not `AgentRunner.#recordLine`. |
+| `Supervisor.emitSummary` covers Conclude-handler text | Build a `Supervisor` via `createSupervisor` with real `AgentRunner`s. The supervisor's stub `query` scripts a `tool_use` invoking the orchestration `Conclude` MCP tool with a `summary` argument that carries an env-allowlist sentinel — the supervisor toolkit's `createConcludeHandler` (orchestration-toolkit.js) writes that summary into `ctx.summary`, which `Supervisor.run` then forwards to `emitSummary`. | The `summary` event line in the collected `fileStream` bytes carries `[REDACTED:env:NAME]`, not the sentinel. This is the design risk the unit test of `redaction.js` cannot reach: the path is `Conclude` → `ctx.summary` → `Supervisor.emitSummary`, and never traverses `#recordLine`. |
 
 Verify: `bun test libraries/libeval/test/redaction-pipeline.test.js` green.
 
@@ -513,66 +507,70 @@ repository: workflow artifacts there are downloadable through the
 retention window.
 ```
 
-- **Modified:** `.github/actions/kata-action-eval/action.yml` — append a
-  `## Trace redaction` block to the `description:` field's accompanying
-  README (the action.yml `description` field is one line; the doc block
-  goes into a colocated `README.md` if one exists, otherwise extend the
-  top-of-file YAML comment with the same text). Concretely:
+- **Modified:** `.github/actions/kata-action-eval/README.md` — append the
+  same `## Trace redaction` block as above (the file exists today at
+  3.8KB), plus a one-line note: setting `LIBEVAL_REDACTION_DISABLED` in
+  workflow YAML is reviewable in PR diff and is prohibited on public-repo
+  CI. No changes to `action.yml` itself in this step.
 
-  - If `.github/actions/kata-action-eval/README.md` exists: append the
-    same `## Trace redaction` block as above, plus a one-line note that
-    setting `LIBEVAL_REDACTION_DISABLED` in workflow YAML is reviewable
-    in PR diff and prohibited on public-repo CI.
-  - If no README: prepend a comment block at the top of `action.yml`
-    (above `name:`) carrying the same text, mirroring the project's
-    existing inline-doc style.
+Verify: `bun run check` green; `bun run format` clean. Verification
+checklist for the README diff (mirrors the design's documentation
+criteria — confirm each one before marking step 8 done):
 
-Verify: `bun run check` green; `bun run format` clean; manual `cat`
-inspection of both files matches the design's documentation criteria.
+- Default allowlist names listed (`ANTHROPIC_API_KEY`, `GH_TOKEN`,
+  `GITHUB_TOKEN`).
+- Both placeholder forms shown (`[REDACTED:env:NAME]`,
+  `[REDACTED:pattern:KIND]`).
+- Override env var named (`LIBEVAL_REDACTION_ENV_VARS`) with the
+  replaces-not-extends semantic.
+- Opt-out env var named (`LIBEVAL_REDACTION_DISABLED=1`) and the
+  public-repo CI prohibition documented.
 
 ### 9. Final integration sweep
 
 Run the full sequence end-to-end against a local stack to surface any plan
-gaps before the panel:
+gaps before the panel. The smoke test uses a **custom allowlist name**
+(`SMOKE_SENTINEL`) overriding the default via
+`LIBEVAL_REDACTION_ENV_VARS` — overriding `ANTHROPIC_API_KEY` would break
+SDK auth before any messages flow, so the real key stays untouched and
+the redactor is exercised against a sentinel the agent's task is told to
+echo.
 
 ```sh
 cd libraries/libeval
 bun run test
 bun run check
 
-# Producer-side smoke: sentinels in env, run a tiny task, grep the trace.
+# Producer-side smoke: custom-allowlist sentinel, run a tiny task, grep the trace.
 mkdir -p /tmp/850-smoke
-ANTHROPIC_API_KEY="SENTINEL_ANTHROPIC_$(uuidgen)" \
-GH_TOKEN="SENTINEL_GH_$(uuidgen)" \
+SENTINEL_VALUE="SMOKE_SENTINEL_$(uuidgen)"
+LIBEVAL_REDACTION_ENV_VARS=SMOKE_SENTINEL \
+SMOKE_SENTINEL="$SENTINEL_VALUE" \
   bunx fit-eval run \
-    --task-text='echo $ANTHROPIC_API_KEY $GH_TOKEN' \
+    --task-text='echo "$SMOKE_SENTINEL" — exit immediately, no further work' \
     --output=/tmp/850-smoke/trace.ndjson \
     --max-turns=2
 
-! grep -F "$ANTHROPIC_API_KEY" /tmp/850-smoke/trace.ndjson
-! grep -F "$GH_TOKEN" /tmp/850-smoke/trace.ndjson
-grep -F "[REDACTED:env:ANTHROPIC_API_KEY]" /tmp/850-smoke/trace.ndjson
-grep -F "[REDACTED:env:GH_TOKEN]" /tmp/850-smoke/trace.ndjson
+! grep -F "$SENTINEL_VALUE" /tmp/850-smoke/trace.ndjson
+grep -F "[REDACTED:env:SMOKE_SENTINEL]" /tmp/850-smoke/trace.ndjson
 
-# Opt-out warning fires
+# Opt-out warning fires (uses real key — task is trivial, exits without leaking).
 LIBEVAL_REDACTION_DISABLED=1 bunx fit-eval run \
-  --task-text='hi' --max-turns=1 2>&1 | grep -F 'redaction DISABLED'
+  --task-text='reply with the single word OK and exit' \
+  --max-turns=1 2>&1 | grep -F 'redaction DISABLED'
 ```
 
-Verify: all four `grep` invocations match (the two `!` lines must NOT
-match — a hit is failure); the opt-out warning is observed; `bun run test`
-and `bun run check` are green.
+Verify: the two `grep` invocations match the expected pattern (the `!`
+line must NOT match — a hit is failure); the opt-out warning is observed
+on stderr; `bun run test` and `bun run check` are green.
 
 ## Risks
 
 | Risk | Why it's not visible from the plan | Mitigation |
 | --- | --- | --- |
-| `walk()` allocates a new object/array for every nested level on every redaction call. For a large `tool_result.content` blob (e.g. multi-MB JSON dumped by a future tool) the allocation cost is non-trivial. | Allocation pattern only manifests on heavy-tool-output runs; existing benchmarks cover assistant text only. | The `enabled === false` branch is the identity function (one boolean check) — confirmed by step 1 test. For enabled runs, the cost is bounded by message size; if it becomes hot, swap `walk` for a transformer that mutates only on hit. Not worth optimising preemptively (criterion: when the secret crosses producer boundary, correctness > throughput). |
 | `Buffer.from(parts[1], 'base64url')` and similar encoded credentials embedded in tool output that *don't* match the pattern prefixes will not be redacted. Spec calls this out as the env-allowlist layer's job, but a token that arrives via disk read with no env-var counterpart could leak. | Outside the pattern set; spec § Out of scope explicitly accepts this — the env allowlist is the primary defence for those carriers. | Documented in `libraries/libeval/README.md` and design § Default credential patterns. Add to the same follow-up spec that covers `agent-react.yml` Bash hardening. |
-| `process.env.LIBEVAL_REDACTION_DISABLED` is read at command entry; a subsequent in-process write to that env var has no effect (snapshot-determinism). A test that flips the var mid-run sees stale state. | Subtle in test harnesses that reuse `process.env` across describe blocks. | The redactor is built per-command-invocation, not per-process; tests construct their own `createRedactor({ enabled: ... })` directly rather than mutating env. Step 1 unit test asserts the snapshot behaviour explicitly. |
-| Pattern regexes use `\b` word boundaries, but base64-url alphabets (`-`, `_`) are *not* word characters under JS `\w`. A `ghp_` token immediately preceded by `-` or `_` could fail to match. | Non-obvious from the regex source; needs an empirical check at canonical-length boundaries. | Step 1 test fixture includes adversarial neighbours (`-ghp_…`, `_ghp_…`, `.ghp_…`). If any case fails, replace `\b` with explicit lookarounds in `DEFAULT_PATTERNS`. The stable placeholder form is unaffected — only the boundary anchor would change. |
-| `Supervisor`/`Facilitator` factory now requires `redactor` as a top-level parameter — every external caller (today: `commands/supervise.js`, `commands/facilitate.js`) must pass it. The compiler does not catch the omission; the explicit throw at the factory does. | A future caller written against the v0.1.31 API would silently miss the parameter and fail at runtime. | Throw at the top of the factory function (mirrored in `createAgentRunner` since AgentRunner already has the constructor check) — no silent default-to-noop. The published `createNoopRedactor()` export gives downstream consumers a documented zero-friction path when they explicitly want redaction off (e.g. unit tests of their own consumers). |
-| Existing v0.1.x consumers of `@forwardimpact/libeval` (external users importing `AgentRunner` directly) hit the new required-parameter throw on first run after upgrade. Spec did not call out an upgrade-compat surface; the package is pre-1.0, so this is a permitted breaking change. | Pre-1.0 SemVer convention — patch versions can break callers. | Bump the libeval `package.json` minor version (0.1.31 → 0.2.0) at release time and call out the breaking change in release notes. The `kata-release-cut` workflow handles version selection; flagging the breaking change in the PR body is sufficient at plan time. |
+| Pattern regexes use `\b` word boundaries. JS `\w` is `[A-Za-z0-9_]`, so `_` IS a word character — a token like `_ghp_AbCd…36chars_` has no `\b` between `_` and `g`/`_` and the regex will not match. The risk is non-word neighbours (`-`, `.`, whitespace) interacting with `_`-suffixed alphabets in non-obvious ways at the right edge of a token (`ghp_…36chars_X` where `X` is alphanumeric continues the word and skips the `\b`). | Non-obvious from the regex source; needs an empirical check at canonical-length boundaries. | Step 1 test fixture includes adversarial neighbours: `-ghp_…` (matches — `\b` between `-` and `g`), `_ghp_…` (does NOT match — no `\b`), `.ghp_…` (matches), `ghp_…36chars` followed by `,` `;` `\n` (match), and the 36-char body extended by an extra word char (does not match — body length now 37, regex anchored to exactly 36). If a case behaves unexpectedly, replace `\b` with explicit `(?<![A-Za-z0-9_-])` / `(?![A-Za-z0-9_-])` lookarounds; the stable placeholder form is unaffected. |
+| Existing v0.1.x consumers of `@forwardimpact/libeval` (external users importing `AgentRunner` directly) hit the new required-parameter throw on first run after upgrade. Spec did not call out an upgrade-compat surface; the package is pre-1.0, so this is a permitted breaking change. | Pre-1.0 SemVer convention — patch versions can break callers; the failure mode (throw at construction) is loud, not silent. | Bump the libeval `package.json` minor version (0.1.31 → 0.2.0) at release time and call out the breaking change in release notes. The `kata-release-cut` workflow handles version selection; flagging the breaking change in the PR body is sufficient at plan time. The published `createNoopRedactor()` export gives external consumers a zero-friction migration when they explicitly want redaction off. |
 
 ## Execution
 
