@@ -45,7 +45,7 @@ approved specs. Plan and Do.
 ### Release Engineer
 
 The shipping bay. Keeps PR branches merge-ready, repairs trivial CI, cuts
-releases. Do.
+releases. The sole external merge point. Do.
 
 </a>
 
@@ -62,8 +62,8 @@ policies. Do, Study, Act.
 
 ### Product Manager
 
-The merge gate. Triages issues and PRs, merges fix/bug/spec PRs, runs
-evaluations. The sole external merge point. Do, Study, Act.
+The kanban rail. Triages issues, reviews spec quality, runs evaluations. Gates
+spec quality off the critical path via the `spec:approved` label. Study, Act.
 
 </a>
 
@@ -110,8 +110,9 @@ nothing is observed without downstream action.
 
 ## The Trust Boundary
 
-The Product Manager is the **sole external merge point**. All other merge paths
-operate on trusted sources (our agents, Dependabot).
+The Release Engineer is the **sole external merge point**. All other merge paths
+operate on trusted sources (our agents, Dependabot). The Product Manager gates
+spec **quality** off the critical path via the `spec:approved` label.
 
 | External PR type | What merges                     | Who implements                        |
 | ---------------- | ------------------------------- | ------------------------------------- |
