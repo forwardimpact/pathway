@@ -38,8 +38,8 @@ Skill PRs ship on subjective review.
 The METR Task Standard
 ([github.com/METR/task-standard](https://github.com/METR/task-standard))
 provides a vocabulary for portable agent-evaluation tasks the design will
-adopt — `task family`, `task`, `instructions`, `permissions`, lifecycle hook
-names. Vocabulary alignment is the portability claim.
+adopt — `task family`, `task`, `instructions`, lifecycle hook names.
+Vocabulary alignment is the portability claim.
 
 ## Personas and Job
 
@@ -68,7 +68,6 @@ agents in production are not in scope.
 | Judge phase | A separate evaluator session runs after scoring, consumes the scoring outcome and the agent trace, and emits a final verdict that the result record records. |
 | Multi-run aggregation | The harness supports running each task multiple times in one invocation and aggregates pass@k across runs per the OpenAI HumanEval unbiased estimator. |
 | Result records | One result record per task per run, even when tasks fail at any phase. Records carry the information needed to compute pass@k, attribute outcomes to a skill-set version, and reproduce a run. The record schema is a single declared shape shared by the harness and the report tooling. |
-| Network policy | Per-task permissions declaration aligned with METR vocabulary. Default deny external network; an explicit opt-in enables it. Observable against libeval's `WebFetch` tool surface; Bash-shell egress is acknowledged as a v1 limitation pending containerised isolation. |
 | Grading surface | The harness grades tasks via three post-run outcome categories: running-service behaviour, repository state, and process exit. |
 | Documentation | A user-facing skill matching the published CLI per the skill–CLI parity rule (`.claude/skills/CLAUDE.md`), and a corresponding guide. |
 
@@ -88,6 +87,10 @@ agents in production are not in scope.
 - **Determinism / replay from trace.** Each run is a fresh agent session.
 - **Intermediate scoring.** Only end-of-run scoring in this scope.
 - **Concurrent runs across `(task, runIndex)` pairs.** v1 is serial.
+- **Per-task tool/network permissions.** v1 runs every task with one default
+  tool set built into the harness. Per-task permissions (e.g. METR's
+  `full_internet` opt-in) are a v2 amendment once the default proves
+  insufficient.
 
 ## Success Criteria
 
@@ -99,7 +102,6 @@ agents in production are not in scope.
 | Hidden grading produces a pass/fail per task via the repository-state surface. | Test: a fixture task whose grading script asserts the existence and SHA-256 content of one or more files under the post-run working directory; a stub agent meeting the assertions produces a passing record; one missing the file produces a failing record. |
 | Hidden grading produces a pass/fail per task via the process-exit surface. | Test: a fixture task whose grading script invokes a command in the post-run working directory and treats exit-zero as pass; the result record's grading verdict tracks the command's exit code. |
 | The judge phase consumes the scoring outcome and the agent trace and emits a final verdict that the result record records. | Test: a fixture judge prompt referencing scoring results yields a judge-verdict on the result record; a known-bad scoring outcome plus a known-good trace produces a failing verdict. |
-| Tasks declare network permissions and the harness denies external network on default permissions, allows on opt-in, observable against libeval's `WebFetch` tool. | Test: a task with default permissions, when the agent attempts to fetch an external URL through libeval's `WebFetch` tool, produces a tool-result error; a task that opts in succeeds in the same scenario. |
 | The skill set under test is reproducible across runs. | Test: two consecutive runs against the same skill-set manifest produce result records whose skill-set identifier matches; a one-byte content change to the manifest produces a different identifier. |
 | Pre-flight catches broken task templates before the agent runs. | Test: a task whose unmodified scaffolding fails its own start fails before agent execution with a non-zero exit and a structured error in the result record; the result record's agent cost is zero. |
 | Result aggregation across runs reports pass@k per the OpenAI HumanEval unbiased estimator. | Test: the report tooling, given five runs of the same task with verdicts pass/fail/fail/pass/fail, reports `pass@1 = 0.4` and `pass@3 = 0.9` (the unbiased estimator `1 - C(n-c, k) / C(n, k)`). |
