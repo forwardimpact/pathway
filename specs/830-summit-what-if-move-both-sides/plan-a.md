@@ -493,13 +493,36 @@ added/removed lists is sufficient.
 | 3   | "markdown formatter renders both team headings for --move" — same report; `whatIfToMarkdown({ report })` contains both `## Source team \`a\`` and `## Destination team \`b\`` literal substrings; each is followed within the next four lines by a `\| Skill \|` table header. | `what-if-formatters.test.js`      | #3             |
 | 4   | "non-move scenarios match captured fixtures byte-for-byte" — `import { ROWS } from "./fixtures/what-if/rows.mjs"` (the test file lives at `products/summit/test/what-if-formatters.test.js`, so the relative path is `./fixtures/what-if/rows.mjs`); replicate `regenerate.mjs`'s local `snap(roster, target)` helper inline at module scope (six lines: `resolveTeam` + `computeCoverage` + `detectRisks`); for each row, parse `FIXTURE_ROSTER`, run `parseScenario(cliOpts, target)` → `applyScenario` → before/after `snap()` → `buildWhatIfReport({ scenario, teams: [{ teamId: target.teamId ?? target.projectId, role: "target", before, after }] })`, then call each formatter with the new `{ report }` shape, mirroring the production handler's serialization (text raw write; JSON `JSON.stringify(..., null, 2) + "\n"`; markdown raw write). Assert `assert.equal(output, fs.readFileSync(<fixture>, "utf8"))` per (row, format) — 15 assertions in one parameterised test using a `for (const { id, target, cliOpts } of ROWS)` loop. | `what-if-formatters.test.js`      | #4             |
 | 5   | "what-if move: source loses skill, destination gains it on the same mutation" — `MOVE_FIXTURE_YAML`; build the report; assert source-side `coverageDiff.capabilityChanges` finds `task_completion` with `direction === "down"` and destination-side finds `direction === "up"`. | `what-if.test.js` (new test case) | #7             |
-| 6   | "runWhatIfCommand emits diff.teams[] for --move via JSON output" — write `MOVE_FIXTURE_YAML` to a tmp file via `mkdtempSync` + `writeFileSync`; load `data` via `await loadStarterData()`; call `runWhatIfCommand({ data, args: ["a"], options: { roster: tmpFile, move: "Alice", to: "b", format: "json" } })`; capture stdout via a `spy()` installed on `process.stdout.write` for the duration of the call; parse the captured JSON; assert `parsed.diff.teams.length === 2`, `parsed.diff.teams[0].role === "source"`, `parsed.diff.teams[1].role === "destination"`, and `parsed.diff.teams.map(t => t.teamId)` equals `["a", "b"]`. The tmp-file path is the only viable channel — ESM module bindings cannot be monkey-patched from the test. This exercises the command-level wiring of the destination snapshot (design Risk #4). | `what-if-formatters.test.js`      | command wiring |
+| 6   | "runWhatIfCommand emits diff.teams[] for --move via JSON output" — write `MOVE_FIXTURE_YAML` to a tmp file via `mkdtempSync` + `writeFileSync`; load `data` via `await loadStarterData()`; install the stdout spy via the save-replace-restore pattern below; call `runWhatIfCommand({ data, args: ["a"], options: { roster: tmpFile, move: "Alice", to: "b", format: "json" } })`; restore stdout in `finally`; remove the tmp dir via `rmSync(tmpDir, { recursive: true })` in the same `finally`; parse the captured JSON; assert `parsed.diff.teams.length === 2`, `parsed.diff.teams[0].role === "source"`, `parsed.diff.teams[1].role === "destination"`, and `parsed.diff.teams.map(t => t.teamId)` equals `["a", "b"]`. The tmp-file path is the only viable channel — ESM module bindings cannot be monkey-patched from the test. Exercises the command-level wiring of the destination snapshot (design Risk #4). | `what-if-formatters.test.js`      | command wiring |
 | 7   | "CLI help strings name source/destination roles" (criterion #5) — read `products/summit/bin/fit-summit.js` source via `fs.readFileSync`; lower-case the matched substrings; assert the `what-if` block's subcommand `description` contains `source for --move`; the `options.move.description` contains both `source` and `--to`; the `options.to.description` contains both `destination` and `move`. Static inspection — does not boot the CLI. | `what-if-formatters.test.js`      | #5             |
 
 Test 6 imports `spy` from `@forwardimpact/libharness` directly (the
 package is a workspace dependency of `products/summit`; other summit tests
-import named exports from it via `fixtures.js`). All other tests call
-formatter functions directly and inspect returned strings/objects.
+import named exports from it via `fixtures.js`). The stdout spy install
+pattern is:
+
+```js
+const tmpDir = mkdtempSync(join(tmpdir(), "summit-whatif-"));
+const tmpFile = join(tmpDir, "roster.yaml");
+writeFileSync(tmpFile, MOVE_FIXTURE_YAML);
+const original = process.stdout.write.bind(process.stdout);
+const captured = [];
+const writer = spy((chunk) => { captured.push(String(chunk)); return true; });
+process.stdout.write = writer;
+try {
+  await runWhatIfCommand({ data, args: ["a"], options: { roster: tmpFile, move: "Alice", to: "b", format: "json" } });
+} finally {
+  process.stdout.write = original;
+  rmSync(tmpDir, { recursive: true });
+}
+const parsed = JSON.parse(captured.join(""));
+```
+
+The `try/finally` block guarantees stdout is restored and the tmp dir is
+removed even when assertions fail mid-run (otherwise leaked stdout
+replacement would corrupt subsequent tests' output and `/tmp` would fill
+up over repeated runs). All other tests call formatter functions directly
+and inspect returned strings/objects.
 `MOVE_FIXTURE_YAML` is duplicated at module scope in both test files
 (Test 5 lives in `what-if.test.js`; Tests 1/2/3/6 live in
 `what-if-formatters.test.js`). `ROWS` is imported from `./fixtures/what-if/rows.mjs`
