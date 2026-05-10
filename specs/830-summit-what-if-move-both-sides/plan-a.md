@@ -60,17 +60,23 @@ post-refactor steps assert byte-identity against them.
 - **Created:** `products/summit/test/fixtures/what-if/promote-focus.txt`
 - **Created:** `products/summit/test/fixtures/what-if/promote-focus.json`
 - **Created:** `products/summit/test/fixtures/what-if/promote-focus.md`
+- **Created:** `products/summit/test/fixtures/what-if/rows.mjs` — exports
+  `ROWS` only, no top-level side effects. Imported by both `regenerate.mjs`
+  and Step 7 Test 4 so the per-row scenario table is the single source of
+  truth.
 - **Created:** `products/summit/test/fixtures/what-if/regenerate.mjs` — the
-  regeneration script (body in the code block below). Step 7 updates this
-  script to the post-refactor parameter shape; the Step 1 version uses
-  today's pre-refactor shape so it can run on `main` HEAD before any source
-  edit lands.
+  regeneration script (body in the code block below). The script's body
+  is guarded so the side-effecting `writeFileSync` loop only runs when
+  the file is invoked directly (`node regenerate.mjs`) — never on import.
+  Step 6 migrates this script to the post-refactor parameter shape so a
+  future regeneration produces byte-identical output to the Step 1 commit.
 - **Created:** `products/summit/test/fixtures/what-if/README.md` — documents
   the regeneration command (`node products/summit/test/fixtures/what-if/regenerate.mjs`),
   the fixture roster used (`FIXTURE_ROSTER`), the per-row scenario table,
-  and the rule that fixtures are regenerated only when the upstream contract
-  intentionally changes (never silently after a refactor). Notes the
-  post-Step-7 update to the script's parameter shape.
+  the rule that fixtures are regenerated only when the upstream contract
+  intentionally changes (never silently after a refactor), and the
+  byte-identity invariant that any post-Step-6 regeneration must produce
+  the exact same bytes as the Step 1 commit.
 
 The five scenario-ids and their literal `target` / `cliOpts` values against
 `FIXTURE_ROSTER` (`products/summit/test/fixtures.js`). Each row's `cliOpts`
@@ -98,6 +104,17 @@ already (`lines.join("\n") + "\n"`). The post-Step-6 test (Step 7 Test 4)
 must replay the same trailing-newline rules.
 
 ```js
+// products/summit/test/fixtures/what-if/rows.mjs
+export const ROWS = [
+  { id: "add-reporting", target: { teamId: "platform" },        cliOpts: { add: "{ discipline: software_engineering, level: J060 }" } },
+  { id: "add-project",   target: { projectId: "migration-q2" }, cliOpts: { add: "{ discipline: software_engineering, level: J060 }", allocation: "0.5" } },
+  { id: "remove",        target: { teamId: "platform" },        cliOpts: { remove: "Bob" } },
+  { id: "promote",       target: { teamId: "platform" },        cliOpts: { promote: "Carol" } },
+  { id: "promote-focus", target: { teamId: "platform" },        cliOpts: { promote: "Carol", focus: "delivery" } },
+];
+```
+
+```js
 // products/summit/test/fixtures/what-if/regenerate.mjs
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -112,48 +129,51 @@ import { whatIfToText } from "../../../src/formatters/what-if/text.js";
 import { whatIfToJson } from "../../../src/formatters/what-if/json.js";
 import { whatIfToMarkdown } from "../../../src/formatters/what-if/markdown.js";
 import { FIXTURE_ROSTER, loadStarterData } from "../../fixtures.js";
+import { ROWS } from "./rows.mjs";
 
-export const ROWS = [
-  { id: "add-reporting", target: { teamId: "platform" },        cliOpts: { add: "{ discipline: software_engineering, level: J060 }" } },
-  { id: "add-project",   target: { projectId: "migration-q2" }, cliOpts: { add: "{ discipline: software_engineering, level: J060 }", allocation: "0.5" } },
-  { id: "remove",        target: { teamId: "platform" },        cliOpts: { remove: "Bob" } },
-  { id: "promote",       target: { teamId: "platform" },        cliOpts: { promote: "Carol" } },
-  { id: "promote-focus", target: { teamId: "platform" },        cliOpts: { promote: "Carol", focus: "delivery" } },
-];
-
-const HERE = dirname(fileURLToPath(import.meta.url));
-const { data } = await loadStarterData();
-function snap(r, t) {
-  const resolved = resolveTeam(r, data, t);
-  const coverage = computeCoverage(resolved, data);
-  const risks = detectRisks({ resolvedTeam: resolved, coverage, data });
-  return { coverage, risks };
+async function main() {
+  const HERE = dirname(fileURLToPath(import.meta.url));
+  const { data } = await loadStarterData();
+  function snap(r, t) {
+    const resolved = resolveTeam(r, data, t);
+    const coverage = computeCoverage(resolved, data);
+    const risks = detectRisks({ resolvedTeam: resolved, coverage, data });
+    return { coverage, risks };
+  }
+  for (const { id, target, cliOpts } of ROWS) {
+    const roster = parseRosterYaml(FIXTURE_ROSTER);
+    const scenario = parseScenario(cliOpts, target);
+    const before = snap(roster, target);
+    const mutated = applyScenario(roster, data, scenario);
+    const after = snap(mutated, target);
+    const coverageDiff = diffCoverage(before.coverage, after.coverage);
+    const riskDiff = diffRisks(before.risks, after.risks);
+    writeFileSync(join(HERE, `${id}.txt`), whatIfToText({ scenario, coverageDiff, riskDiff, data }));
+    writeFileSync(join(HERE, `${id}.json`), JSON.stringify(whatIfToJson({ scenario, coverageDiff, riskDiff }), null, 2) + "\n");
+    writeFileSync(join(HERE, `${id}.md`),  whatIfToMarkdown({ scenario, coverageDiff, riskDiff }));
+  }
 }
-for (const { id, target, cliOpts } of ROWS) {
-  const roster = parseRosterYaml(FIXTURE_ROSTER);
-  const scenario = parseScenario(cliOpts, target);
-  const before = snap(roster, target);
-  const mutated = applyScenario(roster, data, scenario);
-  const after = snap(mutated, target);
-  const coverageDiff = diffCoverage(before.coverage, after.coverage);
-  const riskDiff = diffRisks(before.risks, after.risks);
-  writeFileSync(join(HERE, `${id}.txt`), whatIfToText({ scenario, coverageDiff, riskDiff, data }));
-  writeFileSync(join(HERE, `${id}.json`), JSON.stringify(whatIfToJson({ scenario, coverageDiff, riskDiff }), null, 2) + "\n");
-  writeFileSync(join(HERE, `${id}.md`),  whatIfToMarkdown({ scenario, coverageDiff, riskDiff }));
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  await main();
 }
 ```
 
-The regeneration helper file is committed alongside the fixtures. It runs
-under `node` (not `bun`) to match the exact serialization the production
-handler uses today. Step 7 Test 4 imports the same `ROWS` constant if the
-helper exports it, so the per-row `(target, cliOpts)` mapping is the single
-source of truth.
+The `import.meta.url === \`file://${process.argv[1]}\`` guard ensures the
+script only runs its side-effecting body when invoked directly — importing
+from a test file (e.g. `import { ROWS } from "./fixtures/what-if/rows.mjs"`)
+or from `regenerate.mjs` itself does not trigger fixture writes. The
+script runs under `node` (not `bun`) to match the production handler's
+serialization exactly.
 
 - **Verify:** Each of the 15 fixture files is non-empty; each `.json` parses
   with `JSON.parse(fs.readFileSync(...))`; each file ends with a trailing
-  `\n` byte. Commit `regenerate.mjs` + the 15 fixtures + `README.md`
-  together with no source-code changes — this commit must land before
-  Step 2 so the fixtures capture pre-refactor bytes.
+  `\n` byte. `node products/summit/test/fixtures/what-if/regenerate.mjs`
+  re-runs cleanly and produces no diff against the committed fixtures
+  (idempotency check). Commit `rows.mjs` + `regenerate.mjs` + the 15
+  fixtures + `README.md` together with no source-code changes — this
+  commit must land before Step 2 so the fixtures capture pre-refactor
+  bytes.
 
 ## Step 2 — Add `WhatIfReport` typedefs and `buildWhatIfReport`
 
@@ -364,12 +384,16 @@ riskChanges } }` object as today (criterion #4 held).
 
 - **Modified:** `products/summit/src/formatters/what-if/markdown.js`
 - **Modified:** `products/summit/test/fixtures/what-if/regenerate.mjs` —
-  replace the inner snapshot-and-call block with a `buildWhatIfReport` call
-  and the new `{ report }`-shape formatter calls (the script's `ROWS`
-  constant and outer `for` loop are unchanged). Drop the `diffCoverage`/
-  `diffRisks` imports and add `buildWhatIfReport`. The script must remain
-  runnable so future intentional fixture regenerations have a single
-  command to execute.
+  inside the `main()` body, replace the per-row `coverageDiff`/`riskDiff`
+  pair plus the three legacy-shape formatter calls with one
+  `buildWhatIfReport({ scenario, teams: [{ teamId: target.teamId ?? target.projectId, role: "target", before, after }] })`
+  call followed by `whatIfToText({ report, data })`,
+  `JSON.stringify(whatIfToJson({ report }), null, 2) + "\n"`, and
+  `whatIfToMarkdown({ report })`. Drop the `diffCoverage`/`diffRisks`
+  imports and add `buildWhatIfReport`. `rows.mjs` is unchanged. The
+  post-Step-6 script must produce byte-identical output to the Step 1
+  commit when re-run on a clean checkout — this is the regression
+  invariant Step 7 Test 4 enforces.
 
 Accept `{ report }`. For length 1, emit today's `# <type> scenario` heading +
 single capability table. For length 2 (move), emit `# move scenario` followed
@@ -453,41 +477,32 @@ Working-depth holder count for `task_completion` on the starter standard:
 - Capability direction: `a` shows `down` for `task_completion` (depth
   2 → 1); `b` shows `up` (depth 1 → 2).
 
-This single fixture exercises:
-- Criterion #6 directly: the destination-side risk-resolution line
-  (`- task_completion no longer single point of failure`) appears under the
-  destination team's `Risk changes:` block, and the source-side new-SPOF
-  line appears under the source team's block.
-- Criterion #7 directly: the source `coverageDiff` shows
-  `task_completion` direction `down`; the destination `coverageDiff` shows
-  `task_completion` direction `up`, both against the same `mutated` roster.
-- Criterion #1: capability and risk changes both render under their
-  per-team labels.
-
-Empirical pre-write verification: capture this fixture's expected formatter
-output via `regenerate.mjs` (Step 1 form) and confirm the SPOF behaviour
-matches before the test catalogue commits — catches any
-`detectRisks`-definition surprise before review-panel cost (per the
-"plan-script empirical verification" recurring pattern).
+The fixture-behaviour above was verified empirically against `main` HEAD
+during plan authoring (per the "plan-script empirical verification"
+recurring pattern). The implementer should re-verify on the implementation
+branch before committing the tests — a one-liner that runs
+`detectRisks`/`diffRisks` against the fixture and prints the SPOF
+added/removed lists is sufficient.
 
 ### Test catalogue
 
 | #   | Test                                                                                                                                                                                                                                          | File                              | Spec criterion |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | -------------- |
-| 1   | "text formatter renders both team sections for --move" — build a `WhatIfReport` for `--move Alice` from `a` to `b` against `MOVE_FIXTURE_YAML`; render via `whatIfToText`; split the output into the source section (between the `Source team \`a\`:` line and the `Destination team \`b\`:` line) and the destination section (after the `Destination team \`b\`:` line); assert `output.indexOf("Source team \`a\`:") < output.indexOf("Destination team \`b\`:")`; assert the source section contains `- task_completion` (direction-`down` symbol) and `+ task_completion became single point of failure`; assert the destination section contains `+ task_completion` (direction-`up` symbol) and `- task_completion no longer single point of failure`; assert the destination section does **not** contain `- task_completion` (direction-`down`) or `+ task_completion became single point of failure`. Covers criterion #1 (per-team labelling) and criterion #6 (destination-only risk-resolution rendering). | `what-if-formatters.test.js`      | #1, #6         |
+| 1   | "text formatter renders both team sections for --move" — build a `WhatIfReport` for `--move Alice` from `a` to `b` against `MOVE_FIXTURE_YAML`; render via `whatIfToText`; split the output into the source section (between the `Source team \`a\`:` line and the `Destination team \`b\`:` line) and the destination section (after the `Destination team \`b\`:` line); assert `output.indexOf("Source team \`a\`:") < output.indexOf("Destination team \`b\`:")`; assert the source section contains the literal capability line `- task_completion  depth: 2 → 1` (note two spaces; matches text formatter line 38) and the literal risk line `+ task_completion became single point of failure`; assert the destination section contains `+ task_completion  depth: 1 → 2` and `- task_completion no longer single point of failure`; assert the destination section does **not** contain `- task_completion  depth:` (the direction-`down` capability line — distinguished from the `- task_completion no longer …` risk line by the `  depth:` substring) and does **not** contain `+ task_completion became single point of failure` (the source-side risk line). Covers criterion #1 (per-team labelling) and criterion #6 (destination-only risk-resolution rendering). | `what-if-formatters.test.js`      | #1, #6         |
 | 2   | "json formatter emits teams[] for --move" — same report; `whatIfToJson({ report })` returns `diff.teams` with `length === 2`; entry `[0]` has `teamId === "a"` and `role === "source"`; entry `[1]` has `teamId === "b"` and `role === "destination"`; both entries carry `capabilityChanges: Array` and `riskChanges: object`. | `what-if-formatters.test.js`      | #2             |
 | 3   | "markdown formatter renders both team headings for --move" — same report; `whatIfToMarkdown({ report })` contains both `## Source team \`a\`` and `## Destination team \`b\`` literal substrings; each is followed within the next four lines by a `\| Skill \|` table header. | `what-if-formatters.test.js`      | #3             |
-| 4   | "non-move scenarios match captured fixtures byte-for-byte" — `import { ROWS } from "../test/fixtures/what-if/regenerate.mjs"`; replicate `regenerate.mjs`'s local `snap(roster, target)` helper inline at module scope (six lines: `resolveTeam` + `computeCoverage` + `detectRisks`); for each row, parse `FIXTURE_ROSTER`, run `parseScenario(cliOpts, target)` → `applyScenario` → before/after `snap()` → `buildWhatIfReport({ scenario, teams: [{ teamId: target.teamId ?? target.projectId, role: "target", before, after }] })`, then call each formatter with the new `{ report }` shape, mirroring the production handler's serialization (text raw write; JSON `JSON.stringify(..., null, 2) + "\n"`; markdown raw write). Assert `assert.equal(output, fs.readFileSync(<fixture>, "utf8"))` per (row, format) — 15 assertions in one parameterised test using a `for (const { id, target, cliOpts } of ROWS)` loop. | `what-if-formatters.test.js`      | #4             |
+| 4   | "non-move scenarios match captured fixtures byte-for-byte" — `import { ROWS } from "./fixtures/what-if/rows.mjs"` (the test file lives at `products/summit/test/what-if-formatters.test.js`, so the relative path is `./fixtures/what-if/rows.mjs`); replicate `regenerate.mjs`'s local `snap(roster, target)` helper inline at module scope (six lines: `resolveTeam` + `computeCoverage` + `detectRisks`); for each row, parse `FIXTURE_ROSTER`, run `parseScenario(cliOpts, target)` → `applyScenario` → before/after `snap()` → `buildWhatIfReport({ scenario, teams: [{ teamId: target.teamId ?? target.projectId, role: "target", before, after }] })`, then call each formatter with the new `{ report }` shape, mirroring the production handler's serialization (text raw write; JSON `JSON.stringify(..., null, 2) + "\n"`; markdown raw write). Assert `assert.equal(output, fs.readFileSync(<fixture>, "utf8"))` per (row, format) — 15 assertions in one parameterised test using a `for (const { id, target, cliOpts } of ROWS)` loop. | `what-if-formatters.test.js`      | #4             |
 | 5   | "what-if move: source loses skill, destination gains it on the same mutation" — `MOVE_FIXTURE_YAML`; build the report; assert source-side `coverageDiff.capabilityChanges` finds `task_completion` with `direction === "down"` and destination-side finds `direction === "up"`. | `what-if.test.js` (new test case) | #7             |
-| 6   | "runWhatIfCommand emits diff.teams[] for --move via JSON output" — boot `runWhatIfCommand` against `MOVE_FIXTURE_YAML` (write the YAML to a tmp file and pass `roster: <tmp>` via options, **or** monkey-patch `loadRoster` for the test); pass `format: "json"`; capture stdout via a `spy()` over `process.stdout.write`; parse the captured JSON; assert `parsed.diff.teams.length === 2`, `parsed.diff.teams[0].role === "source"`, `parsed.diff.teams[1].role === "destination"`, and `parsed.diff.teams.map(t => t.teamId)` equals `["a", "b"]`. This exercises the command-level wiring of the destination snapshot (design Risk #4). | `what-if-formatters.test.js`      | command wiring |
+| 6   | "runWhatIfCommand emits diff.teams[] for --move via JSON output" — write `MOVE_FIXTURE_YAML` to a tmp file via `mkdtempSync` + `writeFileSync`; load `data` via `await loadStarterData()`; call `runWhatIfCommand({ data, args: ["a"], options: { roster: tmpFile, move: "Alice", to: "b", format: "json" } })`; capture stdout via a `spy()` installed on `process.stdout.write` for the duration of the call; parse the captured JSON; assert `parsed.diff.teams.length === 2`, `parsed.diff.teams[0].role === "source"`, `parsed.diff.teams[1].role === "destination"`, and `parsed.diff.teams.map(t => t.teamId)` equals `["a", "b"]`. The tmp-file path is the only viable channel — ESM module bindings cannot be monkey-patched from the test. This exercises the command-level wiring of the destination snapshot (design Risk #4). | `what-if-formatters.test.js`      | command wiring |
 | 7   | "CLI help strings name source/destination roles" (criterion #5) — read `products/summit/bin/fit-summit.js` source via `fs.readFileSync`; lower-case the matched substrings; assert the `what-if` block's subcommand `description` contains `source for --move`; the `options.move.description` contains both `source` and `--to`; the `options.to.description` contains both `destination` and `move`. Static inspection — does not boot the CLI. | `what-if-formatters.test.js`      | #5             |
 
-Test 6 uses `spy()` from `@forwardimpact/libharness` (already a transitive
-dev dependency via the test harness — also used by `what-if.test.js`). All
-other tests call formatter functions directly and inspect returned
-strings/objects. `MOVE_FIXTURE_YAML` is duplicated at module scope in both
-test files (Test 5 lives in `what-if.test.js`; Tests 1/2/3/6 live in
-`what-if-formatters.test.js`). `ROWS` is imported from `regenerate.mjs`
+Test 6 imports `spy` from `@forwardimpact/libharness` directly (the
+package is a workspace dependency of `products/summit`; other summit tests
+import named exports from it via `fixtures.js`). All other tests call
+formatter functions directly and inspect returned strings/objects.
+`MOVE_FIXTURE_YAML` is duplicated at module scope in both test files
+(Test 5 lives in `what-if.test.js`; Tests 1/2/3/6 live in
+`what-if-formatters.test.js`). `ROWS` is imported from `./fixtures/what-if/rows.mjs`
 into `what-if-formatters.test.js` only.
 
 - **Verify:** `bun test products/summit/test/what-if-formatters.test.js`
