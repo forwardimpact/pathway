@@ -47,21 +47,34 @@ describe("Spec 840 — fit-landmark sources", () => {
     return;
   }
 
-  test("populated classes appear with five fields; empty classes are omitted", async () => {
+  // Each live test pays the cost of `withLiveActivity` → `ensureMigrationApplied`
+  // → `supabase db reset` on the first invocation in the process. That takes
+  // roughly 25 seconds on a warm runner, which exceeds bun:test's 5s default
+  // timeout. Pin the timeout explicitly so a full-suite local run with the
+  // MAP_SUPABASE_* env vars set surfaces real assertion failures, not the
+  // structural cost of the migrate step.
+  test("populated classes appear with five fields; empty classes are omitted", {
+    timeout: 120000,
+  }, async () => {
     await withLiveActivity(async (admin) => {
       await admin.from("organization_people").insert([
         {
           email: "alice@example.com",
+          name: "Alice",
+          discipline: "engineering",
+          level: "L4",
           manager_email: null,
           getdx_team_id: "t",
         },
       ]);
       await admin.from("github_artifacts").insert([
         {
-          artifact_id: "art-1",
+          artifact_type: "commit",
+          external_id: "ext-art-1",
+          repository: "x/y",
           email: "alice@example.com",
           occurred_at: "2026-01-01T00:00:00Z",
-          repo: "x/y",
+          metadata: {},
         },
       ]);
 
@@ -88,22 +101,36 @@ describe("Spec 840 — fit-landmark sources", () => {
     });
   });
 
-  test("manager running sources --email <report> sees the report's classes", async () => {
+  test("manager running sources --email <report> sees the report's classes", {
+    timeout: 120000,
+  }, async () => {
     await withLiveActivity(async (admin) => {
       await admin.from("organization_people").insert([
-        { email: "boss@example.com", manager_email: null, getdx_team_id: "t" },
+        {
+          email: "boss@example.com",
+          name: "Boss",
+          discipline: "engineering",
+          level: "L6",
+          manager_email: null,
+          getdx_team_id: "t",
+        },
         {
           email: "report@example.com",
+          name: "Report",
+          discipline: "engineering",
+          level: "L4",
           manager_email: "boss@example.com",
           getdx_team_id: "t",
         },
       ]);
       await admin.from("github_artifacts").insert([
         {
-          artifact_id: "art-r",
+          artifact_type: "commit",
+          external_id: "ext-art-r",
+          repository: "x/y",
           email: "report@example.com",
           occurred_at: "2026-01-01T00:00:00Z",
-          repo: "x/y",
+          metadata: {},
         },
       ]);
 
@@ -120,12 +147,24 @@ describe("Spec 840 — fit-landmark sources", () => {
     });
   });
 
-  test("out-of-scope email returns NO_SOURCES_FOR_PERSON", async () => {
+  test("out-of-scope email returns NO_SOURCES_FOR_PERSON", {
+    timeout: 120000,
+  }, async () => {
     await withLiveActivity(async (admin) => {
       await admin.from("organization_people").insert([
-        { email: "alice@example.com", manager_email: null, getdx_team_id: "t" },
+        {
+          email: "alice@example.com",
+          name: "Alice",
+          discipline: "engineering",
+          level: "L4",
+          manager_email: null,
+          getdx_team_id: "t",
+        },
         {
           email: "outsider@example.com",
+          name: "Outsider",
+          discipline: "engineering",
+          level: "L4",
           manager_email: null,
           getdx_team_id: "t2",
         },

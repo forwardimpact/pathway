@@ -73,6 +73,26 @@ async function ensureMigrationApplied() {
   migrationApplied = true;
 }
 
+// Team sentinels used by tests that seed organization_people with a
+// non-null `getdx_team_id`. organization_people's FK to getdx_teams is
+// strict (no `MATCH SIMPLE` escape hatch), so without these rows the
+// inserts fail silently under the admin client and downstream RLS reads
+// see an empty fixture — masquerading as a scope-clamp bug. The four
+// ids are upserted once per process and survive the per-test teardown
+// (getdx_teams is not in TABLE_PK_SENTINEL).
+const TEAM_SENTINELS = ["t", "t2", "team-1", "team-2"];
+
+async function ensureTeamSentinelsSeeded(admin) {
+  await admin.from("getdx_teams").upsert(
+    TEAM_SENTINELS.map((id) => ({
+      getdx_team_id: id,
+      name: `test sentinel ${id}`,
+      raw: {},
+    })),
+    { onConflict: "getdx_team_id" },
+  );
+}
+
 /**
  * Wrap an async test body in (lazy migrate)→seed→test→truncate.
  *
@@ -81,6 +101,7 @@ async function ensureMigrationApplied() {
 export async function withLiveActivity(fn) {
   await ensureMigrationApplied();
   const admin = createAdminClient();
+  await ensureTeamSentinelsSeeded(admin);
   try {
     await fn(admin);
   } finally {
