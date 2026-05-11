@@ -23,12 +23,14 @@ Libraries used: `@forwardimpact/libeval` (`fit-benchmark` CLI — `run`, `report
 
 | # | Decision | Rejected | Why |
 |---|---|---|---|
-| P1 | The agent writes its spec to `$WORKDIR/spec.md` (a single fixed path) and reads inputs from `$WORKDIR/specs/brief.md` + `$WORKDIR/specs/jtbd-excerpt.md`. | Numbered output path (e.g., `$WORKDIR/specs/890-…/spec.md`). | Design § Family layout names `specs/` as a copied input directory; reusing it for output collides with the brief and forces the agent to invent a number. A flat output path keeps grading hermetic. |
-| P2 | The v1 task brief targets a specific named feature ("Spec a `--filter-tools` flag for `fit-trace`") that fits the Platform Builders / Evaluate-and-Improve-Agents JTBD. | A generic "spec something useful" prompt. | A concrete brief lets `cites-jtbd` and `specific-scope` grade objectively; a vague brief lets the agent succeed structurally by inventing arbitrary content. The chosen target is also small enough that an agent can complete it within 25 turns. |
-| P3 | Structural rubric is a POSIX `/bin/sh` script using `awk`/`grep`/`sed` only — no language runtime dependency. NDJSON `{test,pass,message?}` rows go to `$RESULTS_FD`; exit code is the authoritative verdict per design Decision 12 of #870. | Node.js or Python rubric. | Bash matches the fixture-family scoring scripts shipped by `libraries/libeval/test/fixtures/benchmark-family/` and avoids interpreter availability questions in the benchmark sandbox. The fd-3 convention is already documented in `bin/fit-benchmark.js` flag help and the libeval guide. |
-| P4 | Staging script writes `apm.lock.yaml` containing `apm_lock_version: 1`, `dependencies: []`, and a `benchmark:` block. The in-repo `source_identity` is `sha256:` over a deterministic manifest of staged files (sorted relative paths + per-file sha256, concatenated, hashed); the published `source_identity` is `<pack-version>@<git-sha>` from the fetched repo. | Hash the whole lockfile-less staging tree, or use git ls-tree. | The substrate hashes `apm.lock.yaml` bytes verbatim per `apm-installer.js`; varying the `benchmark:` block's `source_identity` field is the simplest way to flip `skillSetHash` when staged content changes. The manifest algorithm is portable across `sha256sum`/`shasum -a 256`. |
-| P5 | The non-judge agent profiles staged into `.claude/agents/` are the full set under `monorepo/.claude/agents/*.md` (in-repo) or `<pack>/agents/*.agent.md` (published, renamed to `<name>.md`), excluding `judge.md` so the family-local checked-in profile is never overwritten. | Stage no agents (skills only). | The kata skills reference domain agent profiles (e.g., `staff-engineer`, `product-manager`) in their orchestration patterns; staging them keeps the skill behaviour intact. Excluding `judge.md` preserves the family-local profile per design Decision 4. |
-| P6 | The cost-envelope assertion sums `costUsd` across `results.jsonl` and fails the workflow if it exceeds `$5`. Failure does not block the artefact upload (which uses `if: always()`). | Per-task budget check inside the harness. | Spec asserts the envelope target and the recording substrate (`costUsd`); the envelope is a workflow-level invariant per design Decision 9. The artefact must survive an overrun so investigation can begin. |
+| P1 | Agent output path is `$WORKDIR/spec.md`; inputs live under `$WORKDIR/specs/brief.md` and `$WORKDIR/specs/jtbd-excerpt.md`. | Numbered output path inside `specs/`. | Reusing the input directory for output collides with the brief. |
+| P2 | v1 brief: spec a `--filter-tools` flag for `fit-trace overview`. | Generic "spec something" prompt. | A concrete target lets the structural rubric grade objectively. |
+| P3 | Rubric is POSIX `/bin/sh` with `awk`/`grep`/`sed`. fd-3 NDJSON; exit code is authoritative per design #870 Decision 12. | Node or Python rubric. | Matches existing fixture-family scoring scripts; no interpreter assumption. |
+| P4 | `apm.lock.yaml` carries `apm_lock_version: 1`, `dependencies: []`, and a `benchmark:` block; in-repo `source_identity` = `sha256:` over a deterministic manifest of staged files; published = `<pack-version>@<git-sha>`. | Hash the staging tree directly, or git ls-tree. | Substrate hashes lockfile bytes; varying `source_identity` flips `skillSetHash` deterministically. |
+| P5 | Stage all non-`judge.md` agent profiles from `monorepo/.claude/agents/*.md` (in-repo) or `<pack>/agents/*.agent.md` renamed to `<name>.md` (published). | Stage only `judge.md`. | Mirrors design § Staging-regime sequence verbatim. |
+| P6 | Cost-envelope assertion sums `costUsd` post-run; failure does not block artefact upload (`if: always()`). | Per-task budget inside the harness. | Workflow-level invariant per design Decision 9; artefact must survive overrun for investigation. |
+| P7 | `cites-jtbd` rubric tests persona name AND job name as independent substrings extracted from the staged `<job>` tag — not a single colon-joined string. | One exact-match `grep -F "Persona: Job"`. | Design § Grading rubric says "references a persona+job present in the staged excerpt"; loose substring match accepts natural spec prose ("hires Platform Builders for the Evaluate-and-Improve-Agents job"). |
+| P8 | `no-how-leak` greps for plan-template markers (`**Created:**`, `## Step N`, `### Step N`) rather than file:line patterns. | Regex against `*.js:NN` and `function NAME(`. | Specs legitimately cite substrate file:line (cf. spec 890 itself, line 91); plan-template markers are unambiguously plan-grade. |
 
 ## Step 1 — Catalog scaffolding
 
@@ -126,6 +128,13 @@ done
 CLAUDE="$FAMILY_ROOT/.claude"
 LOCK="$FAMILY_ROOT/apm.lock.yaml"
 
+# Portable sha256. Linux has sha256sum; macOS ships shasum.
+sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum
+  else shasum -a 256
+  fi
+}
+
 # Preserve the checked-in judge profile across the rebuild.
 JUDGE_TMP=""
 if [ -f "$CLAUDE/agents/judge.md" ]; then
@@ -137,9 +146,10 @@ mkdir -p "$CLAUDE/skills" "$CLAUDE/agents"
 [ -n "$JUDGE_TMP" ] && cp "$JUDGE_TMP" "$CLAUDE/agents/judge.md"
 
 if [ "$REGIME" = "in-repo" ]; then
+  # Strip trailing slash so BSD and GNU cp -R agree on directory semantics.
   for d in "$MONOREPO_ROOT"/.claude/skills/kata-*/; do
     [ -d "$d" ] || continue
-    cp -R "$d" "$CLAUDE/skills/"
+    cp -R "${d%/}" "$CLAUDE/skills/"
   done
   for f in "$MONOREPO_ROOT"/.claude/agents/*.md; do
     [ -f "$f" ] || continue
@@ -149,16 +159,20 @@ if [ "$REGIME" = "in-repo" ]; then
   done
   ID="sha256:$(
     cd "$CLAUDE" && find . -type f | LC_ALL=C sort \
-      | xargs sha256sum | sha256sum | cut -d' ' -f1
+      | while IFS= read -r p; do sha256 < "$p" | awk -v p="$p" '{print $1, p}'; done \
+      | sha256 | cut -d' ' -f1
   )"
 else
   TMP="$(mktemp -d)"; trap 'rm -rf "$TMP"' EXIT
+  # kata-skills is public per `npx skills add forwardimpact/kata-skills`;
+  # anonymous clone works. Switch to an authenticated clone if it ever turns private.
   git clone --depth=1 https://github.com/forwardimpact/kata-skills "$TMP/pack"
   SHA="$(cd "$TMP/pack" && git rev-parse HEAD)"
   VERSION="$(awk -F': ' '/^version:/{print $2; exit}' "$TMP/pack/apm.yml")"
+  [ -n "$VERSION" ] || { echo "stage-family.sh: could not parse version from apm.yml" >&2; exit 1; }
   for d in "$TMP/pack"/skills/kata-*/; do
     [ -d "$d" ] || continue
-    cp -R "$d" "$CLAUDE/skills/"
+    cp -R "${d%/}" "$CLAUDE/skills/"
   done
   for f in "$TMP/pack"/agents/*.agent.md; do
     [ -f "$f" ] || continue
@@ -206,7 +220,7 @@ File contents:
 | `supervisor.task.md` | Empty body with a comment line: `<!-- Reserved per spec #870 design Decision 14; unread in v1. -->`. Preserved for forward-compat. |
 | `judge.task.md` | Templated prompt with placeholders `{{SCORING}}` and `{{AGENT_TRACE_PATH}}` (per #870 plan Step 6 contract). Body: paste the scoring result block, paste the agent-trace path, instruct the judge to read the trace and the emitted `spec.md` and call `Conclude` with `verdict="success"` iff the spec addresses the brief (not just clears the rubric). |
 | `specs/brief.md` | The brief itself: "Spec a new `--filter-tools` flag for `fit-trace overview` that restricts the output to events involving a comma-separated list of tool names. Hire: Platform Builders, job: Evaluate and Improve Agents." |
-| `specs/jtbd-excerpt.md` | A copy of the `<job user="Platform Builders" goal="Evaluate and Improve Agents">` block from `JTBD.md` lines 256–284 (verbatim, including the surrounding `<job>` tags). |
+| `specs/jtbd-excerpt.md` | The full `<job user="Platform Builders" goal="Evaluate and Improve Agents"> … </job>` block from `JTBD.md` (copied verbatim including the opening and closing `<job>` tags — locate the block by tag delimiter, not by line number, so it survives upstream edits to `JTBD.md`). |
 | `workdir/scripts/preflight.sh` | `#!/bin/sh` + `exit 0`. Mode `0755`. |
 
 Verify: from the family root, `test -x tasks/kata-spec/write-feature-spec/workdir/scripts/preflight.sh`;
@@ -265,27 +279,21 @@ else
   FAIL=1
 fi
 
-# 5. No HOW leak: avoid file:line patterns and function-signature patterns
-if grep -qE '[A-Za-z0-9_/.-]+\.(js|ts|sh|py|yml|yaml):[0-9]+|^[[:space:]]*function +[A-Za-z_]+ *\(|async +function' "$SPEC"; then
-  emit '{"test":"no-how-leak","pass":false,"message":"file:line or function signature detected"}'
+# 5. No HOW leak: spec must not adopt plan-template markers
+if grep -qE '^\*\*Created:\*\*|^## Step [0-9]+|^### Step [0-9]+' "$SPEC"; then
+  emit '{"test":"no-how-leak","pass":false,"message":"plan-template marker detected"}'
   FAIL=1
 else
   emit '{"test":"no-how-leak","pass":true}'
 fi
 
-# 6. Cites JTBD: spec contains the persona+job string from the staged excerpt
-persona_job="$(awk '
-  match($0, /<job user="[^"]*" goal="[^"]*">/) {
-    s = substr($0, RSTART, RLENGTH)
-    match(s, /user="[^"]*"/); u = substr(s, RSTART+6, RLENGTH-7)
-    match(s, /goal="[^"]*"/); g = substr(s, RSTART+6, RLENGTH-7)
-    print u": "g
-    exit
-  }' "$JTBD")"
-if [ -n "$persona_job" ] && grep -qF "$persona_job" "$SPEC"; then
+# 6. Cites JTBD: spec mentions persona AND job from the staged <job> block, independently
+persona="$(awk 'match($0, /<job user="[^"]*"/) { print substr($0, RSTART+10, RLENGTH-11); exit }' "$JTBD")"
+job="$(awk 'match($0, /goal="[^"]*"/) { print substr($0, RSTART+6, RLENGTH-7); exit }' "$JTBD")"
+if [ -n "$persona" ] && [ -n "$job" ] && grep -qF "$persona" "$SPEC" && grep -qF "$job" "$SPEC"; then
   emit '{"test":"cites-jtbd","pass":true}'
 else
-  emit "{\"test\":\"cites-jtbd\",\"pass\":false,\"message\":\"missing '$persona_job'\"}"
+  emit "{\"test\":\"cites-jtbd\",\"pass\":false,\"message\":\"missing persona='$persona' or job='$job'\"}"
   FAIL=1
 fi
 
@@ -317,6 +325,7 @@ on:
     paths:
       - ".claude/skills/kata-*/**"
       - ".claude/agents/*.md"
+      - ".claude/agents/references/**"
       - "benchmarks/kata-skills/**"
       - ".github/workflows/benchmark-kata-skills.yml"
 
@@ -349,7 +358,8 @@ jobs:
             --output ./bench-output \
             --runs 5 \
             --model claude-haiku-4-5-20251001 \
-            --max-turns 25
+            --max-turns 25 \
+            --judge-profile judge
       - name: Report
         run: |
           bunx fit-benchmark report \
@@ -357,6 +367,7 @@ jobs:
             >> "$GITHUB_STEP_SUMMARY"
       - name: Assert cost envelope (≤ $5)
         run: |
+          [ -s ./bench-output/results.jsonl ] || { echo "results.jsonl missing or empty" >&2; exit 1; }
           TOTAL=$(jq -s '[.[].costUsd // 0] | add' ./bench-output/results.jsonl)
           echo "Total cost: $TOTAL USD"
           awk -v t="$TOTAL" 'BEGIN { if (t+0 > 5) exit 1 }'
@@ -424,18 +435,17 @@ The risks below are items the implementer cannot see from the plan steps.
    to exact-string match), pass@5 will be 0. v1 surfaces that as the
    first signal — adjusting the rubric or the model is a follow-up spec
    per spec § Out of scope (ablation/threshold tuning).
-4. **JTBD persona+job exact-string drift.** `cites-jtbd` greps `fixed-string`
-   for the persona+job pair. If `JTBD.md` is regenerated with even a
-   single-character change inside `<job user="…">`, the fixture excerpt
-   in Step 4 drifts out of sync and the rubric flips. Mitigation: a
-   pre-commit hook on `JTBD.md` could re-sync the excerpt; out of scope
-   for v1 plan.
-5. **`fit-benchmark` not yet on `latest` of the published pack.** Step 6's
-   workflow uses `bunx fit-benchmark`, which resolves to the version in
-   the monorepo's lockfile. CI's `bun install` (via the bootstrap action)
-   stages local workspace packages, so the in-monorepo `fit-benchmark`
-   binary is what runs — no npm fetch is required. Confirmed by spec #870
-   Step 11 (bin wired into `libraries/libeval/package.json`).
+4. **JTBD persona/job substring drift.** `cites-jtbd` uses `grep -F` to
+   check the persona and job strings are independently present in the
+   spec. If `JTBD.md` is regenerated with even a single-character change
+   inside `<job user="…" goal="…">`, the fixture excerpt in Step 4 drifts
+   out of sync and the rubric flips. Mitigation: a pre-commit hook on
+   `JTBD.md` could re-sync the excerpt; out of scope for v1 plan.
+5. **kata-skills repo visibility.** Step 3's published-regime clone
+   assumes `forwardimpact/kata-skills` is public (consistent with
+   `npx skills add forwardimpact/kata-skills`). If the repo is ever made
+   private, the scheduled and manual-dispatch runs fail with no
+   diagnostic; the script comment flags the assumption.
 
 ## Execution recommendation
 
