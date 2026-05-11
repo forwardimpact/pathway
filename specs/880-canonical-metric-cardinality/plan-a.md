@@ -108,14 +108,18 @@ their `.claude/skills/kata-*/references/metrics.md`.
 
 ## Step 2 — Amend `KATA.md` § Metrics cardinality rule
 
-Replace the existing cardinality-rule paragraph (currently `KATA.md` lines
-261–266 — the sentence that begins "Each such skill records one or more
-metrics, …" through "Pipeline stations and orchestration utilities do not
-record.").
-
 **Modified:** `KATA.md`.
 
-**Before** (current text, lines 261–266 region, post-Edit-2a):
+The cardinality rule currently lives as the back half of the first paragraph
+of § Metrics (sentences 2–4 of the paragraph that begins on line 259 with
+"Only skills representing **end-to-end processes** … record metrics."). This
+step replaces those three sentences with a new amended block **and inserts a
+blank line before it**, breaking the paragraph in two — sentence 1
+(eligibility) stays as paragraph 1 of § Metrics; the amended cardinality rule
+becomes paragraph 2.
+
+**Before** (current text — the back half of the first paragraph of § Metrics,
+lines 261–266; the leading "metrics." continues from line 260):
 
 > Each such skill records one or more metrics, each a **count of units of
 > work the process produced this run** (issues triaged, PRs merged, findings
@@ -124,23 +128,30 @@ record.").
 > metric per run. Pipeline stations and orchestration utilities do not
 > record.
 
-**After** (replacement text — paste verbatim, including the markdown link):
+**After** (paste verbatim — note the **leading blank line** that breaks the
+paragraph; the prior sentence "… record metrics." stays as paragraph 1):
 
 ```markdown
+
 Each such skill records one or more metrics, each a **count of units of work
-observed this run**. Metrics fall into two classes: `process-throughput`, the
-units of work the producer skill produced in its own run (one per producer
-skill — unchanged); and `system-health`, events about the loop the producer
-skill observes while producing its own units. A new metric is
-`process-throughput` if it counts units of work the producer skill produced in
-its own run, and `system-health` if it counts events about the loop that the
-producer skill observes while producing its own units; the producer of a new
-`system-health` metric co-locates with an existing producer per
+observed this run** (issues triaged, PRs merged, findings filed, approvals
+recorded, and so on). Metrics fall into two classes: `process-throughput`,
+the units of work the producer skill produced in its own run (one per
+producer skill — unchanged); and `system-health`, events about the loop the
+producer skill observes while producing its own units. A new metric is
+`process-throughput` if it counts units of work the producer skill produced
+in its own run, and `system-health` if it counts events about the loop that
+the producer skill observes while producing its own units; the producer of a
+new `system-health` metric co-locates with an existing producer per
 [`metric-class-guidance.md`](.claude/agents/references/metric-class-guidance.md).
 Multiple metrics from one producer land as multiple rows in
 `wiki/metrics/{skill}/{YYYY}.csv` — one row per metric per run. Pipeline
 stations and orchestration utilities do not record.
 ```
+
+The example list `(issues triaged, PRs merged, findings filed, approvals
+recorded, and so on)` is preserved verbatim (prose forms, not canonical
+tokens — they do not trip SC2).
 
 **Verify:**
 
@@ -151,21 +162,28 @@ stations and orchestration utilities do not record.
   exactly 1 hit (the membership-criterion sentence — SC1).
 - `rg -n 'metric-class-guidance.md' KATA.md` returns exactly 1 hit (the
   one-hop link — SC3).
-- SC2 zero-hit grep — run against the cardinality-rule sentence(s), i.e. the
-  paragraph that contains "Each such skill records one or more metrics":
+- `rg -n '^Each such skill records one or more metrics' KATA.md` returns
+  exactly 1 hit at column 1 (confirms the paragraph break landed — required
+  for the awk anchor below to work).
+- SC2 zero-hit grep — run against the amended cardinality-rule paragraph
+  (now isolated from the eligibility sentence by the inserted blank line):
 
   ```sh
-  paragraph=$(awk '/^Each such skill records one or more metrics/,/Pipeline stations and orchestration utilities do not record\./' KATA.md)
+  paragraph=$(awk '/^Each such skill records one or more metrics/{flag=1} flag{print} /^$/{if(flag) exit}' KATA.md)
+  [ -n "$paragraph" ] || { echo "FAIL: empty paragraph — anchor missed"; exit 1; }
   for tok in prs_merged specs_drafted designs_drafted plans_drafted \
              implementations_shipped prs_actioned findings_count \
              issues_triaged releases_cut summary_corrections \
              errors_found issues_created approvals_recorded_per_run; do
-    printf '%s\t%s\n' "$tok" "$(printf '%s' "$paragraph" | rg -c "$tok" || echo 0)"
+    count=$(printf '%s' "$paragraph" | rg -c "$tok" 2>/dev/null || echo 0)
+    printf '%s\t%s\n' "$tok" "$count"
   done
   ```
 
-  Every token's count must be `0` (SC2: criterion is class-aware, not
-  name-aware).
+  Every token's count must be `0`. The non-empty-paragraph guard catches the
+  failure mode where `Each such skill` is mid-paragraph (vacuous pass). The
+  awk pattern reads from the anchor line through the next blank line, so it
+  is independent of prettier's wrap of the closing sentence.
 - `git diff KATA.md` shows changes only within § Metrics, no leakage into
   adjacent sections.
 
@@ -205,10 +223,12 @@ shift.
 - `rg -cn 'system-health' KATA.md` returns ≥2 (same — SC4 requires ≥1 in this
   paragraph).
 - Paragraph-scoped SC4 grep (counts class-name tokens inside this paragraph
-  only):
+  only — anchored on the first line, ranged to the next blank line so
+  prettier reflow of the closing sentence cannot break the bound):
 
   ```sh
-  rationale=$(awk '/^The constraint is XmR-driven for both classes\./,/distinguish a stable process from a special-cause shift\./' KATA.md)
+  rationale=$(awk '/^The constraint is XmR-driven for both classes\./{flag=1} flag{print} /^$/{if(flag) exit}' KATA.md)
+  [ -n "$rationale" ] || { echo "FAIL: empty paragraph — anchor missed"; exit 1; }
   printf '%s' "$rationale" | rg -c 'process-throughput'   # ≥1
   printf '%s' "$rationale" | rg -c 'system-health'        # ≥1
   ```
@@ -284,12 +304,12 @@ the spec id (`plan(880): …` for this plan PR, `feat(880): …` or
 
 ## Execution recommendation
 
-Single staff-engineer executor, sequential. Steps 1–3 must run in order:
+Single `staff-engineer` executor, sequential. Steps 1–3 must run in order:
 Step 2's link target is the file Step 1 creates; Step 3's `rg` verification
 references the cardinality-rule paragraph Step 2 lands. Step 4 closes. No
-parallelism; no decomposition into parts (4 steps, 3 files, ≤40 lines of new
-prose plus two paragraph swaps in KATA.md fit one PR). Route to the
-engineering agent — every edit is a doc change with mechanical verification,
+parallelism; no decomposition into parts (4 steps, 2 files, ≤40 lines of new
+prose plus two paragraph edits in `KATA.md` fit one PR). Route to
+`staff-engineer` — every edit is a doc change with mechanical verification,
 no audience-tuning that warrants `technical-writer`.
 
 — Staff Engineer 🛠️
