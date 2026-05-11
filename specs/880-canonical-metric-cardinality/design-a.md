@@ -25,11 +25,18 @@ in § Metrics moves the decision from "exception" to "schema."
 | process-throughput | Units of work the producer skill produced in its own run                      | One per process-skill (unchanged) | Producer = the skill that *is* the process (already the rule today).                                            |
 | system-health     | Events about the loop the producer skill *observes* while producing its own units | Unconstrained at the producer     | Producer **co-locates with an existing producer** that already reads the relevant GitHub/repo state at no extra cost. |
 
-Class-name candidates considered: `binding-constraint` (mirrors spec 860
+Class-name candidates considered: `binding-constraint` (the term spec 880
+uses 6× as shorthand throughout § Problem and § Notes; mirrors spec 860 § Goal
 vocabulary, but reads as a per-metric value judgment — "binding *today*?" —
-not a stable schema); `loop-health` and `cross-cutting` (less precise about
-what the metric counts). `system-health` is class-stable and parallels
-`process-throughput` in shape.
+not a stable schema, and ages poorly once the bottleneck shifts);
+`loop-health` and `cross-cutting` (less precise about what the metric
+counts). `system-health` is class-stable and parallels `process-throughput`
+in shape. **Vocabulary note for plan/implementation:** spec 880's
+`binding-constraint` references describe the *member shape* (the first such
+member reads the approval-throughput binding constraint); the design names
+the *class* `system-health` so the schema survives bottleneck shifts. The
+two terms are not synonyms — spec prose is not edited, KATA.md § Metrics
+adopts `system-health` as the class name.
 
 ## Membership criterion (one sentence, class-aware per SC2)
 
@@ -39,7 +46,9 @@ what the metric counts). `system-health` is class-stable and parallels
 > own units.
 
 The criterion turns on what the metric counts and where the producer reads it,
-not on any metric name. Verified by SC2 grep: no canonical-12 metric name
+not on any metric name. Verified by SC2 grep across the 13 tokens spec 880 SC2
+enumerates (the canonical-11 metric names plus `approvals_recorded_per_run`,
+i.e. the canonical set after spec 860 plan-b lands the 12th metric): no token
 appears in the criterion sentence.
 
 ## Where the boundary lives
@@ -60,7 +69,7 @@ graph LR
 
 1. **§ Metrics cardinality rule (amended).** Names both classes; states the
    one-per-skill invariant on process-throughput only; states that
-   system-health metrics co-locate per the pointer. ~5 lines net.
+   system-health metrics co-locate per the pointer.
 2. **§ Metrics rationale paragraph (amended).** Covers both classes — XmR
    drives both, but process-throughput rides the producer's natural run
    cadence and system-health rides the producer's natural read of loop state.
@@ -82,7 +91,7 @@ graph LR
 
 ## Pointer page shape (`metric-class-guidance.md`)
 
-A short reference (~30–50 lines), structured:
+A short reference page, structured:
 
 1. **Lead** — one paragraph stating that § Metrics names two classes and this
    page tells future spec/design authors which class a new metric joins and
@@ -109,17 +118,19 @@ spec 860 surface owns those for redefinitions; this page owns placement.
 | SC | Satisfied by                                                                                                                  |
 | -- | ----------------------------------------------------------------------------------------------------------------------------- |
 | 1  | § Metrics names `process-throughput` and `system-health` and states the membership criterion in one sentence.                |
-| 2  | Membership-criterion sentence contains no canonical-12 metric name (verified by `rg` per spec verification).                 |
+| 2  | Membership-criterion sentence contains no canonical-set metric name (verified by `rg` across the 13 tokens spec SC2 enumerates). |
 | 3  | § Metrics has one new markdown link to `metric-class-guidance.md`; that page's body contains `co-locates with an existing producer`. |
 | 4  | Rationale paragraph mentions `process-throughput` ≥1× and `system-health` ≥1×.                                                |
 
 ## Out of scope (design-level)
 
 - Class-membership of every existing canonical metric. The implementation does
-  not retag the 12 existing rows in their `references/metrics.md` files.
-  Existing metrics are by inspection process-throughput
-  (`approvals_recorded_per_run` is the first system-health member). Backfill
-  is a separate housekeeping spec if it surfaces value.
+  not retag the existing canonical-11 rows in their `references/metrics.md`
+  files. The design's working assumption is that the canonical-11 members are
+  process-throughput by inspection and `approvals_recorded_per_run` is the
+  first system-health member; if a later spec finds an existing canonical-11
+  metric that reads loop state rather than producer output, a backfill spec
+  retags it. This design does not pre-audit that question.
 - Closure of the system-health class. The class is named open. Spec 880 § Notes
   lists candidates (queue dwell, ratification-cycle length, agent-react fan-in
   delay) but the design does not pre-admit them; each enters via its own
