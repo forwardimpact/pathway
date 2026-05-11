@@ -129,6 +129,9 @@ rg '<read_do_checklist'     # Entry gates — read each item, then do it
 rg '<do_confirm_checklist'  # Exit gates — do from memory, then confirm
 ```
 
+`benchmarks/` is excluded via [`.rgignore`](.rgignore) — see
+[benchmarks/README.md](benchmarks/README.md) § Fixture safety.
+
 **Every contribution** runs [§ READ-DO](CONTRIBUTING.md#read-do) then
 [§ DO-CONFIRM](CONTRIBUTING.md#do-confirm). Domain checklists in
 `.claude/skills/kata-*/SKILL.md`. Shared libraries:
