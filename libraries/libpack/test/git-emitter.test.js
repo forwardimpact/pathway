@@ -180,4 +180,84 @@ describe("GitEmitter", () => {
       server.close();
     }
   });
+
+  test("shallow clones over smart HTTP", async () => {
+    const stagedDir = await createStagedDir();
+    const outDir = await makeTempDir();
+    const repoPath = join(outDir, "test.git");
+    const cloneDir = join(outDir, "shallow-clone");
+
+    const emitter = new GitEmitter();
+    await emitter.emit(stagedDir, repoPath, {
+      version: "1.0.0",
+      name: "smart-http-test",
+    });
+
+    const server = createServer(async (req, res) => {
+      const url = new URL(req.url, "http://localhost");
+
+      // Smart HTTP ref advertisement
+      if (
+        url.pathname === "/info/refs" &&
+        url.searchParams.get("service") === "git-upload-pack"
+      ) {
+        const data = await readFile(join(repoPath, "smart-http", "info-refs"));
+        res.writeHead(200, {
+          "Content-Type": "application/x-git-upload-pack-advertisement",
+        });
+        res.end(data);
+        return;
+      }
+
+      // Smart HTTP upload-pack — route by POST body content
+      if (url.pathname === "/git-upload-pack" && req.method === "POST") {
+        const bodyChunks = [];
+        req.on("data", (c) => bodyChunks.push(c));
+        req.on("end", async () => {
+          const body = Buffer.concat(bodyChunks).toString("utf-8");
+          const file = body.includes("done")
+            ? "upload-pack-result"
+            : "upload-pack-shallow";
+          const data = await readFile(join(repoPath, "smart-http", file));
+          res.writeHead(200, {
+            "Content-Type": "application/x-git-upload-pack-result",
+          });
+          res.end(data);
+        });
+        return;
+      }
+
+      // Dumb HTTP fallback
+      const filePath = join(repoPath, url.pathname);
+      try {
+        const data = await readFile(filePath);
+        res.writeHead(200);
+        res.end(data);
+      } catch {
+        res.writeHead(404);
+        res.end();
+      }
+    });
+
+    await new Promise((resolve) => server.listen(0, resolve));
+    const port = server.address().port;
+
+    try {
+      const exitCode = await new Promise((resolve, reject) => {
+        const proc = spawn(
+          "git",
+          ["clone", "--depth=1", `http://localhost:${port}/`, cloneDir],
+          { env: { ...CLEAN_ENV, GIT_TERMINAL_PROMPT: "0" } },
+        );
+        proc.on("close", resolve);
+        proc.on("error", reject);
+      });
+      expect(exitCode).toBe(0);
+      expect(existsSync(join(cloneDir, "a.txt"))).toBe(true);
+      expect(existsSync(join(cloneDir, "sub", "b.txt"))).toBe(true);
+      expect(existsSync(join(cloneDir, "run.sh"))).toBe(true);
+    } finally {
+      server.close();
+    }
+  });
 });

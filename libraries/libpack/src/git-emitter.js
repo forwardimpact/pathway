@@ -12,6 +12,14 @@ const BARE_CONFIG = `[core]
 \tbare = true
 `;
 
+const SMART_HTTP_CAPS =
+  "shallow ofs-delta symref=HEAD:refs/heads/main agent=libpack/static";
+
+function pktLine(data) {
+  const len = Buffer.byteLength(data, "utf-8") + 4;
+  return len.toString(16).padStart(4, "0") + data;
+}
+
 /** Static bare git repo emitter for dumb-HTTP serving. */
 export class GitEmitter {
   #exec;
@@ -100,6 +108,12 @@ export class GitEmitter {
         await rm(join(objectsDir, entry), { recursive: true, force: true });
       }
     }
+
+    // 15. Pre-computed smart HTTP responses for shallow clone support.
+    // Dumb HTTP cannot negotiate shallow capabilities, so tools that
+    // use `git clone --depth=1` (e.g. APM) need the smart HTTP
+    // protocol. For a single-commit repo the responses are static.
+    await this.#emitSmartHttp(outputPath, commitSha, version);
   }
 
   async #hashTree(stagedDir, gitEnv) {
@@ -128,5 +142,43 @@ export class GitEmitter {
     })
       .toString()
       .trim();
+  }
+
+  async #emitSmartHttp(outputPath, commitSha, version) {
+    const smartDir = join(outputPath, "smart-http");
+    await mkdir(smartDir, { recursive: true });
+
+    // v1 ref advertisement — pkt-line format with shallow capability
+    const adv =
+      pktLine("# service=git-upload-pack\n") +
+      "0000" +
+      pktLine(`${commitSha} HEAD\0${SMART_HTTP_CAPS}\n`) +
+      pktLine(`${commitSha} refs/heads/main\n`) +
+      pktLine(`${commitSha} refs/tags/v${version}\n`) +
+      "0000";
+    await writeFile(join(smartDir, "info-refs"), adv, "utf-8");
+
+    // Pre-computed upload-pack responses for shallow clone.
+    // v1 stateless-rpc shallow fetch issues two POSTs to /git-upload-pack:
+    //   POST 1 (no "done") → server returns shallow list + flush
+    //   POST 2 (has "done") → server returns shallow list + flush + NAK + pack
+    // The web server routes by checking whether the POST body contains "done".
+    const packDir = join(outputPath, "objects", "pack");
+    const packFile = (await readdir(packDir)).find((f) => f.endsWith(".pack"));
+    const packData = await readFile(join(packDir, packFile));
+
+    const shallowFlush = pktLine(`shallow ${commitSha}\n`) + "0000";
+
+    await writeFile(
+      join(smartDir, "upload-pack-shallow"),
+      shallowFlush,
+      "utf-8",
+    );
+
+    const resultHeader = shallowFlush + pktLine("NAK\n");
+    await writeFile(
+      join(smartDir, "upload-pack-result"),
+      Buffer.concat([Buffer.from(resultHeader, "ascii"), packData]),
+    );
   }
 }
