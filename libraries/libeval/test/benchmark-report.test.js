@@ -94,6 +94,6 @@ describe("renderTextReport", () => {
     const report = await aggregate({ inputDir: dir, kValues: [1] });
     const text = renderTextReport(report, [1]);
     assert.match(text, /\| taskId \| n \| c \| pass@1 \|/);
-    assert.match(text, /\| tf\/x \| 2 \| 1 \| 0\.5000 \|/);
+    assert.match(text, /\| x \| 2 \| 1 \| 0\.5000 \|/);
   });
 });
