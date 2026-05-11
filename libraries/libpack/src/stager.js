@@ -129,6 +129,44 @@ export class PackStager {
     );
   }
 
+  /** Stage the APM git repo layout from a full staging dir.
+   *  APM install expects skills/ and agents/ at the repo root
+   *  (APM handles the target-specific .claude/ wrapping itself).
+   */
+  async stageApmGit(fullDir, gitDir, packName, version) {
+    const srcSkillsDir = join(fullDir, ".claude", "skills");
+    const srcAgentsDir = join(fullDir, ".claude", "agents");
+    const destSkillsDir = join(gitDir, "skills");
+    const destAgentsDir = join(gitDir, "agents");
+
+    await mkdir(destSkillsDir, { recursive: true });
+    await mkdir(destAgentsDir, { recursive: true });
+
+    const skillDirs = (
+      await readdir(srcSkillsDir, { withFileTypes: true })
+    ).filter((e) => e.isDirectory());
+    for (const dir of skillDirs) {
+      await cp(join(srcSkillsDir, dir.name), join(destSkillsDir, dir.name), {
+        recursive: true,
+      });
+    }
+
+    const agentFiles = (await readdir(srcAgentsDir)).filter((f) =>
+      f.endsWith(".md"),
+    );
+    for (const file of agentFiles) {
+      await cp(join(srcAgentsDir, file), join(destAgentsDir, file));
+    }
+
+    const srcClaudeMd = join(fullDir, ".claude", "CLAUDE.md");
+    if (existsSync(srcClaudeMd)) {
+      await copyFile(srcClaudeMd, join(gitDir, "CLAUDE.md"));
+    }
+
+    const manifestLines = [`name: ${packName}`, `version: '${version}'`, ``];
+    await writeFile(join(gitDir, "apm.yml"), manifestLines.join("\n"), "utf-8");
+  }
+
   /** Return the skills subdirectory of a full staging dir. */
   skillsDir(fullDir) {
     return join(fullDir, ".claude", "skills");

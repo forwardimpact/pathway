@@ -391,10 +391,9 @@ describe("generatePacks", () => {
 
     try {
       execFileSync("git", ["clone", repoPath, cloneDir], { env: cleanEnv });
-      assert.ok(existsSync(join(cloneDir, ".claude", "skills")));
-      assert.ok(existsSync(join(cloneDir, ".claude", "agents")));
-      assert.ok(existsSync(join(cloneDir, "apm.lock.yaml")));
-      assert.ok(!existsSync(join(cloneDir, ".claude", "settings.json")));
+      assert.ok(existsSync(join(cloneDir, "skills")));
+      assert.ok(existsSync(join(cloneDir, "agents")));
+      assert.ok(existsSync(join(cloneDir, "apm.yml")));
     } finally {
       rmSync(cloneDir, { recursive: true, force: true });
     }

@@ -28,12 +28,15 @@ export class PackBuilder {
     for (const combo of combinations) {
       const fullDir = join(stagingDir, combo.name);
       const apmDir = join(stagingDir, `${combo.name}-apm`);
+      const apmGitDir = join(stagingDir, `${combo.name}-apm-git`);
 
       await mkdir(fullDir, { recursive: true });
       await mkdir(apmDir, { recursive: true });
+      await mkdir(apmGitDir, { recursive: true });
 
       await this.#stager.stageFull(fullDir, combo.content);
       await this.#stager.stageApm(fullDir, apmDir, combo.name, version);
+      await this.#stager.stageApmGit(fullDir, apmGitDir, combo.name, version);
 
       await this.#emitters.tar.emit(
         fullDir,
@@ -43,7 +46,7 @@ export class PackBuilder {
         apmDir,
         join(apmOutDir, `${combo.name}.tar.gz`),
       );
-      await this.#emitters.git.emit(apmDir, join(apmOutDir, combo.name), {
+      await this.#emitters.git.emit(apmGitDir, join(apmOutDir, combo.name), {
         version,
         name: combo.name,
       });
