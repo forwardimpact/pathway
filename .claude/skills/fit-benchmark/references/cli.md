@@ -19,7 +19,7 @@ to stdout as a single JSON line for live visibility.
 | `--family <path>`    | yes      | —                  | Task family root (local path or git URL)                                    |
 | `--output <dir>`     | yes      | —                  | Run-output directory; receives `results.jsonl` and per-task traces          |
 | `--runs <n>`         | no       | `1`                | Times each task is repeated                                                 |
-| `--model <id>`       | no       | `claude-opus-4-7`  | Model id passed to every agent session                                      |
+| `--model <id>`       | no       | `claude-opus-4-7[1m]`| Model id passed to every agent session                                      |
 | `--agent-profile`    | no       | `null`             | Profile name for the agent-under-test (loaded from staged `.claude/agents`) |
 | `--judge-profile`    | no       | `null`             | Profile name for the judge supervisor                                       |
 | `--max-turns <n>`    | no       | `50`               | Agent-under-test budget                                                     |

@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { mkdtempSync, existsSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { createServer } from "node:net";
 import { loadTaskFamily } from "../src/benchmark/task-family.js";
 import { installApm } from "../src/benchmark/apm-installer.js";
 import { WorkdirManager } from "../src/benchmark/workdir.js";
@@ -91,6 +92,33 @@ describe("WorkdirManager.teardown", () => {
     const result = await wm.teardown(wd);
     assert.strictEqual(result.portFree, true);
     assert.strictEqual(typeof result.descendants, "number");
+  });
+
+  test("spec criterion 10: teardown leaves no descendant in the process group after a task with a live HTTP listener", async () => {
+    const { family, wm } = await setupManager();
+    const task = findTask(family, "tf/pass");
+    const wd = await wm.start(task, 0);
+    assert.ok(!wd.preflightError, "preflight should boot the listener");
+    // Sanity: the port is bound while the listener is alive.
+    const portBoundDuringRun = await new Promise((r) => {
+      const s = createServer();
+      s.on("error", () => r(true));
+      s.listen(wd.port, () => {
+        s.close(() => r(false));
+      });
+    });
+    assert.strictEqual(
+      portBoundDuringRun,
+      true,
+      "expected the listener to occupy the port mid-run",
+    );
+    const result = await wm.teardown(wd);
+    assert.strictEqual(result.portFree, true, "teardown must free the port");
+    assert.strictEqual(
+      result.descendants,
+      0,
+      "teardown must leave no descendant in the process group",
+    );
   });
 
   test("tolerates missing pgid (preflight spawn failure)", async () => {

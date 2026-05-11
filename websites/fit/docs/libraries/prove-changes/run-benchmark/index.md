@@ -77,7 +77,7 @@ runner substitutes two placeholders before the prompt reaches the model:
 | `{{SCORING}}`          | JSON-stringified `{ verdict, details, exitCode }` |
 | `{{AGENT_TRACE_PATH}}` | absolute path to the agent-under-test's NDJSON trace |
 
-```md
+````md
 <!-- tasks/todo-api/basic/judge.task.md -->
 The agent was asked to build a TODO API. The scoring script reports:
 
@@ -88,7 +88,7 @@ The agent was asked to build a TODO API. The scoring script reports:
 Read the agent's trace at {{AGENT_TRACE_PATH}} if you need context on how
 they arrived at the result. Call `Conclude` with `verdict: "success"` only
 when every scoring detail row is `pass: true`.
-```
+````
 
 If the placeholders are not present in `judge.task.md`, the harness does
 not inject them — the substitution is opt-in so authors who want to scope

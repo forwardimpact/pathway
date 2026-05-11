@@ -14,6 +14,7 @@ import { spawn } from "node:child_process";
 import { createInterface } from "node:readline";
 import { createWriteStream } from "node:fs";
 import { join } from "node:path";
+import { buildSandboxEnv } from "./sandbox-env.js";
 
 const SCORING_TIMEOUT_MS = 5 * 60 * 1000;
 
@@ -39,13 +40,16 @@ export async function runScoring(task, ctx) {
     let child;
     try {
       child = spawn(scriptPath, [], {
-        env: {
-          ...process.env,
+        env: buildSandboxEnv({
           WORKDIR: ctx.cwd,
           PORT: String(ctx.port),
           RESULTS_FD: "3",
-        },
-        stdio: ["inherit", "pipe", "pipe", "pipe"],
+        }),
+        // fd 0 is `ignore` (not `inherit`) so a malicious scoring script
+        // cannot read the operator's stdin/tty; fd 1/2 are piped for
+        // observability, fd 3 is the per-test NDJSON channel.
+        stdio: ["ignore", "pipe", "pipe", "pipe"],
+        cwd: ctx.cwd,
       });
     } catch (err) {
       stderrStream.end(`failed to spawn: ${err.message}\n`);

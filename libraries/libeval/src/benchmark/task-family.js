@@ -28,7 +28,7 @@ import {
 import { resolve, join, relative, sep } from "node:path";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 const EXCLUDED_DIRS = new Set([".git", "node_modules"]);
 
@@ -44,10 +44,16 @@ function isGitUrl(s) {
 
 function cloneGitFamily(url) {
   const dest = mkdtempSync(join(tmpdir(), "fit-benchmark-family-"));
-  execSync(
-    `git clone --depth 1 --quiet ${JSON.stringify(url)} ${JSON.stringify(dest)}`,
-  );
-  const sha = execSync(`git -C ${JSON.stringify(dest)} rev-parse HEAD`, {
+  // execFileSync avoids spawning a shell — shell metacharacters in `url`
+  // (e.g. `$(...)`, backticks) cannot trigger command substitution, so a
+  // malicious `--family` URL cannot execute arbitrary commands at clone
+  // time. The previous shell-form `execSync` interpolated JSON.stringify
+  // output into a bash command line, which left a $-expansion injection
+  // open inside double quotes.
+  execFileSync("git", ["clone", "--depth", "1", "--quiet", url, dest], {
+    stdio: "ignore",
+  });
+  const sha = execFileSync("git", ["-C", dest, "rev-parse", "HEAD"], {
     encoding: "utf8",
   }).trim();
   return { rootPath: dest, familyRevision: `git:${sha}` };

@@ -12,11 +12,12 @@
  * scripts there with `$WORKDIR` as an argument.
  */
 
-import { spawn, execSync } from "node:child_process";
+import { spawn, execFileSync } from "node:child_process";
 import { mkdirSync, existsSync } from "node:fs";
 import { cp } from "node:fs/promises";
 import { join, dirname, sep } from "node:path";
 import { createServer, connect } from "node:net";
+import { buildSandboxEnv } from "./sandbox-env.js";
 
 const TEARDOWN_GRACE_MS = 5000;
 const PORT_PROBE_TIMEOUT_MS = 500;
@@ -64,7 +65,9 @@ async function portFree(port) {
 function countDescendants(pgid) {
   if (!pgid) return 0;
   try {
-    const out = execSync(`ps -o pid= -g ${pgid}`, { encoding: "utf8" });
+    const out = execFileSync("ps", ["-o", "pid=", "-g", String(pgid)], {
+      encoding: "utf8",
+    });
     return out.split("\n").filter((line) => line.trim()).length;
   } catch {
     // `ps` absent or pgid empty — treat as best-effort.
@@ -96,14 +99,15 @@ async function waitForGroupExit(pgid, graceMs) {
   }
 }
 
-function runPreflight(scriptPath, env) {
+function runPreflight(scriptPath, env, cwd) {
   return new Promise((resolveP) => {
     let child;
     try {
       child = spawn(scriptPath, [], {
-        env: { ...process.env, ...env },
+        env: buildSandboxEnv(env),
         detached: true,
         stdio: ["ignore", "pipe", "pipe"],
+        cwd,
       });
     } catch (err) {
       resolveP({ pgid: null, error: { message: err.message, exitCode: -1 } });
@@ -111,7 +115,9 @@ function runPreflight(scriptPath, env) {
     }
     const pgid = child.pid;
     let stderr = "";
-    child.stderr?.on("data", (b) => (stderr += b.toString()));
+    child.stderr?.on("data", (b) => {
+      stderr += b.toString();
+    });
     const timer = setTimeout(() => {
       try {
         process.kill(-pgid, "SIGKILL");
@@ -119,7 +125,10 @@ function runPreflight(scriptPath, env) {
         // already gone
       }
     }, PREFLIGHT_TIMEOUT_MS);
-    child.on("exit", (code) => {
+    // Use `close` instead of `exit` — `close` fires after stdio streams
+    // have been drained, so the stderr capture is complete by the time
+    // we read it (the `exit` event can fire before the final `data`).
+    child.on("close", (code) => {
       clearTimeout(timer);
       if (code === 0) {
         resolveP({ pgid, error: null });
@@ -193,10 +202,11 @@ export class WorkdirManager {
     const judgeTracePath = join(runDir, "judge.ndjson");
 
     const preflightPath = join(task.paths.workdir, "scripts", "preflight.sh");
-    const { pgid, error } = await runPreflight(preflightPath, {
-      WORKDIR: cwd,
-      PORT: String(port),
-    });
+    const { pgid, error } = await runPreflight(
+      preflightPath,
+      { WORKDIR: cwd, PORT: String(port) },
+      cwd,
+    );
 
     return {
       cwd,
@@ -224,7 +234,13 @@ export class WorkdirManager {
       const termSignalled = signalGroup(workdir.pgid, "SIGTERM");
       if (termSignalled) {
         await waitForGroupExit(workdir.pgid, TEARDOWN_GRACE_MS);
-        signalGroup(workdir.pgid, "SIGKILL");
+        // Only SIGKILL when the process group is still alive (signal 0
+        // probe). Without this check, a host that recycles the original
+        // PGID for an unrelated process during the grace window would
+        // receive a stray SIGKILL.
+        if (signalGroup(workdir.pgid, 0)) {
+          signalGroup(workdir.pgid, "SIGKILL");
+        }
       }
     }
     const portFreeNow = await portFree(workdir.port);

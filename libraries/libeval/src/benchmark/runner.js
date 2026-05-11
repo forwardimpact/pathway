@@ -144,7 +144,7 @@ async function runAgentSession(opts, task, workdir) {
     agentError = { message: err.message, aborted: false };
   }
   await new Promise((r) => agentTraceStream.end(r));
-  return agentError;
+  return { agentError };
 }
 
 function buildResultRecord(
@@ -267,8 +267,11 @@ export class BenchmarkRunner {
             await wm.teardown(workdir);
             continue;
           }
-          await runAgentSession(opts, task, workdir);
-          const traceSummary = await parseAgentTrace(workdir.agentTracePath);
+          const { agentError } = await runAgentSession(opts, task, workdir);
+          const parsed = await parseAgentTrace(workdir.agentTracePath);
+          const traceSummary = agentError
+            ? { ...parsed, submission: "" }
+            : parsed;
           const scoring = await runScoring(task, {
             cwd: workdir.cwd,
             port: workdir.port,
@@ -302,19 +305,26 @@ export class BenchmarkRunner {
   async #emit(resultsFile, record) {
     try {
       validateResultRecord(record);
-      await resultsFile.appendFile(JSON.stringify(record) + "\n");
+      await resultsFile.appendFile(`${JSON.stringify(record)}\n`);
     } catch (err) {
       // The runner constructed the record — a validation failure here is a
       // bug in the runner itself, not a user-input issue. Drop a noisy
       // fallback line so the run is observable rather than silently
-      // discarding a paid agent execution.
+      // discarding a paid agent execution, and warn on stderr so operators
+      // see the drift live (the report aggregator's `skipped` count is
+      // post-hoc; this lets the live invocation surface the bug).
+      process.stderr.write(
+        `[fit-benchmark run] WARNING: result record failed validation for ` +
+          `${record.taskId}#${record.runIndex} — emitted fallback line with ` +
+          `schemaError; this is a harness bug. Detail: ${err.message}\n`,
+      );
       const fallback = {
         taskId: record.taskId,
         runIndex: record.runIndex,
         verdict: "fail",
         schemaError: err.message,
       };
-      await resultsFile.appendFile(JSON.stringify(fallback) + "\n");
+      await resultsFile.appendFile(`${JSON.stringify(fallback)}\n`);
     }
   }
 }

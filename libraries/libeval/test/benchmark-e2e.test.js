@@ -66,7 +66,9 @@ async function runWithRecords(deps) {
 }
 
 describe("BenchmarkRunner end-to-end (mocked SDK)", () => {
-  test("emits one record per (taskId, runIndex); preflight-broken records cost 0 and a preflightError", async () => {
+  test("emits one record per (taskId, runIndex); preflight-broken records cost 0 and a preflightError", {
+    timeout: 30000,
+  }, async () => {
     const { root } = await materialiseBenchmarkFamily();
     const output = mkdtempSync(join(tmpdir(), "fb-e2e-"));
 
@@ -79,21 +81,10 @@ describe("BenchmarkRunner end-to-end (mocked SDK)", () => {
       "42",
     );
 
-    // Pass task: pre-seed `passing.flag` so its scoring HTTP-like sentinel passes.
-    writeFileSync(
-      join(root, "tasks", "tf", "pass", "workdir", "passing.flag"),
-      "ok",
-    );
-
     const scripts = {
       tf__pass: [
         initMsg(),
         createTextBlockMsg("started server"),
-        RESULT_MSG(true),
-      ],
-      tf__fail: [
-        initMsg(),
-        createTextBlockMsg("could not solve"),
         RESULT_MSG(true),
       ],
       "tf__repo-state": [
@@ -142,6 +133,12 @@ describe("BenchmarkRunner end-to-end (mocked SDK)", () => {
         yield* innerJudgeAgentStream();
         return;
       }
+      // Spec criterion 1: at least one run must exercise the
+      // agent-execution-failure branch (the runner must still emit a
+      // record). Force a throw for tf/fail run 0.
+      if (cwd.includes("tf__fail") && cwd.includes("/0/")) {
+        throw new Error("agent-failure injection");
+      }
       yield* agentStream(cwd);
     };
 
@@ -189,27 +186,38 @@ describe("BenchmarkRunner end-to-end (mocked SDK)", () => {
       .filter(Boolean);
     assert.strictEqual(lines.length, 8);
 
-    // Spec criterion: traces consumable by trace-analysis tooling.
+    // Spec criterion: traces consumable by trace-analysis tooling. Both
+    // agent and judge traces must round-trip through the in-memory
+    // TraceQuery backend (the same code path `fit-trace overview` uses).
     const happyRecord = pass[0];
-    const collector = createTraceCollector();
-    for (const line of readFileSync(happyRecord.agentTracePath, "utf8").split(
-      "\n",
-    )) {
-      if (line.trim()) collector.addLine(line);
+    for (const tracePath of [
+      happyRecord.agentTracePath,
+      happyRecord.judgeTracePath,
+    ]) {
+      const collector = createTraceCollector();
+      for (const line of readFileSync(tracePath, "utf8").split("\n")) {
+        if (line.trim()) collector.addLine(line);
+      }
+      const tq = new TraceQuery(collector.toJSON());
+      const overview = tq.overview();
+      assert.ok(overview.turnCount > 0, `trace ${tracePath} had no turns`);
     }
-    const tq = new TraceQuery(collector.toJSON());
-    const overview = tq.overview();
-    assert.ok(overview.turnCount > 0);
     assert.ok(supervisorCalls > 0);
+
+    // Spec criterion 1: the agent-execution-failure branch produced a
+    // record (`tf/fail#0` had its agent forcibly thrown via the mock SDK).
+    const failedAgentRecord = records.find(
+      (r) => r.taskId === "tf/fail" && r.runIndex === 0,
+    );
+    assert.ok(failedAgentRecord);
+    assert.strictEqual(failedAgentRecord.submission, "");
   });
 
-  test("scoring/ never appears in the agent CWD or in the agent trace", async () => {
+  test("scoring/ never appears in the agent CWD or in the agent trace", {
+    timeout: 30000,
+  }, async () => {
     const { root } = await materialiseBenchmarkFamily();
     const output = mkdtempSync(join(tmpdir(), "fb-e2e-"));
-    writeFileSync(
-      join(root, "tasks", "tf", "pass", "workdir", "passing.flag"),
-      "ok",
-    );
 
     const query = async function* (params) {
       const { isSupervisorRunner, isJudgeSupervisor } =

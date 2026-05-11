@@ -70,11 +70,16 @@ exit 7
 
   test("malformed fd-3 lines become parseError rows; verdict not affected", async () => {
     const taskRoot = mkdtempSync(join(tmpdir(), "scorer-"));
+    // Use a here-doc with explicit flush so both lines land in fd 3
+    // before the script exits — under heavy parallel test load the
+    // line-buffered printf race can occasionally drop one.
     writeScoringScript(
       taskRoot,
       `#!/usr/bin/env bash
-printf 'not-json garbage\\n' >&"$RESULTS_FD"
-printf '{"test":"ok","pass":true}\\n' >&"$RESULTS_FD"
+exec >&"$RESULTS_FD"
+printf 'not-json garbage\\n'
+printf '{"test":"ok","pass":true}\\n'
+exec >&-
 exit 0
 `,
     );
