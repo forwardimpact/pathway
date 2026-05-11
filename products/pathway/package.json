@@ -118,14 +118,16 @@
     "site": "bun ./bin/fit-pathway.js site"
   },
   "dependencies": {
-    "@forwardimpact/libpack": "^0.1.0",
-    "@forwardimpact/libtelemetry": "^0.1.33",
-    "@forwardimpact/map": "^0.15.5",
     "@forwardimpact/libcli": "^0.1.0",
+    "@forwardimpact/libpack": "^0.1.0",
     "@forwardimpact/libskill": "^5.0.0",
+    "@forwardimpact/libtelemetry": "^0.1.33",
     "@forwardimpact/libtemplate": "^0.2.0",
     "@forwardimpact/libui": "^1.0.0",
     "@forwardimpact/libutil": "^0.1.64",
+    "@forwardimpact/map": "^0.15.5",
+    "@hono/node-server": "^2.0.2",
+    "hono": "^4.12.18",
     "mustache": "^4.2.0",
     "yaml": "^2.8.4"
   },

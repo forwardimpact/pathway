@@ -37,6 +37,7 @@ import { runAgentCommand } from "../src/commands/agent.js";
 import { runDevCommand } from "../src/commands/dev.js";
 import { runBuildCommand } from "../src/commands/build.js";
 import { runUpdateCommand } from "../src/commands/update.js";
+import { runServeCommand } from "../src/commands/serve.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_DIR = join(__dirname, "..", "templates");
@@ -171,6 +172,18 @@ const definition = {
       },
     },
     {
+      name: "serve",
+      args: "[<dir>]",
+      description: "Serve a build directory with git smart HTTP",
+      options: {
+        port: { type: "string", description: "Listen port (default: 3000)" },
+        host: {
+          type: "string",
+          description: "Listen host (default: 0.0.0.0)",
+        },
+      },
+    },
+    {
       name: "update",
       description: "Update local installation",
       options: {
@@ -276,6 +289,12 @@ async function main() {
 
   if (command === "dev") {
     await runDevCommand({ dataDir, options: values });
+    return;
+  }
+
+  if (command === "serve") {
+    const dir = resolve(args[0] || "dist");
+    await runServeCommand({ dir, options: values });
     return;
   }
 
