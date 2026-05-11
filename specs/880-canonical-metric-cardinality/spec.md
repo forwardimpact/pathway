@@ -9,9 +9,10 @@ set grows.
 
 ## Problem
 
-`KATA.md` § Metrics § cardinality rule today reads "Each such skill records
-exactly one metric: the count of units of work the process produced this run."
-Spec 860's plan-b
+`KATA.md` § Metrics § cardinality rule (the sentence beginning "Each such
+skill records …", KATA.md:261) today reads "Each such skill records exactly
+one metric: the count of units of work the process produced this run." Spec
+860's plan-b
 ([`specs/860-measurement-system-change-protocol/plan-b.md`](../860-measurement-system-change-protocol/plan-b.md),
 PR [#851](https://github.com/forwardimpact/monorepo/pull/851), merged on
 `main` 2026-05-11 commit `d62f004e`) § Step 2 Edit 2a directs the next
@@ -29,15 +30,15 @@ The second-and-subsequent metric a producer records is implicitly any
 flow-shaped count, with no semantic distinction from the process-throughput
 metric the rule was originally specified for.
 
-Obstacle #572 (umbrella; further pointers in § Notes) identifies a recurring
-shape: metrics that read **binding constraints on the loop itself**. Approval
-throughput is the first member. The natural producer for each such metric is a
-skill that already reads the relevant state for its existing process-throughput
-work. Without a named class boundary, every future binding-constraint metric
-re-traverses the cardinality question spec 860 has already settled, and the
-XmR-driven rationale paragraph that follows the rule is re-asked metric by
-metric — because binding-constraint metrics differ from process-throughput
-metrics on the very question that rationale answers.
+The shape spec 860 has just admitted is a recurring one: metrics that read
+**binding constraints on the loop itself** rather than the throughput of a
+process. Approval throughput is the first member. The natural producer for
+each such metric is a skill that already reads the relevant state for its
+existing process-throughput work. Without a named class boundary, every future
+binding-constraint metric re-traverses the cardinality question spec 860 has
+already settled, and the XmR-driven rationale paragraph that follows the rule
+is re-asked metric by metric — because binding-constraint metrics differ from
+process-throughput metrics on the very question that rationale answers.
 
 The shape the rule must resolve is a class, not a singleton — and § Metrics
 today is silent on which class a new metric belongs to.
@@ -61,9 +62,6 @@ require re-amending § Metrics.
 - **Spec/design guidance pointer.** A short pointer (location chosen by
   design) telling future spec authors when a new metric co-locates with an
   existing producer versus needs a new dedicated one.
-- **Skill `references/metrics.md` conformance.** The on-disk metric count in
-  each end-to-end skill's `.claude/skills/kata-*/references/metrics.md` is
-  consistent with the amended rule by static inspection.
 
 ## Scope (out)
 
@@ -89,18 +87,15 @@ require re-amending § Metrics.
 
 | # | Claim | Verification |
 | --- | --- | --- |
-| 1 | `KATA.md` § Metrics § cardinality rule names two metric classes and the criterion that determines which class a given metric belongs to. | `rg -n 'process[- ]throughput' KATA.md` and the corresponding second-class name each return ≥1 hit inside § Metrics, with a one-sentence membership criterion present. |
-| 2 | The amended rule is class-aware: adding a future class member does not require re-amending § Metrics. | Static inspection of the rule wording: the membership criterion is stated in general terms, not by enumerating specific metric names. |
-| 3 | A spec/design guidance pointer reachable in one link hop from § Metrics names when a new metric co-locates with an existing producer skill versus needs a new one. | `rg` in `KATA.md` § Metrics returns one markdown link; the linked location's body contains the co-location vs new-skill criterion. |
-| 4 | The XmR-driven rationale paragraph following § Metrics § cardinality rule supports the amended rule for both metric classes. | Static inspection: rationale text either applies to both classes or explicitly scopes itself to one and points to a sibling rationale for the other. |
-| 5 | Every end-to-end skill's `references/metrics.md` is consistent with the amended rule. | `rg -c '^\| \w' .claude/skills/kata-*/references/metrics.md` matches the cardinality the rule predicts for each producer. |
+| 1 | `KATA.md` § Metrics enumerates ≥2 named metric classes and a one-sentence membership criterion that determines which class a new entry belongs to. (Class names chosen by design.) | Static inspection of § Metrics: ≥2 distinct class-name tokens introduced by the cardinality rule, plus one sentence stating the membership criterion. |
+| 2 | The membership criterion is class-aware, not name-aware: it does not pin to specific metrics. | `rg` the cardinality-rule sentence(s) for each metric name appearing as a data-row identifier in `.claude/skills/kata-*/references/metrics.md` (`prs_merged`, `specs_drafted`, `designs_drafted`, `plans_drafted`, `implementations_shipped`, `prs_actioned`, `findings_count`, `issues_triaged`, `releases_cut`, `summary_corrections`, `errors_found`, `issues_created`, `approvals_recorded_per_run`) — zero hits. |
+| 3 | A spec/design guidance pointer reachable in one link hop from § Metrics names when a new metric co-locates with an existing producer skill versus needs a new one. | `rg` within `KATA.md` § Metrics returns a markdown link whose target body contains the substring `co-locates with an existing producer`. (Distinguishes from spec 860 Edit 2b's `coordination-protocol.md § Measurement-system changes` link, which addresses redefinitions, not co-location.) |
+| 4 | The XmR-driven rationale paragraph following § Metrics § cardinality rule covers both classes. | Each class-name token from SC1 appears ≥1 time inside the rationale paragraph immediately following the cardinality rule (verifiable by `rg -c`). |
 
 ## Resolution shape (deferred to design)
 
-Two shapes resolve the goal — admit a named system-health class alongside
-process-throughput, or hold the one-skill-per-process-throughput-metric
-invariant and constrain producer selection for binding-constraint metrics
-elsewhere. Design picks.
+Design picks the wording shape. Candidate shapes are listed under § Notes as
+evidence for design, not as a menu pre-selected here.
 
 ## Notes — evidence pointers (for design)
 
@@ -118,9 +113,17 @@ elsewhere. Design picks.
   reasoning.
 - Existing metric registry pattern: `.claude/skills/kata-*/references/metrics.md`
   (one file per producer skill).
-- Class-breadth obstacle/issue references: #572 (umbrella), #565, #567, #571,
-  #813. The class is plausibly larger than one; members are tracked separately
-  and not pre-enumerated as scope of this spec.
+- Class membership beyond `approvals_recorded_per_run`: no enumerated members
+  yet. The design phase surfaces the candidate set — round-1 review named
+  queue dwell, ratification-cycle length, and agent-react fan-in delay as
+  plausible shapes, but none has a tracking issue framed as a metric proposal
+  today. The class-breadth claim rests on the structural argument (these
+  metrics differ from process-throughput on the question § Metrics rationale
+  answers), not on a populated member list.
+- Candidate wording shapes for design to weigh: (a) admit a named
+  system-health class alongside process-throughput; (b) hold the
+  one-skill-per-process-throughput-metric invariant and constrain producer
+  selection for binding-constraint metrics elsewhere. Design picks.
 
 ## Sequencing
 
