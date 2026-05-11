@@ -10,7 +10,7 @@ live only if design-b is chosen.
 
 ## Approach
 
-Land the protocol in `coordination-protocol.md` as one new § Measurement-system changes section (eight repair-move rows authored from the spec's Notes § Repair-move corpus evidence; the redefinition file shape; the no-silent-redefinition rule; the detection grep); add a linking paragraph to `KATA.md` § Metrics (no edit to KATA.md line 261's "exactly one metric" sentence — that contradiction is Risk 1); register `approvals_recorded_per_run` in `kata-release-merge` via a new row in `references/metrics.md` and a new sub-step 8.5 in `SKILL.md`; add the `Redefinition:` link slot to the Headlines bullet template in `storyboard-template.md`. The wiki-side change (canonical enumeration update, denominator increment, and one observed first-row CSV entry produced by running Step 8.5 once locally) ships through the separate wiki checkout in the implementation run.
+Land the protocol section in `coordination-protocol.md`. Link from `KATA.md` § Metrics. Add `approvals_recorded_per_run` to `kata-release-merge` (one new row in `references/metrics.md`, one new sub-step 8.5 in `SKILL.md`). Add the `Redefinition:` slot to the Headlines bullet template in `storyboard-template.md`. The wiki-side updates (canonical enumeration, denominator increment, one observed first-row CSV entry) ship through the separate wiki checkout in the implementation run.
 
 Libraries used: none.
 
@@ -64,9 +64,7 @@ verdict horizon, and the cohort read-out date. The no-silent-redefinition rule
 lives there; this section does not restate it.
 ```
 
-Line 261's "exactly one metric" sentence is **not** edited by this plan; honoring the design's `## Components` row ("additional rows" to the existing CSV) ships the new metric as a sibling of `prs_merged`. The textual contradiction with KATA.md line 261 is Risk 1.
-
-Verify: `rg -n 'Measurement-system changes' KATA.md` returns one match in § Metrics; `git diff KATA.md` shows exactly one inserted paragraph and no other hunks.
+Verify: `rg -n 'Measurement-system changes' KATA.md` returns one match in § Metrics; `git diff KATA.md` shows exactly one inserted paragraph and no other hunks. Line 261 is unchanged.
 
 ## Step 3 — `kata-release-merge` `references/metrics.md` new row
 
@@ -79,7 +77,7 @@ Replace the single-row table with two rows:
 | Metric                       | Unit  | Description                                                                                                  | Data source                                  |
 | ---------------------------- | ----- | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------- |
 | prs_merged                   | count | PRs merged this run                                                                                          | Run actions                                  |
-| approvals_recorded_per_run   | count | `<phase>:approved` label-add events + APPROVED review events observed in `[prev_run_start, current_run_start)` | `gh pr view <n> --json timelineItems,reviews` |
+| approvals_recorded_per_run   | count | `<phase>:approved` label-add events + APPROVED review events observed in `[prev_run_start, current_run_start)` | `gh api repos/{owner}/{repo}/issues/<n>/timeline` + `.../pulls/<n>/reviews`         |
 ```
 
 Append below the existing "Backlog … is queried, not recorded." line:
@@ -99,67 +97,64 @@ Verify: `rg -n 'approvals_recorded_per_run' .claude/skills/kata-release-merge/re
 Two edits to wire the metric. **Modified:**
 `.claude/skills/kata-release-merge/SKILL.md`.
 
-**Edit 4a — Step 0 captures window timestamps.** Append to the end of the
-`### Step 0: Read Memory` body:
+Code blocks below use four-tick outer fences so inner triple-backticks land verbatim in `SKILL.md`. The implementer pastes the body between the outer four-ticks; the inner three-tick fences are part of the body. GNU `date -d` is used; the agent runs on Linux GitHub-hosted runners.
 
-```markdown
+**Edit 4a — append to the end of the `### Step 0: Read Memory` body:**
+
+````markdown
 Capture this run's start timestamp once at the top of the run:
 `current_run_start=$(date -u +%FT%TZ)`. For the approval-throughput metric
-(Step 9), also derive the previous run's start:
+(Step 8.5), also derive the previous run's start:
 
-\`\`\`sh
+```sh
 prev_run_start=$(gh run list --workflow=agent-team.yml --status=completed \
   --limit 2 --json startedAt --jq '.[1].startedAt // empty')
 # First-ever recording falls back to current_run_start - 8h
-# (matches the median schedule gap of the 03:00/12:00/20:00 UTC cadence).
+# (median schedule gap of the 03:00/12:00/20:00 UTC cadence).
 [ -z "$prev_run_start" ] && prev_run_start=$(date -u -d "$current_run_start - 8 hours" +%FT%TZ)
-\`\`\`
-
-The window for approval-throughput counting is `[prev_run_start, current_run_start)`.
-GNU `date -d` is used here; the agent runs on Linux GitHub-hosted runners. A
-macOS/BSD invocation needs the BSD `-v` form instead.
 ```
 
-**Edit 4b — insert a new `### Step 8.5` between Step 8 (Merge Mergeable PRs) and Step 9 (Produce the Classification Report).** The existing Step 9 body and the existing `## Memory: what to record` section are unchanged. The Memory section already says "Append one row per run to `wiki/metrics/{skill}/` per `references/metrics.md`" — once Step 3 lands the new row in `references/metrics.md`, the same Memory bullet now produces two CSV rows per run. The new step only collects the count; the row append is owned by the Memory section's existing discipline.
+The window for approval-throughput counting is `[prev_run_start, current_run_start)`.
+````
 
-Insert this body between SKILL.md line 165 (end of Step 8) and line 166 (`### Step 9: Produce the Classification Report`):
+**Edit 4b — insert a new `### Step 8.5` between Step 8 (line 165) and Step 9 (line 166).** Step 9's existing body and `## Memory: what to record` are unchanged; Memory's existing "Append one row per run to `wiki/metrics/{skill}/` per `references/metrics.md`" bullet produces two rows per run once Step 3 lands the new metric definition.
 
-```markdown
+Insert:
+
+````markdown
 ### Step 8.5: Collect approval-throughput count
 
 Cohort: every PR seen in Step 1 (open phase PRs) plus every phase PR
 merged this run (Step 8) — covers every phase PR with window-relevant
-activity. For each cohort PR:
+activity. For each cohort PR, fetch label-add events:
 
-\`\`\`sh
-gh pr view <number> --json timelineItems,reviews \
-  --jq '
-    (.timelineItems[]? | select(.__typename=="LabeledEvent" and (.label.name|test("^(spec|design|plan):approved$"))) | {ts: .createdAt, kind: "label", label: .label.name}),
-    (.reviews[]? | select(.state=="APPROVED") | {ts: .submittedAt, kind: "review"})
-  '
-\`\`\`
+```sh
+gh api repos/{owner}/{repo}/issues/<number>/timeline --paginate \
+  --jq '.[] | select(.event=="labeled" and (.label.name|test("^(spec|design|plan):approved$"))) | {ts: .created_at, kind: "label", label: .label.name}'
+```
 
-(Pasted into SKILL.md, the inner fences are bare triple-backticks — the
-escaped form above is plan-rendering only.)
+And APPROVED reviews:
+
+```sh
+gh api repos/{owner}/{repo}/pulls/<number>/reviews --paginate \
+  --jq '.[] | select(.state=="APPROVED") | {ts: .submitted_at, kind: "review"}'
+```
 
 Filter events to `ts ∈ [prev_run_start, current_run_start)` (half-open;
 matches design-b § Approval-throughput metric). Sum the filtered events
 to `approvals_recorded_per_run` — no per-event de-dup; the design
-specifies a raw count. The count is appended to
-`wiki/metrics/kata-release-merge/{YYYY}.csv` by the Memory section's
-existing one-row-per-metric discipline; the row shape is
-`<YYYY-MM-DD>,approvals_recorded_per_run,<count>,count,<run_id>,"window=[<prev>,<curr>)"`.
-Zero is recorded as `0`.
+specifies a raw count. The Memory section appends one row per metric to
+`wiki/metrics/kata-release-merge/{YYYY}.csv`; the row shape mirrors the
+existing `prs_merged` rows with `metric=approvals_recorded_per_run`,
+`unit=count`, and `note="window=[<prev>,<curr>)"`. Zero is recorded as `0`.
 
-If `gh pr view ... --json timelineItems` fails for any cohort PR (rate
-limit, scope issue), skip that PR, append `;api_errors=N` to the row's
-`note` field, and proceed. A blanket-failure case (every call errored)
-records `0` with a non-empty `api_errors=` so the next storyboard meeting
-can see producer health.
+If any per-PR call fails (rate limit, scope), skip that PR, append
+`;api_errors=N` to the row's `note` field, and proceed. A blanket-failure
+case (every call errored) records `0` with a non-empty `api_errors=` so
+the next storyboard meeting can see producer health.
+````
 
-Step 9's classification report includes `approvals_recorded_per_run` in
-its run-totals line.
-```
+(The REST endpoints differ from design-b § Approval-throughput metric's claim of an "existing `gh pr view --json labels,timelineItems`" surface — `gh pr view --json` does not accept `timelineItems`. The plan uses the REST timeline + reviews endpoints, the working surface; this is Risk 2.)
 
 Verify: `rg -n 'approvals_recorded_per_run|prev_run_start|current_run_start' .claude/skills/kata-release-merge/SKILL.md` returns ≥4 hits; `### Step 8.5: Collect approval-throughput count` exists between `### Step 8: Merge` and `### Step 9: Produce`; the existing Step 9 body and Memory section are unchanged.
 
@@ -240,10 +235,11 @@ Verify locally before push: `bun run check` exits 0. PR title carries the spec i
 ## Risks
 
 1. **Design-b internal contradiction on metric cardinality.** Design-b § Components admits `approvals_recorded_per_run` as "additional rows" in `kata-release-merge`'s existing CSV (cardinality 2), while decision #4 commits to "preserving KATA.md 'count of units of work'" and decision #1 states "no constitutional change." KATA.md line 261 ("each such skill records exactly one metric") is unchanged on landing under this plan, so the new row textually contradicts that line. The plan honors design-b § Components' literal component table (the more concrete of the two design surfaces); the implementation PR body must surface this contradiction so the approver can either accept it (the plan's path) or block on a follow-on governance spec that amends KATA.md line 261. The plan cannot resolve a design-internal contradiction unilaterally.
-2. **`gh pr view --json timelineItems` field stability.** The `timelineItems` JSON field exposes a GitHub GraphQL union; the `__typename=="LabeledEvent"` test in Step 4b assumes the current shape. A future `gh` release could rename or restructure the field; the producer would silently emit `0`s until the jq filter is updated. The blanket-failure branch (`api_errors=` non-empty) does not cover this case because the call succeeds with an empty result. The storyboard XmR analyzer detects sustained zeros via `xRule3` (eight consecutive zeros); the producer-rehoming move (Step 1 table row 1) is the protocol response.
-3. **Wiki-vs-main-repo PR boundary on Success #6.** Design-b § Detection states cross-repo CI enforcement is the follow-on, out of scope. The detection grep works **within the wiki checkout**. For main-repo edges (`coordination-protocol.md`, `.claude/skills/*/references/metrics.md`), Success #6 holds only when those edges are accompanied by a wiki commit adding a redefinition file — a coupling the follow-on CI must verify across the two repos.
-4. **GitHub timeline fan-out.** Step 8.5 calls `gh pr view --json timelineItems,reviews` once per cohort PR per run. With ~15 open phase PRs the call count is fine; past ~30 the run risks secondary rate limits during the 03:00/12:00/20:00 windows. A future optimisation short-circuits on PRs whose `updatedAt` precedes `prev_run_start`. The blanket-failure branch records `0` with a non-empty `api_errors=` note so producer health is visible on the chart.
-5. **`gh run list` window-source workflow-name binding.** Step 4a's `--workflow=agent-team.yml` is operational: if `kata-release-merge` is ever moved to a separate workflow file, this argument must move with it. Not visible from the SKILL.md body alone.
+2. **Design-b API-surface claim is factually incorrect.** Design-b § Approval-throughput metric states "No new GitHub-API surface beyond the existing `gh pr view --json labels,timelineItems`," but `gh pr view --json` does not accept a `timelineItems` field (verified against `gh` 2.63.2 — available PR fields include `labels`, `latestReviews`, `reviews`, but not `timelineItems`). The plan uses `gh api repos/{owner}/{repo}/issues/<n>/timeline` (REST) plus `.../pulls/<n>/reviews` instead — the working surface that returns the events the metric needs. This is technically "new API surface" relative to the SKILL.md's current `gh api` calls (Step 2 contributor lookup) but no new auth or scope. Implementation PR body should note the design's surface claim was incorrect; reviewers may file a doc-correction redefinition (`move: rule-semantics-rfc` or similar) against design-b after merge.
+3. **GitHub REST timeline endpoint shape stability.** The REST timeline (`gh api .../issues/<n>/timeline`) returns events with `event: "labeled"`, `label.name`, `created_at`. A breaking change in the GitHub REST API would silently emit `0`s. The producer-rehoming move (Step 1 table row 1) is the protocol response if `xRule3` fires on eight consecutive zeros.
+4. **Wiki-vs-main-repo PR boundary on Success #6.** Design-b § Detection states cross-repo CI enforcement is the follow-on, out of scope. The detection grep works **within the wiki checkout**. For main-repo edges (`coordination-protocol.md`, `.claude/skills/*/references/metrics.md`), Success #6 holds only when those edges are accompanied by a wiki commit adding a redefinition file — a coupling the follow-on CI must verify across the two repos.
+5. **GitHub timeline fan-out.** Step 8.5 calls `gh api .../timeline` once per cohort PR per run. With ~15 open phase PRs the call count is fine; past ~30 the run risks secondary rate limits during the 03:00/12:00/20:00 windows. A future optimisation short-circuits on PRs whose `updated_at` precedes `prev_run_start`. The blanket-failure branch records `0` with a non-empty `api_errors=` note so producer health is visible on the chart.
+6. **`gh run list` window-source workflow-name binding.** Step 4a's `--workflow=agent-team.yml` is operational: if `kata-release-merge` is ever moved to a separate workflow file, this argument must move with it. Not visible from the SKILL.md body alone.
 
 ## Execution recommendation
 
