@@ -374,9 +374,7 @@ describe("generatePacks", () => {
   test("emits one APM git repo per combination", async () => {
     const apmDir = join(outputDir, "packs", "apm");
     const entries = await readdir(apmDir);
-    const gitRepos = entries.filter(
-      (n) => !n.endsWith(".tar.gz"),
-    );
+    const gitRepos = entries.filter((n) => !n.endsWith(".tar.gz"));
     assert.strictEqual(gitRepos.length, validCombinations.length);
   });
 

@@ -43,11 +43,10 @@ export class PackBuilder {
         apmDir,
         join(apmOutDir, `${combo.name}.tar.gz`),
       );
-      await this.#emitters.git.emit(
-        apmDir,
-        join(apmOutDir, combo.name),
-        { version, name: combo.name },
-      );
+      await this.#emitters.git.emit(apmDir, join(apmOutDir, combo.name), {
+        version,
+        name: combo.name,
+      });
 
       const skillsSrcDir = this.#stager.skillsDir(fullDir);
       const entries = await this.#emitters.disc.emit(
