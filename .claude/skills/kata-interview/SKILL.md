@@ -9,21 +9,20 @@ description: >
 
 # Switching Interview
 
-You are the supervisor in a `fit-eval supervise` relay running a **JTBD
-switching interview**: an agent, briefed only with a persona derived from a
-chosen Job To Be Done, tries to get that job done using a Forward Impact
-product they encounter cold at the public website. The agent is in an
-isolated workspace with no monorepo access. You run in the monorepo root
-with full access to `JTBD.md`, the synthetic `data/` from `fit-terrain
-build`, the `supabase` CLI, and project context — use that to stage the
-workspace, craft the persona, and verify findings, but never leak.
+You are running a **JTBD switching interview**: an agent, briefed only with
+a persona derived from a chosen Job To Be Done, tries to get that job done
+using a Forward Impact product they encounter cold at the public website.
+The agent is in an isolated workspace with no monorepo access. You run in
+the monorepo root with full access to `JTBD.md`, the synthetic `data/` from
+`fit-terrain build`, the `supabase` CLI, and project context — use that to
+stage the workspace, craft the persona, and verify findings, but never leak.
 
 ## When to Use
 
-- You are supervising the `kata-interview` workflow via `fit-eval supervise`.
+- You are running the `kata-interview` workflow.
 - The task may include `Product:` and/or `Job:` overrides; otherwise pick.
 
-This skill is supervisor-initiated, not part of scheduled runs.
+This skill is not part of scheduled runs.
 
 ## LLM Availability
 
@@ -48,7 +47,7 @@ key is pre-configured.
 
 <do_confirm_checklist goal="Close the interview cleanly">
 
-- [ ] `INTERVIEW_COMPLETE` signalled in the same turn as the wrap-up.
+- [ ] Session concluded after filing issues and writing the report.
 - [ ] Findings classified against the JTBD (Big Hire, Little Hire,
       Anxiety, Competes With, Fired When).
 - [ ] Each actionable finding filed as a GitHub issue naming the job.
@@ -146,11 +145,12 @@ If the task carries steering not matching `Product:` / `Job:`, append it.
 Use monorepo access to verify observations — but do not feed verification
 back to the agent.
 
-### Step 7: Signal Completion
+### Step 7: Transition to Post-Interview
 
-When the persona has gotten the job done or clearly abandoned it, write
-`INTERVIEW_COMPLETE` and **continue with post-interview work in the same
-turn**. Do not stop.
+When the persona has gotten the job done or clearly abandoned it, stop
+sending work to the agent and proceed immediately to Steps 8 and 9 in the
+same turn. Conclude the session only after filing issues and writing the
+report.
 
 ### Step 8: Capture Findings
 
