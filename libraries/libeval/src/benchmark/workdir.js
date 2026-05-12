@@ -55,7 +55,9 @@ export class WorkdirManager {
     const cwd = join(runDir, "cwd");
     await mkdir(cwd, { recursive: true });
 
-    await cp(task.paths.workdir, cwd, { recursive: true });
+    await cp(task.paths.workdir, cwd, { recursive: true }).catch((e) => {
+      if (e.code !== "ENOENT") throw e;
+    });
     await cp(task.paths.specs, join(cwd, "specs"), {
       recursive: true,
     }).catch((e) => {
