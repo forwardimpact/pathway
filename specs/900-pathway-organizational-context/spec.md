@@ -3,15 +3,26 @@
 ## Problem
 
 `fit-pathway agent` generates `.claude/CLAUDE.md` for an engineer's coding agent
-by interpolating the chosen track's `teamInstructions` block. The resulting
-file is generic to the discipline+track pair: it tells the agent how the
-organization defines "platform engineering" or "forward-deployed engineering,"
-but it does not name the repositories the engineer actually works in, the
-manager who escalates to them, the adjacent leads they coordinate with, or the
-projects in flight on their team.
+by interpolating the chosen track's `teamInstructions` block. That block
+accepts free-form prose, and the existing
+[Give Agents Organizational Context guide](../../websites/fit/docs/products/agent-teams/organizational-context/index.md)
+teaches users to put team-specific facts (deployment targets, conventions)
+there. The mechanism works for one team. It does not work for an organization
+whose engineering standard is installed once and whose tracks are shared
+across multiple teams.
 
-A Senior Software Engineer at a pharma org exercised the generator during user
-testing on issue [#881](https://github.com/forwardimpact/monorepo/issues/881)
+The track scope is the problem. `tracks/platform.yaml` defines what "platform
+engineering" means at the organization — golden paths, backward compatibility,
+developer-experience priority. Those statements are shared across every team
+that hires a Platform engineer. The repository names a specific team works in,
+the manager that team escalates to, the adjacent leads on neighboring teams,
+the active project names, and the escalation paths for after-hours pages are
+all per-team facts. Putting them in `tracks/platform.yaml` either contaminates
+every other Platform team's agent with the wrong context, or forces the
+organization to fork the track per team — abandoning the standard.
+
+A Senior Software Engineer at a pharma org exercised the generator during
+user testing on issue [#881](https://github.com/forwardimpact/monorepo/issues/881)
 and reported the gap verbatim:
 
 > Nothing in the discipline/track YAML accepts repo names, team handles, or
@@ -22,45 +33,44 @@ and reported the gap verbatim:
 > hand-append after generation, which contradicts the tool's "don't edit
 > outputs" guidance.
 
-The workaround the persona is forced to take — hand-editing the rendered
-`CLAUDE.md` after generation — violates an invariant the tool itself
-publishes: the rendered output is derived from the standard's inputs and must
-not be edited by hand, because the next `fit-pathway agent` run will overwrite
-it. The persona is one re-generation away from losing the team context they
-appended.
+The persona's diagnosis ("nothing accepts") is technically inaccurate — track
+`teamInstructions` accepts any prose. The persona's experience is real:
+populating `tracks/platform.yaml` with their team-specific text would corrupt
+the track for every other Platform team in the organization. They are left
+with two options: hand-edit the rendered `.claude/CLAUDE.md` (which the next
+`fit-pathway agent` run overwrites), or maintain a fork of the track per team.
+Both abandon Pathway's value proposition. This is the *Equip Aligned Agent
+Teams* job's **Fired When** force ("configuration overhead exceeds the quality
+gain") activating exactly as the JTBD predicts, and the **Competes With**
+alternatives (custom system prompts, copying another team's config) hold their
+appeal for the team-specific layer Pathway cannot deliver today.
 
-This collision pushes the persona toward the **Competes With** alternatives
-named in the JTBD entry — custom system prompts and copying another team's
-configuration — because the part of the agent profile that needs to reflect
-their organization is exactly the part Pathway does not carry. Configuration
-overhead exceeds the quality gain Pathway provides, triggering the **Fired
-When** force on the job. Until the gap closes, every organization with more
-than one team or repo has the same reason to abandon Pathway for the
-team-specific layer.
-
-The blast radius is the **Equip Aligned Agent Teams** JTBD itself. Without an
-organizational context slot, "agents that reflect organizational standards
-without bespoke prompts" — the Pull force for the job — is undeliverable for
-any team that wants their agent to know what repos exist or whom to escalate
-to. The same gap is visible in Pathway's web agent-builder pages, since they
-share the underlying data and generator.
+The blast radius is the Little Hire on the *Equip Aligned Agent Teams* job —
+"give agents organizational context without bespoke prompts" — for any
+installation where the standard is shared across more than one team. The
+adjacent Big Hire ("configure agents to meet the expectations the
+organization holds for humans") is delivered today by the discipline+track
+output for the shared-expectations slice; this spec closes the per-team slice
+the Big Hire also covers. Single-team installations and engineers who do not
+work across multiple repositories are not affected.
 
 ## Personas and Job
 
-The hire is **Empowered Engineers** against the Little Hire on the *Equip
-Aligned Agent Teams* job: "Help me give agents organizational context without
-bespoke prompts" ([JTBD.md § Empowered Engineers: Equip Aligned Agent
-Teams](../../JTBD.md), lines 111–139). The same job's Big Hire — "configure
-agents to meet the expectations the organization holds for humans" — is
-already partially served by Pathway's discipline+track output; this spec
-closes the residual gap that today forces the persona into the Competes With
-alternatives.
+The hire is **Empowered Engineers** against the *Equip Aligned Agent Teams*
+job ([JTBD.md § Empowered Engineers: Equip Aligned Agent
+Teams](../../JTBD.md)). The Little Hire — "give agents organizational context
+without bespoke prompts" — names the specific outcome this spec delivers. The
+job's **Trigger** ("an agent's work was rejected because it followed generic
+practices instead of the organization's standards") is what the persona will
+stop experiencing once their agent has access to the team's repos, manager,
+leads, projects, and escalation paths in a form derived from versioned inputs
+rather than hand-appended after generation.
 
-The downstream beneficiary is the agent itself: an agent profile carrying
-organizational context can route questions correctly, name the right repos in
-code suggestions, and escalate to the right humans. That benefit is consumed
-by the engineer who hired Pathway; their teammates and manager are not the
-direct hire and are not asked to change anything they do.
+The downstream observable is the rendered `.claude/CLAUDE.md` the engineer
+reads and the agent loads: it must surface the per-team facts the persona
+named, in a place the agent will see and the engineer can verify, while the
+shared discipline+track guidance remains unchanged. The agent itself is not a
+persona.
 
 ## Scope
 
@@ -68,15 +78,14 @@ direct hire and are not asked to change anything they do.
 
 | Component | What changes |
 |---|---|
-| Standard schema | The Pathway data standard gains a repository-scoped organizational context slot that carries the fields named in the In-scope rows below. The slot is loadable through the standard map data loader the rest of Pathway already uses, so the new data is a first-class part of the engineering standard rather than an ad-hoc side file. The exact file path, file name, and whether the slot is a single document or a set is a design choice. |
-| Fields carried | The slot represents, at minimum: a list of repository names; a team handle; a manager handle; a list of adjacent lead handles where each carries a free-form role tag (e.g., "DX," "DS/AI"); a list of active project names; and a list of escalation paths, where each escalation path names a trigger condition in free-form prose and an addressable destination (a handle or a URL). Field names and exact value shapes are a design choice; the spec asserts only that each of these six concerns is representable. |
-| Validation | `bunx fit-map validate` accepts the new slot and reports clear, line-attributable errors for malformed entries (missing required field, unknown field, type mismatch, malformed handle). The validator does not fail when the slot is absent — the slot is optional. |
-| Cross-reference policy | Handles in the slot (manager, adjacent leads, escalation destinations) are free-form strings in v1. The spec does not require cross-validation against a people roster; whether to add roster-backed validation later is out of scope. |
-| `fit-pathway agent` CLI integration | When the organizational context slot is present, the generator emits its contents into the rendered `.claude/CLAUDE.md` in a stable, machine-recognizable section that is clearly distinguishable from the discipline+track `teamInstructions` text. The section is emitted by default — no new flag is required to opt in. When the slot is absent, the rendered output is byte-identical to today's output for the same discipline+track inputs. The section's anchor name, ordering relative to `teamInstructions`, and visual formatting are a design choice. |
-| Web agent-builder integration | The web agent-builder pages render the same organizational context section when the slot is present, using the same data path as the CLI so the two surfaces stay in sync. The web preview shows the section in the same form a user would see in their downloaded `.claude/CLAUDE.md`. |
-| "Don't edit outputs" invariant preserved | Re-running `fit-pathway agent` against the same standard inputs produces a `.claude/CLAUDE.md` that carries the organizational context — the user never edits the rendered file to inject team-specific text. The slot is the only place a user touches to update repos, manager, leads, projects, or escalation paths. |
-| Starter content | The monorepo's starter standard (`products/map/starter/`) ships an example of the slot wired into the starter's existing discipline+track pair, so an external user running `bunx fit-pathway agent` against the starter can see the section in their rendered `CLAUDE.md` without any additional setup. The example content uses placeholder values (not real handles) and is short enough to read at a glance. |
-| Documentation | The Pathway agent-teams guide (`websites/fit/docs/products/agent-teams/index.md`) explains the slot's purpose, the fields it carries, how to populate it, and the "don't edit outputs" rationale for why team-specific context belongs in the slot rather than in the rendered file. The `fit-pathway agent --help` text and the `fit-pathway` skill list the new guide entry per [products/CLAUDE.md § Linking rule](../../products/CLAUDE.md). The authoring-standards guide adds an entry for the slot alongside disciplines, tracks, levels, capabilities, behaviours, and drivers. |
+| Standard schema | The Pathway data standard gains an installation-scoped organizational context slot, sibling to the existing `claude-settings.yaml` precedent in the starter standard. The slot represents per-team facts that do not belong on a track shared across teams. Whether the slot is a single file or a directory of files, its exact path within the starter, and the YAML key names are design choices. |
+| Fields carried | Exactly six concerns are representable, each named after the persona's verbatim example: a list of **repository names** ("molecularforge, data-lake-infra, api-gateway"); one **team handle**; one **manager handle** ("Athena"); a list of **adjacent leads**, each carrying a free-form role tag ("Iris (DX), Prometheus (DS/AI)"); a list of **active project names**; and a list of **escalation paths**, each carrying a free-form trigger condition and an addressable destination (a handle, an email, or a URL). Additional concerns require a new spec. The exact YAML shape of each concern is a design choice. |
+| Validation | `bunx fit-map validate` accepts the new slot, reports line-attributable errors for missing required fields, unknown fields, and type mismatches, and reports no errors when the slot is absent or when every entry is a syntactically valid string. The validator does not constrain handle content (handles are free-form strings in v1). |
+| `fit-pathway agent` CLI integration | When the slot is present, the generator emits an organizational context section into the rendered `.claude/CLAUDE.md`, carrying the six concerns. The section opens with a documented marker (an anchor, heading, or fenced block — design choice) that downstream tooling can detect by string match alone, without parsing the body. The section is distinguishable from the `teamInstructions` body emitted by the same generator. The section is emitted whenever the slot is present; no flag opt-in is required. When the slot is absent, the rendered `.claude/CLAUDE.md` is identical to the file the generator produces on `main` immediately before this spec lands, for the same discipline+track inputs. The implementation captures that baseline as a fixture before the change ships, and the test compares against it. |
+| Web agent-builder integration | The web agent-builder preview page (`products/pathway/src/pages/agent-builder*.js`, which already exists and shares `interpolateTeamInstructions` with the CLI) renders the organizational context section when the slot is present, carrying the same six concerns in the same textual order as the CLI's rendered `.claude/CLAUDE.md`. The preview's rendered text for the section is byte-identical to the corresponding section in the CLI's file output (web styling and surrounding chrome are excluded from the comparison). |
+| "Don't edit outputs" invariant preserved | An engineer who populates the slot and then re-runs `fit-pathway agent --output=<dir>` twice produces a `.claude/CLAUDE.md` whose bytes match across both runs. The slot's YAML is the only file the engineer touches to update repos, manager, leads, projects, or escalation paths. |
+| Starter content | The monorepo's starter standard (`products/map/starter/`) ships an example slot whose contents follow the shape of the persona's verbatim quote: a multi-repo list, a single manager handle, two or more adjacent leads with role tags, a project list, and at least one escalation path. Placeholder values, not real handles. Running `bunx fit-pathway agent software_engineering --track=platform --output=<dir>` against the unmodified starter renders a `.claude/CLAUDE.md` whose organizational context section carries the placeholder values verbatim. |
+| Documentation | The existing [Give Agents Organizational Context guide](../../websites/fit/docs/products/agent-teams/organizational-context/index.md) is updated to introduce the new layer, distinguish it from the shared-across-teams `teamInstructions` layer (so future readers do not repeat the persona's misdiagnosis), and teach when each layer applies. The [Authoring Agent-Aligned Engineering Standards guide](../../websites/fit/docs/products/authoring-standards/index.md) carries an entry for the new slot alongside disciplines, tracks, levels, capabilities, behaviours, and drivers. The `fit-pathway agent --help` text and the `fit-pathway` skill list the guide URL per [products/CLAUDE.md § Linking rule](../../products/CLAUDE.md). |
 
 ### Out of scope, deferred
 
@@ -90,7 +99,7 @@ direct hire and are not asked to change anything they do.
   (whatever shape that roster takes) is deferred until there is a roster the
   standard knows about.
 - **Per-track or per-discipline variation.** v1's slot is a single
-  organization-level document; it does not branch on which discipline+track
+  installation-level document; it does not branch on which discipline+track
   pair the engineer is generating. If a team needs different escalation
   paths per discipline, they ship multiple installations of the standard.
 - **Auto-discovery of repositories or handles.** v1 does not introspect git
@@ -99,10 +108,12 @@ direct hire and are not asked to change anything they do.
 - **Migration or import from other tools.** Engineers maintaining team
   context in another system (Backstage, a wiki, a custom config) hand-port
   to the new slot in v1.
-- **Skills referencing the slot directly.** The slot's contents flow into
-  the rendered `CLAUDE.md`. Whether downstream skills should read the
+- **Structured access from skills.** The slot's contents flow into the
+  rendered `CLAUDE.md`. Whether downstream skills should read the
   structured data directly (for example, to mention repos by name in their
   own output) is a separate spec; v1 ends at the rendered output.
+- **Removing or rewriting `teamInstructions`.** The existing track-scoped
+  `teamInstructions` field stays as-is. The new slot is additive.
 - **Field-level localization or multi-language.** All values are strings in
   whatever encoding the standard already uses for prose.
 
@@ -110,14 +121,15 @@ direct hire and are not asked to change anything they do.
 
 | Claim | Verification |
 |---|---|
-| The standard schema admits the organizational context slot. | Test: a populated slot loads through the standard map data loader without errors; an absent slot loads without errors and produces today's behavior. |
-| All six concerns are representable in the slot. | Test: a fixture slot populated with repository names, a team handle, a manager handle, adjacent lead handles with role tags, project names, and escalation paths with triggers and destinations validates clean. |
-| `bunx fit-map validate` reports clear errors on malformed slots. | Test: a slot with a missing required field, an unknown field, a type mismatch, and a malformed handle produces line-attributable error messages; a clean slot produces no errors; an absent slot produces no errors. |
-| `fit-pathway agent` emits an organizational context section when the slot is present. | Test: running `bunx fit-pathway agent <discipline> --track=<track> --output=<dir>` against a standard with a populated slot writes a `.claude/CLAUDE.md` whose body contains a stable, machine-recognizable section carrying the slot's contents, distinguishable from the `teamInstructions` body. |
-| Absent slot produces byte-identical output to today. | Test: running the same command against a standard without the slot produces a `.claude/CLAUDE.md` byte-identical to the file produced before this spec lands, for the same discipline+track inputs. |
-| The web agent-builder renders the same section. | Test: loading the agent-builder preview page for a standard with a populated slot renders the organizational context section in the same form the CLI writes to `.claude/CLAUDE.md`. |
-| Re-running the generator preserves the "don't edit outputs" invariant. | Test: a user populates the slot, runs `fit-pathway agent --output=<dir>`, then runs it again; the second run's `.claude/CLAUDE.md` matches the first run's byte-for-byte. The user makes no manual edits to the rendered file in either step. |
-| The starter ships a populated example. | Test: running `bunx fit-pathway agent` against the unmodified starter renders a `.claude/CLAUDE.md` carrying the example slot's organizational context section. |
-| Documentation is in place. | Test: the Pathway agent-teams guide carries a section describing the slot and its rationale; the `fit-pathway agent --help` text and the `fit-pathway` skill list the guide URL per the repo's linking rule; the authoring-standards guide carries the new entry. |
+| The standard schema admits the organizational context slot. | Test: a populated slot loads through whatever loader the rest of the standard already uses, without errors; an absent slot loads without errors and the generator produces today's behavior. |
+| The slot represents the six concerns named in scope. | Test: a fixture slot populated with repo names, a team handle, a manager handle, adjacent leads with role tags, project names, and escalation paths with trigger conditions and destinations validates clean via `bunx fit-map validate` and renders all six concerns into the section the CLI emits. |
+| `bunx fit-map validate` reports line-attributable errors on malformed slots. | Test: a slot with a missing required field, an unknown field, and a type mismatch each produces a line-attributable error message via `bunx fit-map validate`; a clean slot and an absent slot each produce no errors. |
+| The user-observable outcome of the Little Hire is delivered. | Test: an engineer running `bunx fit-pathway agent <discipline> --track=<track> --output=<dir>` against a standard whose slot they populated with their team's repos, manager, adjacent leads, projects, and escalation paths reads the rendered `.claude/CLAUDE.md` and finds each named fact present in the organizational context section, without having edited the rendered file. |
+| The emitted section is detectable by downstream tooling without parsing. | Test: the section opens with a documented marker (anchor, heading, or fenced block — chosen at design); a string-match on that marker against the rendered `.claude/CLAUDE.md` returns the section, and the marker is documented in the updated `agent-teams/organizational-context/index.md` guide. |
+| Absent slot produces output identical to today. | Test: a fixture `.claude/CLAUDE.md` is captured from `main` immediately before the change for the starter's `software_engineering --track=platform` pair; running the same command after the change against the same starter (with the slot absent) produces a `.claude/CLAUDE.md` byte-identical to the fixture. |
+| The web agent-builder preview renders the same section. | Test: the agent-builder preview page (`products/pathway/src/pages/agent-builder*.js`), with a standard whose slot is populated, renders an organizational context section whose textual content is byte-identical to the corresponding section in the CLI's rendered file (web chrome and styling excluded). |
+| Re-running the generator preserves the "don't edit outputs" invariant. | Test: a user populates the slot, runs `bunx fit-pathway agent --output=<dir>`, then runs it again; the second run's `.claude/CLAUDE.md` is byte-identical to the first run's. The user makes no manual edits to the rendered file in either step. |
+| The starter ships a populated example. | Test: running `bunx fit-pathway agent software_engineering --track=platform --output=<dir>` against the unmodified starter renders a `.claude/CLAUDE.md` whose organizational context section carries the example's placeholder repos, manager, adjacent leads (with role tags), projects, and escalation paths verbatim. |
+| Documentation is in place. | Test: the existing `agent-teams/organizational-context/index.md` guide is updated to name the new slot, distinguish it from `teamInstructions`, and explain when each applies; the `authoring-standards` guide carries an entry for the slot; the `fit-pathway agent --help` text and the `fit-pathway` skill carry the guide URL per the repo's linking rule. |
 
 — Product Manager 🌱
