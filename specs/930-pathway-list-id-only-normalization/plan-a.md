@@ -87,9 +87,9 @@ declares "your organization's values will differ"); only the row shape changes.
 | Lines | Action |
 |---|---|
 | 34–40 (discipline output block) | Replace 5 multi-column rows with 5 id-only lines: `clinical_informatics`, `data_engineering`, `engineering_management`, `quality_engineering`, `software_engineering` |
-| 42–43 (prose under the block) | Rewrite the "first column is the discipline ID" / "last column shows tracks" sentence to: "Each line is a discipline ID you will use in later commands. Run `npx fit-pathway discipline <id>` to see its tracks and other details." |
+| 42–43 (prose under the block) | Rewrite to: "Each line is a discipline ID. Note the one that matches your current role; you will use it in later commands." (Drops the now-stale "first column / last column" reference; preserves the "match your current role" hook.) |
 | 51–58 (level output block) | Replace 6 multi-column rows with 6 id-only lines: `J040`, `J060`, `J070`, `J080`, `J090`, `J100` |
-| 60–61 (prose under the block) | Rewrite "Each row shows the level code and the professional / management title" to: "Each line is a level code. Run `npx fit-pathway level <id>` to see its professional and management titles." |
+| 60–61 (prose under the block) | Rewrite to: "Each line is a level code. Find the one that matches your current role." (Drops "professional / management title" since `--list` no longer shows them; preserves the "find the row" instruction.) |
 | 69–74 (track output block) | Replace 4 multi-column rows with 4 id-only lines: `ml_ops`, `platform`, `security`, `sre` |
 
 **Define Role guide changes:**
@@ -99,7 +99,7 @@ declares "your organization's values will differ"); only the row shape changes.
 | 32–36 (discipline output block) | Replace 3 multi-column rows with 3 id-only lines: `software_engineering`, `data_engineering`, `engineering_management` |
 | 46–49 (track output block) | Replace 2 multi-column rows with 2 id-only lines: `platform`, `sre` |
 
-**Verification:** `rg -n ',' websites/fit/docs/products/career-paths/index.md websites/fit/docs/products/authoring-standards/define-role/index.md` returns zero matches inside `text` code blocks following a `--list` invocation. Manual visual check: each block holds one id per line, no header, no commas.
+**Verification:** Visual inspection of each rendered `text` code block after a `--list` invocation in both files — every block holds one id per line, no header, no commas. (`rg -n ','` over the file is too broad — prose around the blocks legitimately contains commas; scope the check to the fenced blocks themselves.)
 
 ### Step 4 — Add a regression test for the `--list` shape
 
@@ -138,7 +138,13 @@ function captureStdout(fn) {
 const fixture = {
   levels: [{ id: "J040" }, { id: "J060" }],
   disciplines: [{ id: "software_engineering" }, { id: "data_engineering" }],
-  tracks: [{ id: "platform" }, { id: "sre" }],
+  // track.js configures `sortItems: sortTracksByName`, which sorts before the
+  // --list short-circuit and reads `.name.localeCompare` — so `name` is
+  // required on each track fixture entry even though `--list` does not print it.
+  tracks: [
+    { id: "platform", name: "Platform Engineering" },
+    { id: "sre", name: "Site Reliability Engineering" },
+  ],
   behaviours: [{ id: "collaboration" }, { id: "ownership" }],
   drivers: [{ id: "shipping_velocity" }],
   skills: [{ id: "testing", capability: "delivery" }],
@@ -161,9 +167,20 @@ describe("entity --list outputs id-only", () => {
       );
       assert.ok(!out.includes(","), "no commas");
       const lines = out.split("\n").filter((l) => l.length > 0);
-      assert.strictEqual(lines.length, fixture[plural].length);
+      // Stronger than shape-only: pin output to fixture content and order,
+      // catching ordering and content regressions in one assertion.
+      const expected = fixture[plural].map((i) => i.id);
+      // tracks are sorted by name; sort the expected list the same way for
+      // tracks only. Everything else preserves insertion order.
+      if (plural === "tracks") {
+        expected.sort((a, b) => {
+          const aName = fixture.tracks.find((t) => t.id === a).name;
+          const bName = fixture.tracks.find((t) => t.id === b).name;
+          return aName.localeCompare(bName);
+        });
+      }
+      assert.deepStrictEqual(lines, expected);
       for (const line of lines) {
-        assert.match(line, /^[a-zA-Z0-9_]+$/, "id-only token");
         assert.strictEqual(line, line.trim(), "no trailing whitespace");
       }
     });
@@ -185,16 +202,30 @@ as specified before opening the implementation PR.
 **Commands to run (against the starter data, from repo root):**
 
 ```sh
+DATA=--data=products/map/starter
 for e in level discipline track behaviour driver skill; do
   echo "=== $e ==="
-  node products/pathway/bin/fit-pathway.js "$e" --list
-  node products/pathway/bin/fit-pathway.js "$e" --list | grep -c ','
+  node products/pathway/bin/fit-pathway.js "$e" --list $DATA
+  node products/pathway/bin/fit-pathway.js "$e" --list $DATA | grep -c ','
 done
+# Default (non-list) invocation still renders the multi-column table:
+node products/pathway/bin/fit-pathway.js level $DATA
+# Release-notes equivalent for spec § criterion "CHANGELOG entry":
+git log --oneline origin/main..HEAD | head -1   # implementation commit
+gh pr view --json title --jq .title              # implementation PR title
 ```
 
 **Pass condition:** every `grep -c ','` prints `0`; every block lists one id
-per line; the default invocation (no `--list`) still renders the
-multi-column table; the printed summary-hint bullet says "for IDs".
+per line; the default invocation still renders the multi-column table; the
+printed summary-hint bullet says "for IDs"; the implementation PR title begins
+with `feat(pathway)!:` so the breaking-change marker flows into the next
+`pathway@v0.x.y` GitHub Release notes (the design-decided substitute for a
+per-product CHANGELOG.md, satisfying [`spec.md` § verifiable success criteria](./spec.md#verifiable-success-criteria) row 6).
+
+Note on the data flag: the CLI walks upward looking for `data/pathway/` and
+the monorepo root has no such directory, so `--data=products/map/starter` is
+mandatory for the dev-mode invocations above. End users running
+`npx fit-pathway` against their own installation never need the flag.
 
 ## Execution
 
@@ -214,8 +245,5 @@ The `!` flows into the next `pathway@v0.x.y` release notes.
 | Risk | Why it's hidden from the plan body | Mitigation |
 |---|---|---|
 | Synthetic guide example IDs no longer match the starter | The guide's "your organization's values will differ" disclaimer makes the IDs illustrative, not literal — but a reviewer might flag the guide as "out of date with starter" expecting starter IDs (`software_engineering` only, `J040`/`J060` only). The plan preserves the synthetic illustration shape on purpose; this is the same convention the file uses today. | Note in the implementation PR body that the example IDs are illustrative per existing guide convention; do not replace with starter IDs. |
-| `discipline.js` loses the only in-tree use of `isProfessional` + `validTracks` for list output | A grep for these fields elsewhere will still hit `formatSummary` (the default table view), but a careless deletion could remove imports or helpers that look unused. | Run `bun run check` after Step 1; `discipline.js` keeps `validTracks`/`isProfessional` reads in its `formatSummary` rows — do not touch them. |
+| `discipline.js` uses `isProfessional` + `validTracks` in both `formatListItem` (deleted) and `formatSummary` (kept) | Step 1 deletes the `formatListItem` body that reads these fields; a grep-and-prune cleanup pass could mis-read the surviving `formatSummary` references as unused. | Delete only the named `formatListItem` function and its factory reference; leave the `formatSummary` block at L42–L46 untouched. `bun run check` after Step 1 confirms no unused-import warning surfaces. |
 | `process.stdout.write` monkey-patch in Step 4's test bleeds across tests if the runner throws before the `finally` runs | The `finally` clause restores the original; tests run serially under `node:test` by default; the risk surfaces only if a future contributor parallelises this file. | Keep the patch tight inside one async function; future parallel runner change is out of scope. |
-| Test fixture omits fields that `formatSummary` references when `args=[]`, `options.list=true` | Factory's runCommand short-circuits to `handleList` on `options.list`, never touching `formatSummary`. Verified in `command-factory.js` L55–L62 (validate → list → summary order). | None needed; the early-return path is the contract being tested. If the factory's branch order changes, the test fixture needs the summary's referenced fields — but that's a different spec. |
-| Build pipeline detects the doc-block change as a content rebuild | `fit-doc` path-filtered workflows rebuild `websites/fit/` on any `.md` change under it. Nothing unusual. | None. |
-| Pre-1.0 patch bump despite `!` marker | Pathway is at `0.25.56`; kata-release-cut rule is "Pre-1.0 — bump patch for any change". The `!` affects release-notes presentation, not the semver bump. | None — design already captured this; informational. |
