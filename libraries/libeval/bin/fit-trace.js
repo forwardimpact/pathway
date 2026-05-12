@@ -25,6 +25,7 @@ import {
   runFilterCommand,
   runSplitCommand,
 } from "../src/commands/trace.js";
+import { runAssertCommand } from "../src/commands/assert.js";
 
 // `bun build --compile` injects FIT_TRACE_VERSION via --define, eliminating
 // the readFileSync branch in the compiled binary (which would ENOENT against
@@ -199,6 +200,41 @@ const definition = {
         },
       },
     },
+    {
+      name: "assert",
+      args: "<test-name> <file>",
+      description:
+        "Shell-friendly assertion — outputs structured JSON for scoring hooks",
+      options: {
+        grep: {
+          type: "string",
+          description:
+            "Pass if extended regex matches file content (case-insensitive)",
+        },
+        query: {
+          type: "string",
+          description:
+            "Pass if JMESPath expression against JSON/NDJSON yields a truthy result",
+        },
+        exists: {
+          type: "boolean",
+          description: "Pass if file exists",
+        },
+        "cites-job": {
+          type: "string",
+          description:
+            "Pass if <file> contains the canonical citation from a <job> tag in the given JTBD file",
+        },
+        not: {
+          type: "boolean",
+          description: "Invert the assertion",
+        },
+        message: {
+          type: "string",
+          description: "Custom failure message",
+        },
+      },
+    },
   ],
   globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
@@ -220,6 +256,11 @@ const definition = {
     "fit-trace search structured.json 'error|fail' --context 1",
     "fit-trace filter structured.json --tool Bash --error",
     "fit-trace turn structured.json 3",
+    "fit-trace assert has-heading --grep '^## Problem' spec.md",
+    "fit-trace assert no-leak --not --grep 'password' output.log",
+    "fit-trace assert file-present --exists path/to/spec.md",
+    "fit-trace assert cites-jtbd --cites-job jtbd-excerpt.md spec.md",
+    "fit-trace assert used-edit --query \"[?type=='assistant'].message.content[] | [?name=='Edit']\" trace.ndjson",
   ],
   documentation: [
     {
@@ -265,6 +306,7 @@ const COMMANDS = {
   turn: runTurnCommand,
   filter: runFilterCommand,
   split: runSplitCommand,
+  assert: runAssertCommand,
 };
 
 async function main() {

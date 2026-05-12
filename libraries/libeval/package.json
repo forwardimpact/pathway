@@ -53,6 +53,7 @@
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libconfig": "^0.1.0",
     "@forwardimpact/libtelemetry": "^0.1.22",
+    "jmespath": "^0.16.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {

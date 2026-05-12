@@ -37,7 +37,7 @@
     },
     "libraries/libcodegen": {
       "name": "@forwardimpact/libcodegen",
-      "version": "0.1.52",
+      "version": "0.1.53",
       "bin": {
         "fit-codegen": "./bin/fit-codegen.js",
       },
@@ -102,6 +102,7 @@
         "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libconfig": "^0.1.0",
         "@forwardimpact/libtelemetry": "^0.1.22",
+        "jmespath": "^0.16.0",
         "zod": "^4.4.3",
       },
       "devDependencies": {
