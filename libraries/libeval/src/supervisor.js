@@ -536,7 +536,8 @@ export function createSupervisor({
 
   const onLine = (line) => supervisor.emitLine(line);
 
-  const perInvocationTurns = maxTurns === 0 ? 0 : Math.max(maxTurns ?? 100, 200);
+  const perInvocationTurns =
+    maxTurns === 0 ? 0 : Math.max(maxTurns ?? 100, 200);
 
   const agentRunner = createAgentRunner({
     cwd: agentCwd,
