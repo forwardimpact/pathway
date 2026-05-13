@@ -78,6 +78,60 @@ function applyToProcessEnv(entries) {
 }
 
 /**
+ * Load one env file: apply to process.env, record keys in the merged map.
+ * @param {string} dir
+ * @param {string} file
+ * @param {Set<string>} names
+ * @param {Map<string, Map<string, true>>} merged
+ */
+async function loadOneEnvFile(dir, file, names, merged) {
+  const entries = await readEnvFile(join(dir, file));
+  if (entries.length === 0) return;
+  for (const name of applyToProcessEnv(entries)) names.add(name);
+  if (!merged.has(file)) merged.set(file, new Map());
+  const fileMap = merged.get(file);
+  for (const { key } of entries) {
+    if (!fileMap.has(key)) fileMap.set(key, true);
+  }
+}
+
+/**
+ * Scan directories for env files, load into process.env, and collect
+ * a merged key manifest per filename.
+ * @param {string[]} dirs
+ * @returns {Promise<{names: Set<string>, merged: Map<string, Map<string, true>>}>}
+ */
+async function collectEnvEntries(dirs) {
+  const names = new Set();
+  const merged = new Map();
+  for (const dir of dirs) {
+    for (const file of ENV_FILES) {
+      await loadOneEnvFile(dir, file, names, merged);
+    }
+  }
+  return { names, merged };
+}
+
+/**
+ * Write resolved env files into the agent CWD and warn about empty values.
+ * @param {Map<string, Map<string, true>>} merged
+ * @param {string} agentCwd
+ */
+async function renderEnvFiles(merged, agentCwd) {
+  for (const [file, keyMap] of merged) {
+    const keys = [...keyMap.keys()];
+    const resolved = keys.map((key) => `${key}=${process.env[key] ?? ""}`);
+    await writeFile(join(agentCwd, file), resolved.join("\n") + "\n");
+    const empty = keys.filter((key) => !process.env[key]);
+    if (empty.length > 0) {
+      process.stderr.write(
+        `libeval: env warning: ${file} declares vars with no value: ${empty.join(", ")}\n`,
+      );
+    }
+  }
+}
+
+/**
  * Discover `.env` / `.env.local` in one or more directories, load them
  * into process.env, and render the resolved values into the agent CWD.
  *
@@ -86,39 +140,7 @@ function applyToProcessEnv(entries) {
  * @returns {Promise<string[]>} All var names discovered (for redaction).
  */
 export async function loadEnv(dirs, agentCwd) {
-  const allNames = new Set();
-  // Collect entries per output filename across all dirs, then render once.
-  const merged = new Map();
-
-  for (const dir of dirs) {
-    for (const file of ENV_FILES) {
-      const entries = await readEnvFile(join(dir, file));
-      if (entries.length === 0) continue;
-
-      for (const name of applyToProcessEnv(entries)) allNames.add(name);
-
-      if (!merged.has(file)) merged.set(file, new Map());
-      const fileMap = merged.get(file);
-      for (const { key } of entries) {
-        if (!fileMap.has(key)) fileMap.set(key, true);
-      }
-    }
-  }
-
-  for (const [file, keyMap] of merged) {
-    const resolved = [...keyMap.keys()].map((key) => {
-      const value = process.env[key] ?? "";
-      return `${key}=${value}`;
-    });
-    await writeFile(join(agentCwd, file), resolved.join("\n") + "\n");
-
-    const empty = [...keyMap.keys()].filter((key) => !process.env[key]);
-    if (empty.length > 0) {
-      process.stderr.write(
-        `libeval: env warning: ${file} declares vars with no value: ${empty.join(", ")}\n`,
-      );
-    }
-  }
-
-  return [...allNames];
+  const { names, merged } = await collectEnvEntries(dirs);
+  await renderEnvFiles(merged, agentCwd);
+  return [...names];
 }

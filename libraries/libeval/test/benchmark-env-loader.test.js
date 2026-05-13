@@ -92,7 +92,10 @@ describe("loadEnv", () => {
   });
 
   test("merges family and task dirs, family loaded first", async () => {
-    await writeFile(join(familyDir, ".env"), "SHARED=from-family\nFAM_ONLY=1\n");
+    await writeFile(
+      join(familyDir, ".env"),
+      "SHARED=from-family\nFAM_ONLY=1\n",
+    );
     await writeFile(join(taskDir, ".env"), "SHARED=from-task\nTASK_ONLY=2\n");
     const names = await loadEnv([familyDir, taskDir], agentCwd);
 
