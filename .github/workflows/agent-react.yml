@@ -175,7 +175,7 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       - name: Assess and Act
-        uses: ./.github/actions/fit-eval
+        uses: forwardimpact/fit-eval@v1
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ steps.ci-app.outputs.token }}
