@@ -47,6 +47,12 @@ function parseRunOptions(values) {
       judge: values["judge-profile"] ?? null,
     },
     maxTurns: parseMaxTurns(values["max-turns"]),
+    allowedTools: values["allowed-tools"]
+      ? values["allowed-tools"]
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : undefined,
   };
 }
 

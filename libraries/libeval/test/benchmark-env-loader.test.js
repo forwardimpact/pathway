@@ -102,13 +102,11 @@ describe("loadEnv", () => {
     // Family dir loaded first, so its value wins for SHARED
     assert.strictEqual(process.env.SHARED, "from-family");
 
-    // The rendered .env in CWD should reflect the LAST writer (task dir),
-    // but with resolved values from process.env
+    // Rendered .env merges keys from both dirs with resolved values
     const rendered = await readFile(join(agentCwd, ".env"), "utf8");
-    assert.ok(
-      rendered.includes("SHARED=from-family"),
-      "rendered file should use resolved process.env value",
-    );
+    assert.ok(rendered.includes("SHARED=from-family"));
+    assert.ok(rendered.includes("FAM_ONLY=1"));
+    assert.ok(rendered.includes("TASK_ONLY=2"));
   });
 
   test("renders .env.local into agent CWD", async () => {

@@ -68,6 +68,11 @@ export const definition = {
           description:
             "Agent-under-test turn budget (default: 50, 0 = unlimited)",
         },
+        "allowed-tools": {
+          type: "string",
+          description:
+            "Comma-separated tool allowlist for the agent-under-test (default: Bash,Read,Glob,Grep,Write,Edit,Agent,TodoWrite)",
+        },
       },
     },
     {

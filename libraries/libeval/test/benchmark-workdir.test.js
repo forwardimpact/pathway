@@ -117,10 +117,13 @@ exit 0
     const task = {
       id: "listener",
       paths: {
+        taskDir: taskRoot,
         instructions: join(taskRoot, "agent.task.md"),
-        supervisor: join(taskRoot, "supervisor.task.md"),
-        judge: join(taskRoot, "judge.task.md"),
+        supervisor: null,
+        judge: null,
         hooks: join(taskRoot, "hooks"),
+        preflight: join(taskRoot, "hooks", "preflight.sh"),
+        score: null,
         specs: join(taskRoot, "specs"),
         workdir: join(taskRoot, "workdir"),
       },

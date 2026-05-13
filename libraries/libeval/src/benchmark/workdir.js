@@ -82,8 +82,9 @@ export class WorkdirManager {
     const supervisorTracePath = join(runDir, "supervisor.ndjson");
     const judgeTracePath = join(runDir, "judge.ndjson");
 
-    const preflightScript = join(task.paths.hooks, "preflight.sh");
-    const preflight = await runPreflight(preflightScript, cwd, port);
+    const preflight = task.paths.preflight
+      ? await runPreflight(task.paths.preflight, cwd, port)
+      : { pgid: 0 };
 
     return {
       cwd,

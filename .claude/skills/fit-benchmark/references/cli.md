@@ -27,6 +27,7 @@ npx fit-benchmark <command> [options]
 | `--agent-profile`  | no       | Agent-under-test profile name                                                                    |
 | `--judge-profile`  | no       | Judge profile name                                                                               |
 | `--max-turns`      | no       | Agent turn budget (default `50`; `0` = unlimited)                                                |
+| `--allowed-tools`  | no       | Comma-separated tool allowlist for the agent (default `Bash,Read,Glob,Grep,Write,Edit,Agent,TodoWrite`) |
 
 `run` writes one JSON line per result record to stdout for visibility,
 and appends the same record to `<output>/results.jsonl` for the report

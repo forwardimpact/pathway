@@ -5,7 +5,7 @@
  *     .claude/                # pre-staged skills + agents (P1)
  *     tasks/<task_name>/
  *       agent.task.md
- *       supervisor.task.md    # preserved for v2; not read in v1
+ *       supervisor.task.md    # optional; appended to the task as supervisor context
  *       judge.task.md
  *       hooks/                # harness-only; never copied to agent CWD
  *         preflight.sh
@@ -23,6 +23,7 @@ import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   access,
+  constants,
   lstat,
   mkdtemp,
   readdir,
@@ -100,14 +101,20 @@ async function discoverTasks(rootPath) {
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     const taskDir = join(tasksRoot, entry.name);
+    const supervisorPath = join(taskDir, "supervisor.task.md");
+    const judgePath = join(taskDir, "judge.task.md");
+    const preflightPath = join(taskDir, "hooks", "preflight.sh");
+    const scorePath = join(taskDir, "hooks", "score.sh");
     tasks.push({
       id: entry.name,
       paths: {
         taskDir,
         instructions: join(taskDir, "agent.task.md"),
-        supervisor: join(taskDir, "supervisor.task.md"),
-        judge: join(taskDir, "judge.task.md"),
+        supervisor: (await fileExists(supervisorPath)) ? supervisorPath : null,
+        judge: (await fileExists(judgePath)) ? judgePath : null,
         hooks: join(taskDir, "hooks"),
+        preflight: (await fileExecutable(preflightPath)) ? preflightPath : null,
+        score: (await fileExecutable(scorePath)) ? scorePath : null,
         specs: join(taskDir, "specs"),
         workdir: join(taskDir, "workdir"),
       },
@@ -115,6 +122,24 @@ async function discoverTasks(rootPath) {
   }
   tasks.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   return tasks;
+}
+
+async function fileExists(path) {
+  try {
+    await access(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function fileExecutable(path) {
+  try {
+    await access(path, constants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -211,7 +236,7 @@ function run(cmd, args) {
 /**
  * @typedef {object} Task
  * @property {string} id - Task name (directory name under tasks/)
- * @property {{taskDir: string, instructions: string, supervisor: string, judge: string, hooks: string, specs: string, workdir: string}} paths
+ * @property {{taskDir: string, instructions: string, supervisor: string|null, judge: string|null, hooks: string, preflight: string|null, score: string|null, specs: string, workdir: string}} paths
  */
 
 /**

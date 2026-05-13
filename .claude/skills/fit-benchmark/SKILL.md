@@ -34,17 +34,18 @@ under test:
 <family>/
   .env                   # family env vars — loaded into process.env
   .env.local             # family secrets — loaded into process.env (gitignored)
+  apm.yml                # optional — skill-pack dependencies
   apm.lock.yaml          # skill-set manifest (hashed into skillSetHash)
   .claude/               # pre-staged skills + agent profiles
   tasks/<task-name>/
     .env                  # task env vars — loaded + rendered into agent CWD
     .env.local            # task secrets — loaded + rendered (gitignored)
-    agent.task.md         # agent prompt
-    supervisor.task.md    # reserved (v1 doesn't read it)
-    judge.task.md         # judge prompt (see § Judge Template Variables)
+    agent.task.md         # agent prompt (required)
+    supervisor.task.md    # optional — supervisor context for the relay
+    judge.task.md         # optional — judge prompt (see § Judge Template Variables)
     hooks/                # harness-only — never copied to agent CWD
-      preflight.sh        # smoke probe; exit 0 confirms scaffold
-      score.sh            # fd 3 = $RESULTS_FD for structured rows
+      preflight.sh        # optional — smoke probe; exit 0 confirms scaffold
+      score.sh            # optional — fd 3 = $RESULTS_FD for structured rows
     specs/                # copied into agent CWD
     workdir/              # copied into agent CWD
 ```
@@ -74,9 +75,9 @@ For each `(task, runIndex)` the harness drives:
 
 1. **Setup** — copy `workdir/`, `specs/`, and the staged `.claude/` into a
    fresh per-task CWD. Allocate a free TCP port. Run `hooks/preflight.sh`.
-2. **Agent** — run the coding agent on `agent.task.md` with a fixed
-   default tool allow-list (`Bash`, `Read`, `Glob`, `Grep`, `Write`,
-   `Edit`).
+2. **Agent** — run the coding agent on `agent.task.md` with a default
+   tool allow-list (`Bash`, `Read`, `Glob`, `Grep`, `Write`, `Edit`,
+   `Agent`, `TodoWrite`). Override with `--allowed-tools`.
 3. **Score** — run `hooks/score.sh` from the template path. The exit
    code is authoritative for the verdict; fd 3 (`$RESULTS_FD=3`)
    carries optional NDJSON rows for diagnostic per-test details.

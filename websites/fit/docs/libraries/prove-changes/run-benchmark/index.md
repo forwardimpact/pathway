@@ -29,6 +29,7 @@ under test:
 my-coding-family/
   .env                                   # family env vars (committed defaults)
   .env.local                             # family secrets (gitignored)
+  apm.yml                                # optional — skill-pack dependencies
   apm.lock.yaml                          # skill-set manifest (hashed)
   .claude/                               # pre-staged skills + agents
     skills/...
@@ -36,12 +37,12 @@ my-coding-family/
   tasks/todo-api/
     .env                                 # task env vars — loaded + rendered
     .env.local                           # task secrets — loaded + rendered (gitignored)
-    agent.task.md                        # what the agent should build
-    judge.task.md                        # judge prompt (see § judge.task.md)
-    supervisor.task.md                   # reserved (v1 doesn't read it)
+    agent.task.md                        # what the agent should build (required)
+    judge.task.md                        # optional — judge prompt (see § judge.task.md)
+    supervisor.task.md                   # optional — supervisor context
     hooks/                               # harness-only — never copied to agent CWD
-      preflight.sh                       # smoke probe; exit 0 confirms scaffold
-      score.sh                           # hidden grader; fd 3 = $RESULTS_FD
+      preflight.sh                       # optional — smoke probe
+      score.sh                           # optional — hidden grader; fd 3 = $RESULTS_FD
     specs/                               # copied into the agent CWD
     workdir/                             # copied into the agent CWD
 ```
@@ -77,11 +78,11 @@ variables. Neither is ever copied to the agent's working directory.
 
 #### `hooks/preflight.sh`
 
-Runs before the agent starts. Exit `0` means "scaffold is healthy, hand
-off to the agent." A non-zero exit short-circuits the run and produces a
-`preflightError` result record (cost zero, no agent invoked). Tasks that
-need no probe can `exit 0` immediately. The harness fails the family at
-install time if any task is missing this script or it is not executable.
+Optional. Runs before the agent starts. Exit `0` means "scaffold is
+healthy, hand off to the agent." A non-zero exit short-circuits the run
+and produces a `preflightError` result record (cost zero, no agent
+invoked). When the script is absent, the harness proceeds without a
+pre-flight probe.
 
 A preflight that starts a background service for the scoring probe to
 test against:

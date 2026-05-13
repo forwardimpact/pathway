@@ -28,8 +28,11 @@ import { join } from "node:path";
  * @returns {Promise<ScoringResult>}
  */
 export function runScoring(task, ctx) {
+  if (!task.paths.score) {
+    return Promise.resolve({ verdict: "pass", details: [], exitCode: 0 });
+  }
   return new Promise((res, rej) => {
-    const script = join(task.paths.hooks, "score.sh");
+    const script = task.paths.score;
     const stderrLog = createWriteStream(join(ctx.runDir, "scoring.stderr.log"));
 
     // Bun's child_process pipe setup for fd >= 3 is racy under load (it

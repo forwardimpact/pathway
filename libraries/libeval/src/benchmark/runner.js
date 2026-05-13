@@ -15,7 +15,7 @@
  */
 
 import { createReadStream, createWriteStream } from "node:fs";
-import { access, constants, mkdir, readFile, unlink } from "node:fs/promises";
+import { mkdir, readFile, unlink } from "node:fs/promises";
 import { createInterface } from "node:readline";
 import { join, resolve as resolvePath } from "node:path";
 
@@ -28,7 +28,16 @@ import { runScoring } from "./scorer.js";
 import { assertJudgeProfileStaged, loadTaskFamily } from "./task-family.js";
 import { createWorkdirManager } from "./workdir.js";
 
-const BASE_TOOLS = ["Bash", "Read", "Glob", "Grep", "Write", "Edit"];
+const BASE_TOOLS = [
+  "Bash",
+  "Read",
+  "Glob",
+  "Grep",
+  "Write",
+  "Edit",
+  "Agent",
+  "TodoWrite",
+];
 
 /** Sole orchestrator for a task-family benchmark run. */
 export class BenchmarkRunner {
@@ -42,6 +51,7 @@ export class BenchmarkRunner {
    * @param {string} opts.judgeModel
    * @param {{agent?: string, judge?: string}} [opts.profiles]
    * @param {Function} opts.query - SDK query (injected for testability).
+   * @param {string[]} [opts.allowedTools] - Agent tool allowlist (default: BASE_TOOLS).
    * @param {number} [opts.maxTurns] - Agent-under-test turn budget.
    * @param {number} [opts.termGraceMs] - SIGTERM→SIGKILL grace (ms) for the per-task process group.
    * @param {Function} [opts.runAgent] - Test seam: replaces the agent-under-test
@@ -64,6 +74,7 @@ export class BenchmarkRunner {
     judgeModel,
     profiles,
     query,
+    allowedTools,
     maxTurns,
     termGraceMs,
     // Test seams — default to the real implementations.
@@ -76,8 +87,6 @@ export class BenchmarkRunner {
       throw new Error("runs must be an integer ≥ 1");
     if (!output) throw new Error("output is required");
     if (!agentModel) throw new Error("agentModel is required");
-    if (!supervisorModel) throw new Error("supervisorModel is required");
-    if (!judgeModel) throw new Error("judgeModel is required");
     if (!query) throw new Error("query is required");
     this.familyInput = family;
     this.runs = runs;
@@ -85,6 +94,7 @@ export class BenchmarkRunner {
     this.agentModel = agentModel;
     this.supervisorModel = supervisorModel;
     this.judgeModel = judgeModel;
+    this.allowedTools = allowedTools ?? BASE_TOOLS;
     this.profiles = {
       agent: profiles?.agent ?? null,
       judge: profiles?.judge ?? null,
@@ -114,9 +124,6 @@ export class BenchmarkRunner {
     );
 
     const tasks = family.tasks();
-    for (const task of tasks) {
-      await assertPreflightExecutable(task);
-    }
     if (this.profiles.judge) {
       await assertJudgeProfileStaged(
         family,
@@ -179,33 +186,38 @@ export class BenchmarkRunner {
         port: workdir.port,
         runDir: workdir.runDir,
       });
-      const judgeContext = await this.#buildJudgeContext(
-        task,
-        workdir,
-        skillSetHash,
-      );
-      const judgeVerdict = await this._runJudgeHook(
-        task,
-        workdir,
-        scoring,
-        {
-          query: this.query,
-          model: this.judgeModel,
-          judgeProfile: this.profiles.judge ?? undefined,
-          profilesDir: judgeProfilesDir,
-        },
-        judgeContext,
-      );
+      let judgeVerdict = null;
+      if (task.paths.judge) {
+        const judgeContext = await this.#buildJudgeContext(
+          task,
+          workdir,
+          skillSetHash,
+        );
+        judgeVerdict = await this._runJudgeHook(
+          task,
+          workdir,
+          scoring,
+          {
+            query: this.query,
+            model: this.judgeModel,
+            judgeProfile: this.profiles.judge ?? undefined,
+            profilesDir: judgeProfilesDir,
+          },
+          judgeContext,
+        );
+      }
+      const verdict =
+        scoring.verdict === "pass" &&
+        (judgeVerdict === null || judgeVerdict.verdict === "pass")
+          ? "pass"
+          : "fail";
       const record = {
         taskId: task.id,
         runIndex,
-        verdict:
-          scoring.verdict === "pass" && judgeVerdict.verdict === "pass"
-            ? "pass"
-            : "fail",
+        verdict,
         scoring,
         submission,
-        judgeVerdict,
+        ...(judgeVerdict && { judgeVerdict }),
         costUsd,
         turns,
         agentTracePath: workdir.agentTracePath,
@@ -263,6 +275,9 @@ export class BenchmarkRunner {
   async #runAgent(task, workdir) {
     const combinedPath = join(workdir.runDir, ".combined.ndjson");
     const combinedStream = createWriteStream(combinedPath);
+    const supervisorInstructions = task.paths.supervisor
+      ? await readFile(task.paths.supervisor, "utf8").catch(() => null)
+      : null;
     const supervisor = createSupervisor({
       supervisorCwd: workdir.cwd,
       agentCwd: workdir.cwd,
@@ -271,8 +286,9 @@ export class BenchmarkRunner {
       agentModel: this.agentModel,
       supervisorModel: this.supervisorModel,
       maxTurns: this.maxTurns ?? 50,
-      allowedTools: BASE_TOOLS,
+      allowedTools: this.allowedTools,
       ...(this.profiles.agent && { agentProfile: this.profiles.agent }),
+      ...(supervisorInstructions && { taskAmend: supervisorInstructions }),
       redactor: createRedactor({
         allowlist: [...DEFAULT_ENV_ALLOWLIST, ...(workdir.envNames ?? [])],
       }),
@@ -373,23 +389,6 @@ async function writeRecord(stream, record) {
   await new Promise((res, rej) => {
     stream.write(line, (err) => (err ? rej(err) : res()));
   });
-}
-
-/**
- * Pre-flight install gate. Throws synchronously if any task's preflight
- * script is missing or not executable — design § Pre-flight contract:
- * "The harness fails the family at install if any task's preflight script
- * is missing or non-executable, before any agent session starts."
- */
-async function assertPreflightExecutable(task) {
-  const path = join(task.paths.hooks, "preflight.sh");
-  try {
-    await access(path, constants.X_OK);
-  } catch (e) {
-    throw new Error(
-      `task ${task.id}: preflight script not executable at ${path} (${e.code ?? e.message})`,
-    );
-  }
 }
 
 /**

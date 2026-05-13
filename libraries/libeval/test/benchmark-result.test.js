@@ -79,12 +79,12 @@ describe("validateResultRecord", () => {
     assert.throws(() => validateResultRecord(broken));
   });
 
-  test("rejects supervisor=string (must be null per P5)", () => {
-    const broken = {
+  test("accepts supervisor=string (supervisor.task.md support)", () => {
+    const withSupervisor = {
       ...happy,
       profiles: { agent: "a", supervisor: "sup", judge: "j" },
     };
-    assert.throws(() => validateResultRecord(broken));
+    assert.doesNotThrow(() => validateResultRecord(withSupervisor));
   });
 });
 

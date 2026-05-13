@@ -29,7 +29,7 @@ const JUDGE_VERDICT_SHAPE = z.object({
 
 const PROFILES_SHAPE = z.object({
   agent: z.union([z.string(), z.null()]),
-  supervisor: z.null(),
+  supervisor: z.union([z.string(), z.null()]),
   judge: z.union([z.string(), z.null()]),
 });
 
@@ -48,8 +48,8 @@ const COMMON_FIELDS = {
   profiles: PROFILES_SHAPE,
   model: z.object({
     agent: z.string(),
-    supervisor: z.string(),
-    judge: z.string(),
+    supervisor: z.string().optional(),
+    judge: z.string().optional(),
   }),
   skillSetHash: z.string(),
   familyRevision: z.string(),
@@ -65,7 +65,7 @@ const HAPPY_RECORD = z.object({
   ...COMMON_FIELDS,
   scoring: SCORING_SHAPE,
   submission: z.string(),
-  judgeVerdict: JUDGE_VERDICT_SHAPE,
+  judgeVerdict: JUDGE_VERDICT_SHAPE.optional(),
   agentTracePath: z.string(),
   supervisorTracePath: z.string(),
   judgeTracePath: z.string(),

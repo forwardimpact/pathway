@@ -73,6 +73,7 @@ CI-specific inputs that have no CLI equivalent:
 | `agent-profile` | | Agent-under-test profile name |
 | `judge-profile` | | Judge profile name |
 | `max-turns` | `"50"` | Agent turn budget (`0` = unlimited) |
+| `allowed-tools` | `"Bash,Read,Glob,Grep,Write,Edit,Agent,TodoWrite"` | Agent tool allowlist |
 | `k` | `"1,3,5"` | Comma-separated k values for pass@k |
 | `format` | `"text"` | Report output format |
 | `summary` | `"true"` | Append report to `GITHUB_STEP_SUMMARY` |

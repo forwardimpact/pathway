@@ -19,9 +19,11 @@ async function buildStubTask(scoreShContent) {
       id: "scorer",
       paths: {
         instructions: "",
-        supervisor: "",
-        judge: "",
+        supervisor: null,
+        judge: null,
         hooks: join(root, "hooks"),
+        score: join(root, "hooks", "score.sh"),
+        preflight: null,
         specs: "",
         workdir: "",
       },

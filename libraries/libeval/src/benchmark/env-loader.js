@@ -17,7 +17,7 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
-const ENV_FILES = [".env", ".env.local"];
+const ENV_FILES = [".env.local", ".env"];
 
 /**
  * Parse a `.env` file into an array of {key, value} pairs.
@@ -87,6 +87,8 @@ function applyToProcessEnv(entries) {
  */
 export async function loadEnv(dirs, agentCwd) {
   const allNames = new Set();
+  // Collect entries per output filename across all dirs, then render once.
+  const merged = new Map();
 
   for (const dir of dirs) {
     for (const file of ENV_FILES) {
@@ -95,19 +97,26 @@ export async function loadEnv(dirs, agentCwd) {
 
       for (const name of applyToProcessEnv(entries)) allNames.add(name);
 
-      const resolved = entries.map(({ key }) => {
-        const value = process.env[key] ?? "";
-        return `${key}=${value}`;
-      });
-      await writeFile(join(agentCwd, file), resolved.join("\n") + "\n");
-
-      const empty = entries.filter(({ key }) => !process.env[key]);
-      if (empty.length > 0) {
-        const names = empty.map((e) => e.key).join(", ");
-        process.stderr.write(
-          `libeval: env warning: ${file} in ${dir} declares vars with no value: ${names}\n`,
-        );
+      if (!merged.has(file)) merged.set(file, new Map());
+      const fileMap = merged.get(file);
+      for (const { key } of entries) {
+        if (!fileMap.has(key)) fileMap.set(key, true);
       }
+    }
+  }
+
+  for (const [file, keyMap] of merged) {
+    const resolved = [...keyMap.keys()].map((key) => {
+      const value = process.env[key] ?? "";
+      return `${key}=${value}`;
+    });
+    await writeFile(join(agentCwd, file), resolved.join("\n") + "\n");
+
+    const empty = [...keyMap.keys()].filter((key) => !process.env[key]);
+    if (empty.length > 0) {
+      process.stderr.write(
+        `libeval: env warning: ${file} declares vars with no value: ${empty.join(", ")}\n`,
+      );
     }
   }
 

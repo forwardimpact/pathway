@@ -19,19 +19,32 @@ export async function installApm(family, outputDir) {
   const stagingDir = join(outputDir, ".apm-staging");
   const stagedClaude = join(stagingDir, ".claude");
   const sourceClaude = join(family.rootPath, ".claude");
+  const apmYml = join(family.rootPath, "apm.yml");
 
-  await runApmInstall(family.rootPath);
+  const hasApm = await access(apmYml)
+    .then(() => true)
+    .catch(() => false);
 
-  try {
-    await access(sourceClaude);
-  } catch {
-    throw new Error(
-      `apm install did not produce .claude/ at ${sourceClaude}; check the family's apm.yml`,
-    );
+  if (hasApm) {
+    await runApmInstall(family.rootPath);
+    try {
+      await access(sourceClaude);
+    } catch {
+      throw new Error(
+        `apm install did not produce .claude/ at ${sourceClaude}; check the family's apm.yml`,
+      );
+    }
   }
 
   await rm(stagingDir, { recursive: true, force: true });
-  await cp(sourceClaude, stagedClaude, { recursive: true });
+  const hasClaudeDir = await access(sourceClaude)
+    .then(() => true)
+    .catch(() => false);
+  if (hasClaudeDir) {
+    await cp(sourceClaude, stagedClaude, { recursive: true });
+  } else {
+    await mkdir(stagedClaude, { recursive: true });
+  }
 
   // Stage the family-local judge profile outside .claude/ so it is available
   // to the judge but never copied into the agent-under-test's CWD.
@@ -44,12 +57,15 @@ export async function installApm(family, outputDir) {
   } catch {}
 
   const lockPath = join(family.rootPath, "apm.lock.yaml");
-  const lockBytes = await readFile(lockPath).catch(() => {
-    throw new Error(`apm install did not produce apm.lock.yaml at ${lockPath}`);
-  });
-  const skillSetHash =
-    "sha256:" +
-    createHash("sha256").update(normalizeLf(lockBytes)).digest("hex");
+  let skillSetHash = "";
+  try {
+    const lockBytes = await readFile(lockPath);
+    skillSetHash =
+      "sha256:" +
+      createHash("sha256").update(normalizeLf(lockBytes)).digest("hex");
+  } catch {
+    // No lockfile — family doesn't use skill packs.
+  }
 
   return { stagingDir, skillSetHash, judgeProfilesDir };
 }
