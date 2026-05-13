@@ -76,6 +76,7 @@ websites/**/assets/components.css
 # Outpost build output
 products/outpost/dist/
 products/outpost/templates/.claude/skills/fit-*
+**/apm_modules/
 *.bun-build
 
 # Test files
