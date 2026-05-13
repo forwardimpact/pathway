@@ -21,10 +21,10 @@ flowchart LR
   Prose[libsyntheticprose<br/>level prompt] -->|emits| Levels
   DSL[story.dsl<br/>parser-standard] -->|seeds prose| Prose
   Levels --> Validator[validation/level.js<br/>rule predicates]
-  Validator -. exports .-> Derivation[libskill/deriveJob<br/>load-time gate]
+  Validator -. exports .-> Loader[map/loader.js<br/>loadStandardConfig]
   Validator -->|errors| Author
-  Levels --> Derivation
-  Derivation --> Formatter[generateJobTitle<br/>buildAutonomySentence]
+  Levels --> Loader
+  Loader --> Formatter[generateJobTitle<br/>buildAutonomySentence<br/>--list, progress, interview]
   Formatter --> Render[rendered job markdown]
   Guide[authoring-standards/index.md<br/>canonical contract] -. read by .-> Author
   Guide -. read by .-> Prose
@@ -33,11 +33,14 @@ flowchart LR
 
 One canonical contract document is read by authors and the prose prompt and
 pointed at by the schema. One module owns the rule predicates
-(`validation/level.js`). Two call sites invoke them: `fit-map validate` for the
-batch path, and `deriveJob` in `libskill` for the render path — every product
-that renders a job (Pathway CLI, `fit-pathway dev`, planned Pathway web)
-already routes through `deriveJob`, so the render gate is automatic and
-cannot be bypassed by a caller that forgets to pre-validate.
+(`validation/level.js`). Two call sites invoke them: `validateLevels` for
+`fit-map validate`, and `createDataLoader().loadStandardConfig`
+(`products/map/src/loader.js`, the single function every render command —
+`fit-pathway dev`/`build`/`update`/`job` — funnels through) for the render
+path. Failing the contract at load time prevents non-compliant data from ever
+reaching any `generateJobTitle` or `buildAutonomySentence` call site,
+including `--list` and the progress/interview formatters that bypass
+`deriveJob`.
 
 ## Key Decisions
 
@@ -45,10 +48,10 @@ cannot be bypassed by a caller that forgets to pre-validate.
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **K1. Canonical home**                    | `websites/fit/docs/products/authoring-standards/index.md` — a new `## Level field conventions` subsection after Step 1, with one compliant + one non-compliant example for each field and a stable anchor `#level-field-conventions` the schema and validator point at.                                                                                                                                                                                                                                                                                                                                                                              | Schema `description` strings — too cramped for compliant/non-compliant pairs and rationale. Starter YAML inline comments — can't carry a non-compliant example without confusing the example.                                                                                                                                                                                                                          |
 | **K2. `professionalTitle` shape**         | **Rank token** — a single capitalised seniority word (`Associate`, `Senior`, `Staff`) or the form `Level <numeral>`. The formatter composes it with the discipline's `roleTitle`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | **Role-complete** (`Senior Engineer`) — drops the `{roleTitle}` join; obsoletes the starter shape and the existing else-branch in `generateJobTitle`. **Marker-distinguished** — adds a per-level flag for an inconsistency we are removing.                                                                                                                                                                            |
-| **K3. `professionalTitle` rule**          | Two validator checks, both required. **(a) Shape:** `^(?:Level [IVX]+\|Level \d+\|[A-Z][a-z]+)$` — `Level <roman>`, `Level <digit>`, or one capitalised word (no spaces). Rejects `"Senior Engineer"` (two words) and `"engineer"` (lower-case). **(b) Disjointness:** every token in `professionalTitle` must be absent from every discipline's `roleTitle` token set in the same standard. Rejects `"Engineer"` when any discipline carries `roleTitle: "Software Engineer"` — `Engineer` ∈ {Software, Engineer}.                                                                                                                                       | Shape-only — a single word like `"Engineer"` passes a shape regex but still ships the bug. Allow-list of exact rank words — couples the rule to a closed vocabulary the author cannot extend. Cross-check disabled by default — the cross-check is what makes the rule catch the spec's exact repro.                                                                                                                  |
+| **K3. `professionalTitle` rule**          | Two predicate checks, both required. **(a) Shape:** `^(?:Level [IVX]+\|Level \d+\|[A-Z][a-z]+)$` — `Level <roman>`, `Level <digit>`, or one capitalised word (no spaces). Rejects `"Senior Engineer"` (two words) and `"engineer"` (lower-case). **(b) Disjointness:** the case-folded, whitespace-split token set of `professionalTitle` (excluding the literal `Level`) must be disjoint from the token set of **every** discipline's `roleTitle` in the same standard, where tokenisation splits on `\s+` after stripping `[^A-Za-z0-9]+`. Rejects `"Engineer"` when any discipline carries `roleTitle: "Software Engineer"` — `{engineer}` ∩ `{software, engineer}` ≠ ∅. The cross-check needs all disciplines; (a) and (b) live as two separate exports, and the validator surfaces them through orchestration (see Interfaces).                                                                                                            | Shape-only — a single word like `"Engineer"` passes a shape regex but still ships the bug. Allow-list of exact rank words — couples the rule to a closed vocabulary the author cannot extend. Cross-check skipping `Level` literal — `Level I` versus discipline `roleTitle: "Software Engineer Level"` is contrived; excluding `Level` keeps the rule's surface small.                                                  |
 | **K4. `autonomyExpectation` shape**       | **Base/imperative verb** — opens with an infinitive (`Work…`, `Lead…`, `Define…`). Composes into `"You will " + lowercase(value)` without normalisation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | **Third-person** (`Works…`) — requires verb-form normalisation in the formatter, hiding the bug. **Either, formatter normalises** — normalisation across irregulars and elided subjects is brittle; the contract is cheaper.                                                                                                                                                                                            |
-| **K5. `autonomyExpectation` rule**        | One regex check on the first token. The first token must not match `^[A-Z][a-z]*[^s]s$` — a capitalised word ending in lowercase `s` preceded by a non-`s` letter (catches `Works`, `Owns`, `Drives`, `Leads`, `Defines`, `Manages`, `Coordinates`, `Builds`, `Develops`, `Implements`, `Architects`, `Reviews`, `Runs`, `Tests`, `Steers`, `Directs`, …). And must not exactly equal `Is` or `Has` (copular subject-omission). Subject-led sentences (`The team…`, `You…`) pass the first-token check; spec scope does not include subject detection. | Closed verb stop-list — incomplete by construction; reviewers had to grow it ad-hoc. JSON-schema `pattern` — cannot express "not -s after non-s" cleanly across all third-person verbs. Allow-list of permitted verbs — couples the rule to a closed vocabulary.                                                                                                                                                       |
-| **K6. Enforcement substrate**             | Validator owns the **rule predicates**; two call sites invoke them. (1) `validateLevel` in `products/map/src/validation/level.js` for `fit-map validate`. (2) `deriveJob` in `libraries/libskill/src/derivation.js` calls the same predicates and throws a structured `Error` keyed by field path before composing strings. The validator exports `isCompliantProfessionalTitle(level, disciplines)` and `isCompliantAutonomyExpectation(level)` so the second call site cannot drift.                                                                                                                                                                  | **Validator-only** — `fit-pathway job` does not invoke `fit-map validate` today (see `products/pathway/src/commands/job.js`); the render path bypasses the gate and ships the bug. **Formatter-side normalisation** — spec forbids ("contract is the contract"). **Schema `pattern`** — cannot express disjointness; "one home per decision" is preserved because both call sites import the same exported predicate. |
+| **K5. `autonomyExpectation` rule**        | One regex check on the first whitespace-delimited token. Reject when the token matches `^[A-Z][a-z]*[^s]s$` — a capitalised word ending in lowercase `s` preceded by a non-`s` letter (catches `Works`, `Owns`, `Drives`, `Leads`, `Defines`, `Manages`, `Coordinates`, `Builds`, `Develops`, `Implements`, `Architects`, `Reviews`, `Runs`, `Tests`, `Steers`, `Directs`, …; also catches `Has`). Also reject the exact two-character token `Is` (copular subject-omission too short for the regex). Subject-led sentences (`The team…`, `You…`) pass the first-token check; spec scope does not include subject detection. | Closed verb stop-list — incomplete by construction; reviewers had to grow it ad-hoc. JSON-schema `pattern` — cannot express "not -s after non-s" cleanly across all third-person verbs. Allow-list of permitted verbs — couples the rule to a closed vocabulary.                                                                                                                                                       |
+| **K6. Enforcement substrate**             | `products/map/src/validation/level.js` owns the **rule predicates** (`checkProfessionalTitleShape(value)`, `checkProfessionalTitleDisjoint(level, disciplines)`, `checkAutonomyExpectation(value)`). Two call sites invoke them. (1) `validateLevels` in `products/map/src/validation.js` for `fit-map validate` — collects errors, does not throw. (2) `loadStandardConfig` in `products/map/src/loader.js` for the render path — throws a structured `Error` keyed by field path before returning the standard, so non-compliant data never reaches `runJobCommand`, `--list`, `dev`, `build`, or any other consumer. Loader-side enforcement covers every leaf formatter (`generateJobTitle`, `buildAutonomySentence`, progress, interview, slide) without modifying each. | **Validator-only at `fit-map validate`** — `fit-pathway job` does not invoke `fit-map validate` today; the render path bypasses the gate and ships the bug. **Gate inside `deriveJob`** — `generateJobTitle` is also called outside `deriveJob` (`products/pathway/src/commands/job.js:49` `printJobList`, progress/interview formatters), so the gate would not cover `--list`. **Gate inside each leaf formatter** — multiplies the call into ~5 sites, each with its own error-handling surface. **Formatter-side normalisation** — spec forbids ("contract is the contract"). **Schema `pattern`** — cannot express disjointness. |
 | **K7. Synthetic-prose prompt**            | `libraries/libsyntheticprose/src/prompts/pathway/level.js` is the single emitter of these fields. The "use the provided title or generate one" instruction (line 49) is replaced by two explicit branches: (a) when the DSL skeleton supplies `professionalTitle`, the prompt passes it through verbatim; (b) when it does not, the prompt instructs `Level <roman>` derived from `rank`. `autonomyExpectation` instructions inline the contract: "one sentence opening with a base-form verb (`Work…`, `Lead…`, `Define…`); never third-person (`Works…`)."                                                                                                | Post-processing pass — parallel enforcement path that drifts. Schema-driven generation — overkill for two fields. Leaving the prompt unchanged — drops the contract on the LLM with no instruction.                                                                                                                                                                                                                  |
 | **K8. DSL seed alignment**                | `data/synthetic/story.dsl` levels block (lines 570–576) rewrites the six `title` strings as single-word rank tokens, one per level: **`J040: Associate, J060: Mid, J070: Senior, J080: Staff, J090: Principal, J100: Distinguished`**. The DSL `title` field semantically becomes "rank token" only; the existing `rank` integer remains the schema's `ordinalRank`. A comment in `story.dsl` above `levels {` names the contract and links to the canonical home. The parser at `libraries/libsyntheticgen/src/dsl/parser-standard.js:66` is unchanged — it still maps DSL `title` → `professionalTitle` verbatim; only the *values* the DSL writes change.                                                                                                                       | Derive `professionalTitle` from `rank` only — locks every standard to `Level <N>` and drops named seniority words the spec admits. Leave DSL role-complete and reshape downstream — keeps the bug source alive; any future regen reintroduces "Engineer Engineer".                                                                                                                                                     |
 | **K9. BioNova regeneration command**      | `bunx fit-terrain build --only=pathway` against `data/synthetic/story.dsl` at the `seed 42` directive embedded in the DSL (line 6). No separate pin file; the seed is in the DSL the command consumes.                                                                                                                                                                                                                                                                                                                                                                                                                                                | Separate seed-pin file — duplicates the DSL's own `seed` directive. Regenerating the entire terrain — slow; only `pathway` output is needed for the spec's BioNova parity test.                                                                                                                                                                                                                                       |
@@ -61,43 +64,49 @@ cannot be bypassed by a caller that forgets to pre-validate.
 sequenceDiagram
   participant A as Author / Prose
   participant L as levels.yaml
-  participant V as validateLevel
-  participant D as libskill.deriveJob
-  participant F as generateJobTitle<br/>buildAutonomySentence
+  participant V as validateLevels<br/>(fit-map validate)
+  participant Ld as loadStandardConfig<br/>(render path)
+  participant F as generateJobTitle<br/>buildAutonomySentence<br/>list / progress / interview
   A->>L: write fields
-  L->>V: fit-map validate (batch)
-  V-->>A: INVALID_VALUE if rule fails
-  L->>D: render path (npx fit-pathway job, dev, future web)
-  D->>D: invoke isCompliant* predicates
-  D-->>A: throw with field path + anchor URL if rule fails
-  D->>F: compose strings (predicates passed)
+  L->>V: batch run
+  V-->>A: INVALID_VALUE errors
+  L->>Ld: render command starts
+  Ld->>Ld: invoke check* predicates
+  Ld-->>A: throw with field path + anchor URL on first violation
+  Ld->>F: pass standard (predicates passed)
   F-->>A: rendered markdown
 ```
 
-The render-path gate is what makes the spec's "caught before render" claim
-true. `deriveJob` is the single function every render surface calls; failing
-fast there is structurally cheaper than persuading every consumer to opt into
-`fit-map validate`.
+The loader-side gate is what makes the spec's "caught before render" claim
+true. Every render command — `npx fit-pathway job [--list]`, `dev`, `build`,
+`update` — funnels through `loadStandardConfig`; failing fast there
+structurally cannot be bypassed by a leaf formatter.
 
 ## Interfaces
 
 **Validator** (`products/map/src/validation/level.js`)
 
-Exports two pure predicates plus their wrappers:
+Three exported pure predicates:
 
-- `isCompliantProfessionalTitle(value, disciplines): { ok, reason? }`
-- `isCompliantAutonomyExpectation(value): { ok, reason? }`
+- `checkProfessionalTitleShape(value): { ok, reason? }` — K3(a)
+- `checkProfessionalTitleDisjoint(level, disciplines): { ok, reason? }` — K3(b)
+- `checkAutonomyExpectation(value): { ok, reason? }` — K5
 
-`validateLevel` keeps its signature; the predicate output is converted into
-`INVALID_VALUE` errors with `path` and a `hint` pointing at the canonical-home
-anchor. The cross-check signature accepts `disciplines` because K3(b) needs the
-roleTitle token set; the loader passes them through.
+`validateLevel(level, index)` keeps its signature and invokes the
+non-cross-discipline checks (K3(a), K5). The K3(b) cross-check lives in
+`validateLevels` (the orchestrator in `validation.js:126`, which already holds
+the full disciplines array), which iterates levels and calls
+`checkProfessionalTitleDisjoint` once per level. The orchestrator converts
+predicate output into `INVALID_VALUE` errors with `path` and a `hint`
+pointing at the canonical-home anchor.
 
-**Render path** (`libraries/libskill/src/derivation.js`)
+**Loader** (`products/map/src/loader.js`)
 
-`deriveJob` calls the predicates near its top (after the existing
-`_isValidJobCombination` check at line 293) and throws an `Error` with shape
-`{ field: "level.professionalTitle" | "level.expectations.autonomyExpectation", value, reason, contractUrl }`. Callers handle or surface the error; `fit-pathway job` surfaces it as a non-zero exit.
+`loadStandardConfig` invokes the same three predicates after parsing YAML and
+before returning the standard object. On the first failure it throws an
+`Error` shaped `{ field, value, reason, contractUrl }`; callers
+(`runJobCommand`, `dev`, `build`, `update`) surface it as a non-zero exit
+with a clear message and the URL.
 
 **Schema** — `description` strings updated per K11. No `pattern` added.
 
@@ -113,17 +122,23 @@ in the same module so a follow-up spec can add parallel rules cleanly.
 
 ## Risks
 
-- **K3(b) cross-check assumes the loader can pass disciplines.** `deriveJob`
-  already receives `discipline` (one), not all disciplines. **Mitigation:**
-  K3(b) is checked at validator-level (which has the full data set) and at
-  render-level with only the `discipline` being rendered against. Both
-  catch the spec's repro; the validator catches cross-discipline collisions
-  the render path can't see.
-- **K5 regex false positives.** A base-form verb ending in single `s`
-  (`Focus`, `Cross`) would pass; one ending in `-s` after `-s`-less letter
-  is rare in English imperatives but possible. **Mitigation:** the contract
-  document carries the English rule for novel cases; the validator predicate
-  is one regex in one file — swap-in cost is low; the rule lives behind a
-  named export so call sites do not change.
+- **Loader-side throw changes user-visible behaviour.** `loadStandardConfig`
+  currently returns even when validation would flag issues; this design
+  makes it throw on contract violations. **Mitigation:** the throw carries
+  the field path and the contract URL — clearer than the current "job
+  renders garbage" silent failure; the existing `--validate` subflag still
+  runs `validateLevels` for fuller diagnostics.
+- **K5 regex false positives.** A rare base-form imperative ending in
+  lowercase `s` after a non-`s` letter (`Focus on…`) would be rejected.
+  **Mitigation:** the contract document carries the English rule for novel
+  cases; the regex lives behind one named export so a future revision can
+  add an allow-list head without changing call sites.
+- **K8 ladder reshuffle is observable.** Renaming `J080 Lead Engineer` →
+  `J080 Staff` (and so on) changes the seniority words the BioNova-derived
+  pathway artifacts emit, including any cached prose. **Mitigation:** the
+  DSL is internal; `fit-terrain build --only=pathway` is fast; consumers
+  that hold prior outputs (kata-interview corpora) regenerate as a routine
+  part of the spec's BioNova parity test (K9). The plan names a
+  cache-invalidation step.
 
 — Staff Engineer 🛠️
