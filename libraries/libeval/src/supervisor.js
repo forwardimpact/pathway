@@ -100,7 +100,7 @@ export class Supervisor {
   /**
    * Run the supervisor ↔ agent relay loop.
    * @param {string} task - The initial task for the supervisor
-   * @returns {Promise<{success: boolean, turns: number}>}
+   * @returns {Promise<{success: boolean, turns: number, concluded: boolean}>}
    */
   async run(task) {
     const initialTask = this.taskAmend ? `${task}\n\n${this.taskAmend}` : task;
@@ -110,7 +110,7 @@ export class Supervisor {
 
     if (supervisorResult.error) {
       this.emitSummary({ success: false, turns: 0 });
-      return { success: false, turns: 0 };
+      return { success: false, turns: 0, concluded: false };
     }
 
     if (this.ctx.concluded) {
@@ -121,7 +121,7 @@ export class Supervisor {
         turns: 0,
         summary: this.ctx.summary,
       });
-      return { success, turns: 0 };
+      return { success, turns: 0, concluded: true };
     }
 
     let pendingRelay = null;
@@ -131,16 +131,20 @@ export class Supervisor {
         pendingRelay ?? this.#buildInitialRelay(supervisorResult.text);
 
       const turnOutcome = await this.#runAgentTurn(turn, relay);
-      if (turnOutcome.exit) return turnOutcome.exit;
+      if (turnOutcome.exit) {
+        return { ...turnOutcome.exit, concluded: this.ctx.concluded };
+      }
 
       const reviewOutcome = await this.#endOfTurnReview(turn);
-      if (reviewOutcome.exit) return reviewOutcome.exit;
+      if (reviewOutcome.exit) {
+        return { ...reviewOutcome.exit, concluded: this.ctx.concluded };
+      }
       supervisorResult = reviewOutcome.supervisorResult;
       pendingRelay = reviewOutcome.relay ?? null;
     }
 
     this.emitSummary({ success: false, turns: this.maxTurns });
-    return { success: false, turns: this.maxTurns };
+    return { success: false, turns: this.maxTurns, concluded: false };
   }
 
   #buildInitialRelay(fallbackText) {

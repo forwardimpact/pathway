@@ -99,6 +99,7 @@ describe("Supervisor - run and turns", () => {
 
     assert.strictEqual(result.success, true);
     assert.strictEqual(result.turns, 0);
+    assert.strictEqual(result.concluded, true);
     assert.strictEqual(ctx.summary, "All tasks complete");
   });
 
@@ -138,6 +139,7 @@ describe("Supervisor - run and turns", () => {
 
     assert.strictEqual(result.success, true);
     assert.strictEqual(result.turns, 1);
+    assert.strictEqual(result.concluded, true);
   });
 
   test("relays only the last assistant text block to the agent", async () => {
@@ -285,6 +287,46 @@ describe("Supervisor - run and turns", () => {
 
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.turns, 2);
+    assert.strictEqual(result.concluded, false);
+  });
+
+  test("concluded=true even when verdict is failure", async () => {
+    const { ctx, messageBus } = seedSupervise();
+    const concludeHandler = createConcludeHandler(ctx);
+
+    const agentRunner = createMockRunner([
+      { text: "I did the work but it's wrong." },
+    ]);
+
+    const supervisorRunner = createMockRunner(
+      [
+        { text: "Please do the work." },
+        { text: "That is not acceptable." },
+      ],
+      [undefined, [concludeMsg("Agent failed the task", "failure")]],
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+        },
+      },
+    );
+
+    const output = new PassThrough();
+    const supervisor = new Supervisor({
+      agentRunner,
+      supervisorRunner,
+      output,
+      maxTurns: 10,
+      ctx,
+      messageBus,
+      redactor: noop(),
+    });
+
+    const result = await supervisor.run("Do the work");
+
+    assert.strictEqual(result.success, false);
+    assert.strictEqual(result.turns, 1);
+    assert.strictEqual(result.concluded, true);
   });
 
   test("agent Ask → supervisor Answer round-trip", async () => {

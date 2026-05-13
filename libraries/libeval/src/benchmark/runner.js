@@ -267,7 +267,7 @@ export class BenchmarkRunner {
     let agentError = null;
     try {
       const result = await supervisor.run(instructions);
-      if (!result.success) {
+      if (!result.success && !result.concluded) {
         agentError = { message: "supervisor did not succeed", aborted: false };
       }
     } catch (e) {
