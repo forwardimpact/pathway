@@ -108,14 +108,21 @@ export class BenchmarkRunner {
         : this.familyInput;
 
     await mkdir(this.output, { recursive: true });
-    const { stagingDir, skillSetHash, judgeProfilesDir } = await installApm(family, this.output);
+    const { stagingDir, skillSetHash, judgeProfilesDir } = await installApm(
+      family,
+      this.output,
+    );
 
     const tasks = family.tasks();
     for (const task of tasks) {
       await assertPreflightExecutable(task);
     }
     if (this.profiles.judge) {
-      await assertJudgeProfileStaged(family, judgeProfilesDir, this.profiles.judge);
+      await assertJudgeProfileStaged(
+        family,
+        judgeProfilesDir,
+        this.profiles.judge,
+      );
     }
 
     const wm = createWorkdirManager({
@@ -208,7 +215,11 @@ export class BenchmarkRunner {
           supervisor: null,
           judge: this.profiles.judge,
         },
-        model: { agent: this.agentModel, supervisor: this.supervisorModel, judge: this.judgeModel },
+        model: {
+          agent: this.agentModel,
+          supervisor: this.supervisorModel,
+          judge: this.judgeModel,
+        },
         skillSetHash,
         familyRevision: family.familyRevision,
         durationMs: Date.now() - t0,
@@ -321,7 +332,11 @@ export class BenchmarkRunner {
         supervisor: null,
         judge: this.profiles.judge,
       },
-      model: { agent: this.agentModel, supervisor: this.supervisorModel, judge: this.judgeModel },
+      model: {
+        agent: this.agentModel,
+        supervisor: this.supervisorModel,
+        judge: this.judgeModel,
+      },
       skillSetHash,
       familyRevision,
       durationMs,

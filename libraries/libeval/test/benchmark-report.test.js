@@ -163,7 +163,11 @@ describe("aggregate with includeRuns", () => {
     assert.strictEqual(report.totals.costUsd, 0.4);
     assert.strictEqual(report.totals.medianDurationMs, 5000);
     assert.strictEqual(report.totals.medianTurns, 7);
-    assert.deepStrictEqual(report.totals.model, { agent: "a", supervisor: "s", judge: "j" });
+    assert.deepStrictEqual(report.totals.model, {
+      agent: "a",
+      supervisor: "s",
+      judge: "j",
+    });
     assert.ok(report.totals.skillSetHash);
   });
 

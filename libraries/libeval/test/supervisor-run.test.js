@@ -299,10 +299,7 @@ describe("Supervisor - run and turns", () => {
     ]);
 
     const supervisorRunner = createMockRunner(
-      [
-        { text: "Please do the work." },
-        { text: "That is not acceptable." },
-      ],
+      [{ text: "Please do the work." }, { text: "That is not acceptable." }],
       [undefined, [concludeMsg("Agent failed the task", "failure")]],
       {
         toolDispatcher: {

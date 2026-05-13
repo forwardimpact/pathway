@@ -46,7 +46,11 @@ const COMMON_FIELDS = {
   costUsd: z.number(),
   turns: z.number().int().min(0),
   profiles: PROFILES_SHAPE,
-  model: z.object({ agent: z.string(), supervisor: z.string(), judge: z.string() }),
+  model: z.object({
+    agent: z.string(),
+    supervisor: z.string(),
+    judge: z.string(),
+  }),
   skillSetHash: z.string(),
   familyRevision: z.string(),
   durationMs: z.number().int().min(0),

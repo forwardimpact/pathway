@@ -151,8 +151,7 @@ const definition = {
         },
         "agent-model": {
           type: "string",
-          description:
-            "Claude model for agents (default: claude-opus-4-7[1m])",
+          description: "Claude model for agents (default: claude-opus-4-7[1m])",
         },
         "facilitator-model": {
           type: "string",

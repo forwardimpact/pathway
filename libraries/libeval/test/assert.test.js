@@ -47,18 +47,18 @@ describe("fit-trace assert", () => {
 
     test("--not inverts: fail when file exists", () => {
       const file = tmpFile("hello");
-      const result = evaluateAssertion(
-        { exists: true, not: true },
-        ["should-be-gone", file],
-      );
+      const result = evaluateAssertion({ exists: true, not: true }, [
+        "should-be-gone",
+        file,
+      ]);
       assert.strictEqual(result.pass, false);
     });
 
     test("--not inverts: pass when file missing", () => {
-      const result = evaluateAssertion(
-        { exists: true, not: true },
-        ["should-be-gone", "/tmp/no-such-file-ever-" + Date.now()],
-      );
+      const result = evaluateAssertion({ exists: true, not: true }, [
+        "should-be-gone",
+        "/tmp/no-such-file-ever-" + Date.now(),
+      ]);
       assert.strictEqual(result.pass, true);
       assert.strictEqual(result.message, undefined);
     });
@@ -67,29 +67,29 @@ describe("fit-trace assert", () => {
   describe("--grep", () => {
     test("pass when pattern matches", () => {
       const file = tmpFile("## Problem\nSome description");
-      const result = evaluateAssertion(
-        { grep: "^## Problem" },
-        ["has-problem", file],
-      );
+      const result = evaluateAssertion({ grep: "^## Problem" }, [
+        "has-problem",
+        file,
+      ]);
       assert.deepStrictEqual(result, { test: "has-problem", pass: true });
     });
 
     test("fail when pattern does not match", () => {
       const file = tmpFile("## Introduction\nSome text");
-      const result = evaluateAssertion(
-        { grep: "^## Problem" },
-        ["has-problem", file],
-      );
+      const result = evaluateAssertion({ grep: "^## Problem" }, [
+        "has-problem",
+        file,
+      ]);
       assert.strictEqual(result.pass, false);
       assert.ok(result.message.includes("not found"));
     });
 
     test("case insensitive", () => {
       const file = tmpFile("## problem\nlowercase heading");
-      const result = evaluateAssertion(
-        { grep: "^## Problem" },
-        ["has-problem", file],
-      );
+      const result = evaluateAssertion({ grep: "^## Problem" }, [
+        "has-problem",
+        file,
+      ]);
       assert.strictEqual(result.pass, true);
     });
 
@@ -133,37 +133,31 @@ describe("fit-trace assert", () => {
   describe("--query", () => {
     test("pass on truthy JMESPath result", () => {
       const file = tmpJson({ name: "spec", valid: true });
-      const result = evaluateAssertion(
-        { query: "name" },
-        ["has-name", file],
-      );
+      const result = evaluateAssertion({ query: "name" }, ["has-name", file]);
       assert.deepStrictEqual(result, { test: "has-name", pass: true });
     });
 
     test("fail on null result", () => {
       const file = tmpJson({ name: "spec" });
-      const result = evaluateAssertion(
-        { query: "missing" },
-        ["has-missing", file],
-      );
+      const result = evaluateAssertion({ query: "missing" }, [
+        "has-missing",
+        file,
+      ]);
       assert.strictEqual(result.pass, false);
     });
 
     test("fail on empty array result", () => {
       const file = tmpJson({ items: [] });
-      const result = evaluateAssertion(
-        { query: "items" },
-        ["has-items", file],
-      );
+      const result = evaluateAssertion({ query: "items" }, ["has-items", file]);
       assert.strictEqual(result.pass, false);
     });
 
     test("fail on false result", () => {
       const file = tmpJson({ enabled: false });
-      const result = evaluateAssertion(
-        { query: "enabled" },
-        ["is-enabled", file],
-      );
+      const result = evaluateAssertion({ query: "enabled" }, [
+        "is-enabled",
+        file,
+      ]);
       assert.strictEqual(result.pass, false);
     });
 
@@ -172,10 +166,10 @@ describe("fit-trace assert", () => {
         { type: "system", subtype: "init" },
         { type: "assistant", tool: "Edit" },
       ]);
-      const result = evaluateAssertion(
-        { query: "[?tool=='Edit']" },
-        ["used-edit", file],
-      );
+      const result = evaluateAssertion({ query: "[?tool=='Edit']" }, [
+        "used-edit",
+        file,
+      ]);
       assert.strictEqual(result.pass, true);
     });
 
@@ -184,19 +178,19 @@ describe("fit-trace assert", () => {
         { type: "system", subtype: "init" },
         { type: "assistant", tool: "Read" },
       ]);
-      const result = evaluateAssertion(
-        { query: "[?tool=='Edit']" },
-        ["used-edit", file],
-      );
+      const result = evaluateAssertion({ query: "[?tool=='Edit']" }, [
+        "used-edit",
+        file,
+      ]);
       assert.strictEqual(result.pass, false);
     });
 
     test("--not inverts query result", () => {
       const file = tmpJson({ name: "spec" });
-      const result = evaluateAssertion(
-        { query: "name", not: true },
-        ["no-name", file],
-      );
+      const result = evaluateAssertion({ query: "name", not: true }, [
+        "no-name",
+        file,
+      ]);
       assert.strictEqual(result.pass, false);
     });
   });
@@ -206,13 +200,11 @@ describe("fit-trace assert", () => {
       const jobFile = tmpFile(
         '<job user="Platform Builders" goal="Prove Agent Changes">',
       );
-      const spec = tmpFile(
-        "## JTBD\nPlatform Builders: Prove Agent Changes\n",
-      );
-      const result = evaluateAssertion(
-        { "cites-job": jobFile },
-        ["cites-jtbd", spec],
-      );
+      const spec = tmpFile("## JTBD\nPlatform Builders: Prove Agent Changes\n");
+      const result = evaluateAssertion({ "cites-job": jobFile }, [
+        "cites-jtbd",
+        spec,
+      ]);
       assert.deepStrictEqual(result, { test: "cites-jtbd", pass: true });
     });
 
@@ -221,10 +213,10 @@ describe("fit-trace assert", () => {
         '<job user="Platform Builders" goal="Prove Agent Changes">',
       );
       const spec = tmpFile("## Problem\nNo JTBD cited here.\n");
-      const result = evaluateAssertion(
-        { "cites-job": jobFile },
-        ["cites-jtbd", spec],
-      );
+      const result = evaluateAssertion({ "cites-job": jobFile }, [
+        "cites-jtbd",
+        spec,
+      ]);
       assert.strictEqual(result.pass, false);
       assert.ok(result.message.includes("Prove Agent Changes"));
     });
@@ -232,10 +224,10 @@ describe("fit-trace assert", () => {
     test("fail when no <job> tag in excerpt", () => {
       const jobFile = tmpFile("no tags here");
       const spec = tmpFile("## Problem\nSome content.\n");
-      const result = evaluateAssertion(
-        { "cites-job": jobFile },
-        ["cites-jtbd", spec],
-      );
+      const result = evaluateAssertion({ "cites-job": jobFile }, [
+        "cites-jtbd",
+        spec,
+      ]);
       assert.strictEqual(result.pass, false);
       assert.ok(result.message.includes("no <job> tag"));
     });
@@ -252,10 +244,10 @@ describe("fit-trace assert", () => {
     test("throws when multiple modes specified", () => {
       assert.throws(
         () =>
-          evaluateAssertion(
-            { grep: "pattern", exists: true },
-            ["test-name", "/tmp/file"],
-          ),
+          evaluateAssertion({ grep: "pattern", exists: true }, [
+            "test-name",
+            "/tmp/file",
+          ]),
         /specify only one/,
       );
     });
@@ -285,20 +277,20 @@ describe("fit-trace assert", () => {
   describe("output shape", () => {
     test("no message field when passing", () => {
       const file = tmpFile("## Problem");
-      const result = evaluateAssertion(
-        { grep: "^## Problem" },
-        ["has-problem", file],
-      );
+      const result = evaluateAssertion({ grep: "^## Problem" }, [
+        "has-problem",
+        file,
+      ]);
       assert.strictEqual(result.pass, true);
       assert.strictEqual("message" in result, false);
     });
 
     test("message field present when failing", () => {
       const file = tmpFile("no heading");
-      const result = evaluateAssertion(
-        { grep: "^## Problem" },
-        ["has-problem", file],
-      );
+      const result = evaluateAssertion({ grep: "^## Problem" }, [
+        "has-problem",
+        file,
+      ]);
       assert.strictEqual(result.pass, false);
       assert.strictEqual(typeof result.message, "string");
     });

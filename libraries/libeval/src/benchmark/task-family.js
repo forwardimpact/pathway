@@ -83,12 +83,9 @@ export async function assertJudgeProfileStaged(
   try {
     await access(candidate);
   } catch {
-    throw new Error(
-      `judge profile not staged: ${candidate}`,
-    );
+    throw new Error(`judge profile not staged: ${candidate}`);
   }
 }
-
 
 async function discoverTasks(rootPath) {
   const tasksRoot = join(rootPath, "tasks");

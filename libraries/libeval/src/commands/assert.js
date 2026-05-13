@@ -112,7 +112,10 @@ function assertCitesJob(jobFile, file) {
   const jobContent = readFileSync(jobFile, "utf8");
   const match = JOB_TAG_RE.exec(jobContent);
   if (!match) {
-    return { pass: false, message: `no <job> tag found in ${basename(jobFile)}` };
+    return {
+      pass: false,
+      message: `no <job> tag found in ${basename(jobFile)}`,
+    };
   }
   const citation = `${match[1]}: ${match[2]}`;
   const content = readFileSync(file, "utf8");

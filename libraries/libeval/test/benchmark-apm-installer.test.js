@@ -14,7 +14,10 @@ describe("installApm", () => {
   test("runs apm install and stages .claude/ with a stable skillSetHash", async () => {
     const family = await loadTaskFamily(FIXTURE);
     const out = await mkdtemp(join(tmpdir(), "benchmark-apm-"));
-    const { stagingDir, skillSetHash, judgeProfilesDir } = await installApm(family, out);
+    const { stagingDir, skillSetHash, judgeProfilesDir } = await installApm(
+      family,
+      out,
+    );
     assert.strictEqual(stagingDir, join(out, ".apm-staging"));
     assert.match(skillSetHash, /^sha256:[0-9a-f]{64}$/);
     await access(join(stagingDir, ".claude", "skills", "noop", "SKILL.md"));
@@ -54,8 +57,14 @@ describe("installApm", () => {
 
   test("throws when apm install does not produce .claude/", async () => {
     const dir = await mkdtemp(join(tmpdir(), "benchmark-apm-no-claude-"));
-    await writeFile(join(dir, "apm.yml"), "name: empty\nversion: 0.0.0\ndependencies:\n  apm: []\n");
-    await writeFile(join(dir, "apm.lock.yaml"), "apm_lock_version: 1\ndependencies: []\n");
+    await writeFile(
+      join(dir, "apm.yml"),
+      "name: empty\nversion: 0.0.0\ndependencies:\n  apm: []\n",
+    );
+    await writeFile(
+      join(dir, "apm.lock.yaml"),
+      "apm_lock_version: 1\ndependencies: []\n",
+    );
     const family = await loadTaskFamily(dir);
     await assert.rejects(
       installApm(family, await mkdtemp(join(tmpdir(), "benchmark-apm-out-"))),

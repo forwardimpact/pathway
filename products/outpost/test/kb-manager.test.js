@@ -144,7 +144,8 @@ describe("KBManager", () => {
     beforeEach(() => {
       mockFs = createKBMockFs({
         "/tpl/CLAUDE.md": "# Instructions",
-        "/tpl/apm.yml": "name: outpost\nversion: 0.0.0\ndependencies:\n  apm:\n    - forwardimpact/fit-skills\n",
+        "/tpl/apm.yml":
+          "name: outpost\nversion: 0.0.0\ndependencies:\n  apm:\n    - forwardimpact/fit-skills\n",
         "/tpl/.claude/settings.json": '{"permissions":{}}',
         "/tpl/.claude/agents/postman.md": "postman content",
         "/tpl/.claude/agents/librarian.md": "librarian content",
@@ -200,7 +201,9 @@ describe("KBManager", () => {
 
     test("copies apm.yml to destination root", () => {
       km.copyBundledFiles("/tpl", "/dest");
-      assert.ok(mockFs.data.get("/dest/apm.yml").includes("forwardimpact/fit-skills"));
+      assert.ok(
+        mockFs.data.get("/dest/apm.yml").includes("forwardimpact/fit-skills"),
+      );
     });
 
     test("skips apm.yml when template has none", () => {

@@ -45,12 +45,11 @@ export async function installApm(family, outputDir) {
 
   const lockPath = join(family.rootPath, "apm.lock.yaml");
   const lockBytes = await readFile(lockPath).catch(() => {
-    throw new Error(
-      `apm install did not produce apm.lock.yaml at ${lockPath}`,
-    );
+    throw new Error(`apm install did not produce apm.lock.yaml at ${lockPath}`);
   });
   const skillSetHash =
-    "sha256:" + createHash("sha256").update(normalizeLf(lockBytes)).digest("hex");
+    "sha256:" +
+    createHash("sha256").update(normalizeLf(lockBytes)).digest("hex");
 
   return { stagingDir, skillSetHash, judgeProfilesDir };
 }
@@ -72,7 +71,9 @@ function runApmInstall(cwd) {
     });
     let stderr = "";
     child.stdout.on("data", () => {});
-    child.stderr.on("data", (d) => { stderr += d.toString(); });
+    child.stderr.on("data", (d) => {
+      stderr += d.toString();
+    });
     child.on("error", (e) => {
       rej(new Error(`failed to spawn apm: ${e.message}`));
     });

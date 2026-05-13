@@ -53,8 +53,7 @@ export const definition = {
         },
         "judge-model": {
           type: "string",
-          description:
-            "Claude model for the judge (default: claude-opus-4-7)",
+          description: "Claude model for the judge (default: claude-opus-4-7)",
         },
         "agent-profile": {
           type: "string",
