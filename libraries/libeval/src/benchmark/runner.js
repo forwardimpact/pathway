@@ -19,7 +19,7 @@ import { access, constants, mkdir, readFile, unlink } from "node:fs/promises";
 import { createInterface } from "node:readline";
 import { join, resolve as resolvePath } from "node:path";
 
-import { createRedactor } from "../redaction.js";
+import { DEFAULT_ENV_ALLOWLIST, createRedactor } from "../redaction.js";
 import { createSupervisor } from "../supervisor.js";
 import { installApm } from "./apm-installer.js";
 import { runJudge } from "./judge.js";
@@ -129,6 +129,7 @@ export class BenchmarkRunner {
       stagingDir,
       runOutputDir: this.output,
       termGraceMs: this.termGraceMs,
+      familyRootPath: family.rootPath,
     });
 
     const resultsPath = join(this.output, "results.jsonl");
@@ -272,7 +273,9 @@ export class BenchmarkRunner {
       maxTurns: this.maxTurns ?? 50,
       allowedTools: BASE_TOOLS,
       ...(this.profiles.agent && { agentProfile: this.profiles.agent }),
-      redactor: createRedactor(),
+      redactor: createRedactor({
+        allowlist: [...DEFAULT_ENV_ALLOWLIST, ...(workdir.envNames ?? [])],
+      }),
     });
     const instructions = await readFile(task.paths.instructions, "utf8");
     let agentError = null;

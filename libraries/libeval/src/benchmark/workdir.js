@@ -13,6 +13,8 @@ import { createServer } from "node:net";
 import { connect } from "node:net";
 import { join } from "node:path";
 
+import { loadEnv } from "./env-loader.js";
+
 const DEFAULT_TERM_GRACE_MS = 5_000;
 
 /**
@@ -25,6 +27,7 @@ const DEFAULT_TERM_GRACE_MS = 5_000;
  * @property {string} agentTracePath
  * @property {string} supervisorTracePath
  * @property {string} judgeTracePath
+ * @property {string[]} [envNames] - Env var names loaded from .env files.
  * @property {{phase: string, message: string, exitCode: number}} [preflightError]
  */
 
@@ -35,12 +38,13 @@ export class WorkdirManager {
    * @param {string} deps.stagingDir - Output of `installApm(...)`.
    * @param {string} deps.runOutputDir - Root run-output directory (parent of `runs/`).
    */
-  constructor({ stagingDir, runOutputDir, termGraceMs }) {
+  constructor({ stagingDir, runOutputDir, termGraceMs, familyRootPath }) {
     if (!stagingDir) throw new Error("stagingDir is required");
     if (!runOutputDir) throw new Error("runOutputDir is required");
     this.stagingDir = stagingDir;
     this.runOutputDir = runOutputDir;
     this.termGraceMs = termGraceMs ?? DEFAULT_TERM_GRACE_MS;
+    this.familyRootPath = familyRootPath ?? null;
   }
 
   /**
@@ -67,6 +71,12 @@ export class WorkdirManager {
       recursive: true,
     });
 
+    const envDirs = [
+      ...(this.familyRootPath ? [this.familyRootPath] : []),
+      ...(task.paths.taskDir ? [task.paths.taskDir] : []),
+    ];
+    const envNames = envDirs.length > 0 ? await loadEnv(envDirs, cwd) : [];
+
     const port = await allocatePort();
     const agentTracePath = join(runDir, "agent.ndjson");
     const supervisorTracePath = join(runDir, "supervisor.ndjson");
@@ -84,6 +94,7 @@ export class WorkdirManager {
       agentTracePath,
       supervisorTracePath,
       judgeTracePath,
+      envNames,
       ...(preflight.error && { preflightError: preflight.error }),
     };
   }

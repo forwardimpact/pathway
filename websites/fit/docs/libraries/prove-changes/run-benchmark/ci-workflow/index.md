@@ -89,6 +89,33 @@ CI-specific inputs that have no CLI equivalent:
 Use `results-path` in downstream steps to consume or compare results
 programmatically.
 
+## Task Secrets
+
+Tasks that declare `.env` or `.env.local` files resolve their variables
+from the runner environment. Add the required secrets alongside
+`ANTHROPIC_API_KEY`:
+
+```yaml
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      LLMHUB_NONPROD_API_KEY: ${{ secrets.LLMHUB_NONPROD_API_KEY }}
+      LLMHUB_PROD_API_KEY: ${{ secrets.LLMHUB_PROD_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: forwardimpact/fit-benchmark@v1
+        with:
+          family: ./benchmarks/my-family
+          runs: "5"
+```
+
+The harness reads the task's `.env.local` for var names, resolves each
+from `process.env` (where the GitHub secrets live), and renders the file
+into the agent's working directory. No `prepare.sh` or manual staging
+needed.
+
 ## Scheduled Runs
 
 Add a cron trigger to track outcomes over time:

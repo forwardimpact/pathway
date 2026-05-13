@@ -27,11 +27,15 @@ under test:
 
 ```
 my-coding-family/
+  .env                                   # family env vars (committed defaults)
+  .env.local                             # family secrets (gitignored)
   apm.lock.yaml                          # skill-set manifest (hashed)
   .claude/                               # pre-staged skills + agents
     skills/...
     agents/judge.md
   tasks/todo-api/
+    .env                                 # task env vars — loaded + rendered
+    .env.local                           # task secrets — loaded + rendered (gitignored)
     agent.task.md                        # what the agent should build
     judge.task.md                        # judge prompt (see § judge.task.md)
     supervisor.task.md                   # reserved (v1 doesn't read it)
@@ -193,6 +197,34 @@ hash, which is how comparing "before-skill-change" vs
 > `.claude/` directly without regenerating the lockfile, the hash won't
 > reflect the change. Always re-run your packing tool after editing
 > `.claude/`.
+
+## Environment Variables
+
+The harness auto-discovers `.env` and `.env.local` files in the family
+root and each task directory. Every discovered file is loaded into
+`process.env` and rendered into the agent's working directory before
+`preflight.sh` runs. `process.env` always wins — existing values are
+never overwritten.
+
+- **Locally:** put credentials in `.env.local` (gitignored).
+- **In CI:** set secrets as repository env vars — no files needed.
+
+### Example
+
+A task that calls an LLM proxy:
+
+```sh
+# tasks/my-rag-task/.env.local (gitignored)
+LLMHUB_NONPROD_API_KEY=your-key-here
+LLMHUB_PROD_API_KEY=your-key-here
+```
+
+The harness renders this into the agent's CWD as `.env.local` with
+values resolved from `process.env` (CI secrets override file defaults).
+The task's `preflight.sh` can validate the file exists; the agent's
+application reads credentials from it.
+
+All discovered var names are added to the trace redaction allowlist.
 
 ## Run It
 

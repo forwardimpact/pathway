@@ -32,9 +32,13 @@ under test:
 
 ```
 <family>/
+  .env                   # family env vars — loaded into process.env
+  .env.local             # family secrets — loaded into process.env (gitignored)
   apm.lock.yaml          # skill-set manifest (hashed into skillSetHash)
   .claude/               # pre-staged skills + agent profiles
   tasks/<task-name>/
+    .env                  # task env vars — loaded + rendered into agent CWD
+    .env.local            # task secrets — loaded + rendered (gitignored)
     agent.task.md         # agent prompt
     supervisor.task.md    # reserved (v1 doesn't read it)
     judge.task.md         # judge prompt (see § Judge Template Variables)
@@ -50,6 +54,19 @@ Task IDs are directory names under `tasks/` (e.g. `write-feature-spec`).
 Local paths and git URLs are both accepted. `familyRevision` becomes
 `git:<sha>` for git URLs (HEAD at clone time) and `sha256:<digest>`
 for local paths (canonical-tree hash over the file contents).
+
+## Environment Variables
+
+The harness auto-discovers `.env` and `.env.local` files in the family
+root and each task directory. Every discovered file is loaded into
+`process.env` and rendered into the agent's working directory before
+`preflight.sh` runs. `process.env` always wins — existing values are
+never overwritten.
+
+**Locally:** put credentials in `.env.local` (gitignored).
+**In CI:** set secrets as repository env vars — no files needed.
+
+All discovered var names are added to the trace redaction allowlist.
 
 ## Lifecycle
 

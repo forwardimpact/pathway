@@ -103,6 +103,7 @@ async function discoverTasks(rootPath) {
     tasks.push({
       id: entry.name,
       paths: {
+        taskDir,
         instructions: join(taskDir, "agent.task.md"),
         supervisor: join(taskDir, "supervisor.task.md"),
         judge: join(taskDir, "judge.task.md"),
@@ -210,7 +211,7 @@ function run(cmd, args) {
 /**
  * @typedef {object} Task
  * @property {string} id - Task name (directory name under tasks/)
- * @property {{instructions: string, supervisor: string, judge: string, hooks: string, specs: string, workdir: string}} paths
+ * @property {{taskDir: string, instructions: string, supervisor: string, judge: string, hooks: string, specs: string, workdir: string}} paths
  */
 
 /**
