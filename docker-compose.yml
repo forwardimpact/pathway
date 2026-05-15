@@ -172,10 +172,9 @@ services:
     container_name: storage-supabase
     env_file:
       - .env
-      - .env.storage.supabase
     environment:
       SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
-      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_JWT_SECRET: ${SUPABASE_JWT_SECRET}
       DATABASE_URL: postgres://postgres:${DATABASE_PASSWORD}@db.local:5432/postgres?search_path=storage
       FILE_SIZE_LIMIT: 52428800
       STORAGE_BACKEND: file
@@ -210,7 +209,6 @@ services:
     container_name: supabase-db
     env_file:
       - .env
-      - .env.storage.supabase
     environment:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
@@ -233,12 +231,11 @@ services:
     container_name: supabase-kong
     env_file:
       - .env
-      - .env.storage.supabase
     environment:
       KONG_DATABASE: "off"
       KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
-      SUPABASE_ANON_KEY: ${MAP_SUPABASE_ANON_KEY}
-      SUPABASE_SERVICE_KEY: ${MAP_SUPABASE_SERVICE_ROLE_KEY}
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_ROLE_KEY}
     volumes:
       - ./products/map/supabase/kong.yml:/var/lib/kong/kong.yml:ro
     ports:
@@ -258,10 +255,9 @@ services:
     container_name: supabase-map-storage
     env_file:
       - .env
-      - .env.storage.supabase
     environment:
       DATABASE_URL: postgres://postgres:${DATABASE_PASSWORD}@supabase-db.local:5432/postgres
-      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_JWT_SECRET: ${SUPABASE_JWT_SECRET}
       FILE_SIZE_LIMIT: 52428800
       STORAGE_BACKEND: file
       FILE_STORAGE_BACKEND_PATH: /var/lib/storage

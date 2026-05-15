@@ -27,16 +27,16 @@ async function* walk(dir) {
   }
 }
 
-describe("Map ingestion retains MAP_SUPABASE_SERVICE_ROLE_KEY", () => {
-  test("at least one src/ file references the service-role env var", async () => {
+describe("Map ingestion retains the service-role write-path credential", () => {
+  test("at least one src/ file calls config.supabaseServiceRoleKey()", async () => {
     let hits = 0;
     for await (const file of walk(SRC_ROOT)) {
       const body = await readFile(file, "utf8");
-      if (body.includes("MAP_SUPABASE_SERVICE_ROLE_KEY")) hits += 1;
+      if (body.includes("supabaseServiceRoleKey")) hits += 1;
     }
     assert.ok(
       hits >= 1,
-      "Map ingestion must keep at least one reference to MAP_SUPABASE_SERVICE_ROLE_KEY — the write-path credential. " +
+      "Map ingestion must keep at least one call to config.supabaseServiceRoleKey() — the write-path credential. " +
         "Found zero references; ingestion may have been silently migrated to the anon-keyed client.",
     );
   });

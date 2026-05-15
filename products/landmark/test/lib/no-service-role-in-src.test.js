@@ -34,8 +34,10 @@ async function grepRoots(pattern) {
 }
 
 describe("Landmark src/ + bin/ — service-role boundary (criterion 3a)", () => {
-  it("contains no MAP_SUPABASE_SERVICE_ROLE_KEY reference", async () => {
-    const hits = await grepRoots(/MAP_SUPABASE_SERVICE_ROLE_KEY/);
+  it("contains no service-role env literal or accessor reference", async () => {
+    const hits = await grepRoots(
+      /SUPABASE_SERVICE_ROLE_KEY|supabaseServiceRoleKey/,
+    );
     assert.deepEqual(
       hits,
       [],

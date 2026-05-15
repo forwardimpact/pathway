@@ -4,7 +4,7 @@
  *
  * Operator-only verb. Uses the service-role client (which we already need
  * to read `organization_people` and list `auth.users`) to verify both rows
- * exist before signing, then HMACs a JWT against MAP_SUPABASE_JWT_SECRET.
+ * exist before signing, then HMACs a JWT against SUPABASE_JWT_SECRET.
  * Output goes to stdout so the operator can capture it into `.env`, a
  * secret manager, or pipe it to an agent's `LANDMARK_AUTH_TOKEN` setting.
  */

@@ -24,7 +24,8 @@ function makeConfig({ url, anonKey, jwtSecret } = {}) {
       return url;
     },
     supabaseAnonKey: () => {
-      if (!anonKey) throw new Error("SUPABASE_ANON_KEY not found in environment");
+      if (!anonKey)
+        throw new Error("SUPABASE_ANON_KEY not found in environment");
       return anonKey;
     },
     supabaseJwtSecret: () => {

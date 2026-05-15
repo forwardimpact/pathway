@@ -27,16 +27,12 @@ import { runSourcesCommand } from "../src/commands/sources.js";
 import { clearRetentionCache } from "@forwardimpact/map/activity/retention";
 
 function clientFor(email) {
-  return createClient(
-    process.env.SUPABASE_URL,
-    process.env.SUPABASE_ANON_KEY,
-    {
-      db: { schema: "activity" },
-      global: {
-        headers: { Authorization: `Bearer ${signTestToken({ email })}` },
-      },
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY, {
+    db: { schema: "activity" },
+    global: {
+      headers: { Authorization: `Bearer ${signTestToken({ email })}` },
     },
-  );
+  });
 }
 
 describe("Spec 840 — fit-landmark sources", () => {

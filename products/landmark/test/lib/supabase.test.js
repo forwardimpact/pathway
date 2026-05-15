@@ -10,7 +10,8 @@ import {
 function makeConfig({ url = "http://localhost:54321", anonKey = "anon" } = {}) {
   return {
     supabaseUrl: () => {
-      if (url === null) throw new Error("SUPABASE_URL not found in environment");
+      if (url === null)
+        throw new Error("SUPABASE_URL not found in environment");
       return url;
     },
     supabaseAnonKey: () => {

@@ -17,9 +17,7 @@ import { createClient } from "@supabase/supabase-js";
 
 /** Return true when env vars for a running local Supabase stack are set. */
 export function isLiveSupabaseAvailable() {
-  return Boolean(
-    process.env.SUPABASE_URL && process.env.SUPABASE_JWT_SECRET,
-  );
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_JWT_SECRET);
 }
 
 /**

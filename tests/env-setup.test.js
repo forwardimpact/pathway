@@ -149,9 +149,9 @@ describe("scripts/env-setup.js", () => {
       `script failed: ${result.stderr?.toString()}`,
     );
     const stdout = result.stdout?.toString() ?? "";
-    const maskLines = stdout.split("\n").filter((l) =>
-      l.startsWith("::add-mask::"),
-    );
+    const maskLines = stdout
+      .split("\n")
+      .filter((l) => l.startsWith("::add-mask::"));
     assert.strictEqual(maskLines.length, 8);
   });
 });

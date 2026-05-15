@@ -11,9 +11,7 @@ import { createClient } from "@supabase/supabase-js";
 /** Create a Supabase client configured for the activity schema. */
 export function createMapClient({ config, schema = "activity" } = {}) {
   if (!config) throw new Error("createMapClient: config required");
-  return createClient(
-    config.supabaseUrl(),
-    config.supabaseServiceRoleKey(),
-    { db: { schema } },
-  );
+  return createClient(config.supabaseUrl(), config.supabaseServiceRoleKey(), {
+    db: { schema },
+  });
 }

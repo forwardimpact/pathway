@@ -26,7 +26,11 @@ export class SupabaseUnavailableError extends Error {
  * @param {string} [opts.schema] - Database schema (default: "activity").
  * @returns {import("@supabase/supabase-js").SupabaseClient}
  */
-export function createLandmarkClient({ jwt, config, schema = "activity" } = {}) {
+export function createLandmarkClient({
+  jwt,
+  config,
+  schema = "activity",
+} = {}) {
   if (!config)
     throw new SupabaseUnavailableError(
       "Supabase URL + anon key not set. Run `just env-setup`.",
