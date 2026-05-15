@@ -48,6 +48,8 @@ const VERSION =
   JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"))
     .version;
 
+const config = await createProductConfig("landmark");
+
 const COMMANDS = {
   org: { handler: runOrgCommand, needsSupabase: true },
   snapshot: { handler: runSnapshotCommand, needsSupabase: true },
@@ -286,7 +288,6 @@ async function main() {
     process.exit(2);
   }
 
-  const config = await createProductConfig("landmark");
   try {
     const dataDir = resolveDataDir(values);
     let identity = null;

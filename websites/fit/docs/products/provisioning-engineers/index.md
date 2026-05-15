@@ -18,11 +18,13 @@ production Supabase instance. Engineers do not run it.
 
 ## Prerequisites
 
-- `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` exported in your
-  shell. The service-role key is the same credential `fit-map people push`
-  consumes — `provision` is operator-only by virtue of which env var it
-  reads. It is registered on `fit-map`, not `fit-landmark`, because
-  Landmark's read path no longer holds the service-role key.
+- `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` available in your
+  environment. Local installs get these in `.env` from `just env-setup`;
+  hosted Supabase projects expose them in Project Settings → API. The
+  service-role key is the same credential `fit-map people push` consumes —
+  `provision` is operator-only by virtue of which credential it reads.
+  It is registered on `fit-map`, not `fit-landmark`, because Landmark's
+  read path no longer holds the service-role key.
 - `activity.organization_people` populated. Run `fit-map people push
   <roster.yaml>` first if it isn't.
 

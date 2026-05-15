@@ -54,11 +54,11 @@ export async function runAuthIssueCommand({ supabase, config, options }) {
   let secret;
   try {
     secret = config.supabaseJwtSecret();
-  } catch {
+  } catch (err) {
     throw new Error(
       "auth issue: SUPABASE_JWT_SECRET is not set. Run `just env-setup` " +
         "(local) or fetch the JWT secret from your Supabase project's API " +
-        "settings (hosted) and export it.",
+        `settings (hosted) and export it. Underlying: ${err.message}`,
     );
   }
 

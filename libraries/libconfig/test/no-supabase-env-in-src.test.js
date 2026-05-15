@@ -68,9 +68,13 @@ async function* productionFiles() {
 }
 
 // Catches every form spec § Success Criteria § "No legacy shims" forbids:
-// process.env.SUPABASE_*, process.env.MAP_SUPABASE_*, and standalone
-// process.env.JWT_SECRET (the unprefixed legacy name).
-const FORBIDDEN = /process\.env\.(MAP_SUPABASE_|SUPABASE_|JWT_SECRET\b)/;
+// canonical process.env.SUPABASE_* (the migration must flow through Config),
+// legacy process.env.MAP_SUPABASE_*, and standalone process.env.JWT_SECRET.
+// Matches both dot-access (`process.env.SUPABASE_URL`) and bracket-access
+// (`process.env["SUPABASE_URL"]`) so a future contributor cannot bypass the
+// gate via the bracket idiom.
+const FORBIDDEN =
+  /process\.env(?:\.|\[["']?)(MAP_SUPABASE_|SUPABASE_|JWT_SECRET\b)/;
 
 describe("Spec 960: no direct Supabase env reads in src/bin", () => {
   test("no process.env.SUPABASE_, MAP_SUPABASE_, or JWT_SECRET literals", async () => {

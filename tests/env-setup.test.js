@@ -66,6 +66,11 @@ describe("scripts/env-setup.js", () => {
     for (const key of expected) {
       assert.ok(env[key], `missing ${key} in .env`);
     }
+    assert.strictEqual(
+      Object.keys(env).length,
+      expected.length,
+      `expected exactly ${expected.length} keys in .env, got ${Object.keys(env).length}: ${Object.keys(env).join(", ")}`,
+    );
     if (process.platform !== "win32") {
       const mode = statSync(envPath).mode & 0o777;
       assert.strictEqual(mode, 0o600);

@@ -35,6 +35,8 @@ const VERSION =
   JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"))
     .version;
 
+const config = await createProductConfig("summit");
+
 const COMMANDS = {
   compare: runCompareCommand,
   coverage: runCoverageCommand,
@@ -272,7 +274,6 @@ async function main() {
   }
 
   try {
-    const config = await createProductConfig("summit");
     const dataDir = resolveDataDir(values);
     const data = await loadMapData(dataDir);
     await handler({ data, args, options: values, dataDir, config });
