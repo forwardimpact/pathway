@@ -24,10 +24,16 @@ Net deltas:
   payload shape, algorithm, and secret stay consistent. `libsecret` retains
   generic `generateJWT` and the `.env` helpers.
 - Consumers replace ad-hoc `createClient(url, key, opts)` calls with
-  `createAnonClient(...)` / `createServiceClient(...)`, removing the
-  `{ auth: { persistSession: false } }` boilerplate scattered across five
-  modules. `Config`'s four accessors remain the spec § Persona observable —
-  the factories are an additional affordance, not a replacement.
+  `createAnonClient(...)` / `createServiceClient(...)`. Today the
+  `auth.persistSession=false` + `autoRefreshToken=false` pair is
+  concentrated in `landmark/src/commands/login.js:126-133`; the other client
+  sites (`landmark/src/lib/supabase.js`, `map/src/lib/client.js`,
+  `summit/src/lib/supabase.js`) pass `{db:{schema}}` or a `Bearer` header
+  only. Centralization wins are smaller than five-fold, but the factories
+  still single-source the call shape and remove the dynamic `await
+  import("@supabase/supabase-js")` at `identity.js:154`. `Config`'s four
+  accessors remain the spec § Persona observable; the factories are an
+  additional affordance, not a replacement.
 
 ## Components
 
@@ -35,11 +41,11 @@ Net deltas:
 | --- | --- | --- |
 | `libsupabase` package | `libraries/libsupabase/` (new) | Owns the four canonical names, HS256 mint/verify primitives, and `@supabase/supabase-js` client factories. Carries `package.json` (`description`, `keywords ending agent`, `jobs` per `libraries/CLAUDE.md`) and `README.md`; ships no CLI in v1. Runtime deps: `@supabase/supabase-js`. Monorepo deps: `@forwardimpact/libsecret` (for `generateJWT`). |
 | `readSupabaseEnv` | `libraries/libsupabase/src/env.js` (new) | Pure function: `({process, envOverrides}) → {url, anonKey, serviceRoleKey, jwtSecret}`. Throws `"<KEY> not found in environment"` matching the existing `#resolve` throw shape. Used by `Config` accessors and by the bootstrap script. |
-| `createAnonClient` / `createServiceClient` | `libraries/libsupabase/src/client.js` (new) | Single signature each: `createAnonClient({config, jwt, schema, flowType})` and `createServiceClient({config, schema})`. `config` is a `Config` instance (required); `jwt` is an optional pre-issued access token (sets `global.headers.Authorization = "Bearer <jwt>"`); `schema` is the PostgREST schema; `flowType` is the optional Supabase Auth flow (e.g. `"pkce"` for login). Both call `createClient(config.supabaseUrl(), key, { auth: { persistSession: false, flowType }, db: { schema }, global: { headers } })`. No record-vs-Config polymorphism. |
+| `createAnonClient` / `createServiceClient` | `libraries/libsupabase/src/client.js` (new) | Single signature each: `createAnonClient({config, jwt, schema, auth})` and `createServiceClient({config, schema})`. `config` is a `Config` instance (required, not a plain record — strict). `jwt` is an optional pre-issued access token (sets `global.headers.Authorization = "Bearer <jwt>"`). `schema` is the PostgREST schema. `auth` is an optional pass-through merged over the default `{persistSession: false, autoRefreshToken: false}` — Landmark login passes `{flowType: "pkce", storage: createPkceStorage()}` here, preserving the PKCE storage hook today's `login.js:129` carries. Both call `createClient(config.supabaseUrl(), key, { auth: <merged>, db: { schema }, global: { headers } })`. |
 | `mintSupabaseAnonKey` / `mintSupabaseServiceRoleKey` / `mintSupabaseJwt` | `libraries/libsupabase/src/jwt.js` (new) | The first two: `(jwtSecret) → string`, 10-year `{iss: "supabase", role, iat, exp}` payload — replace the inline anon/service-role payloads at `scripts/env-storage.js:37-79`. `mintSupabaseJwt({email, secret, ttlSeconds})` is the per-caller `role: "authenticated"` mint relocated from `libsecret/src/index.js:167` — same signature; no change to its callers' contract beyond the import path. All three wrap `libsecret.generateJWT` so the HS256 algorithm pin is single-sourced. |
 | `verifySupabaseJwt` | `libraries/libsupabase/src/jwt.js` (new) | `(token, jwtSecret) → claims | null`. Uses `node:crypto.createHmac("sha256", secret)` + `timingSafeEqual` over the `header.payload` segment — same primitives as today's `products/landmark/src/lib/identity.js:71-84`. Returns the decoded payload on success, `null` on signature mismatch or shape error. No `jose` dependency. The current inline implementation in `identity.js` is replaced by a call to this helper. |
 | `Config` Supabase accessors | `libraries/libconfig/src/config.js` (edit) | Adds four method-shaped accessors that internally delegate to `readSupabaseEnv` with the same `process` reference Config already holds. Throw shape and naming match `mcpToken()`. Credential-set membership: three secrets join `#CREDENTIAL_KEYS`; URL does not (compose interpolation). |
-| Unified bootstrap script | `scripts/env-setup.js` (new; replaces `scripts/env-secrets.js` + `scripts/env-storage.js`) | Single CLI: generates `SERVICE_SECRET`, `DATABASE_PASSWORD`, `MCP_TOKEN`, `SUPABASE_JWT_SECRET` via `libsecret.getOrGenerateSecret`; derives `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` via `libsupabase.mintSupabase*`; generates `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` for storage. All values land in a single `.env`. Retains the `--output <path>` / `--add-mask` flags `env-secrets.js` exposes for CI. |
+| Unified bootstrap script | `scripts/env-setup.js` (new; replaces `scripts/env-secrets.js` + `scripts/env-storage.js`) | Single CLI: generates `SERVICE_SECRET`, `DATABASE_PASSWORD`, `MCP_TOKEN`, `SUPABASE_JWT_SECRET` via `libsecret.getOrGenerateSecret`; derives `SUPABASE_ANON_KEY` / `SUPABASE_SERVICE_ROLE_KEY` via `libsupabase.mintSupabase*`; generates **one** `AWS_ACCESS_KEY_ID` / `AWS_SECRET_ACCESS_KEY` pair (today's `env-storage.js` generates two pairs — one for `.env.storage.minio`, one for `.env.storage.supabase` — but `STORAGE_TYPE` selects exactly one backend at a time, so one pair is sufficient and the new pair is reused across `STORAGE_TYPE` switches). All values land in a single `.env`. Retains the `--output <path>` / `--add-mask` flags `env-secrets.js` exposes for CI. |
 | `just env-setup` recipe | `justfile` (edit) | One recipe replacing `env-secrets` + `env-storage`. The recipe name is unchanged. |
 | `config.toml` `[auth] jwt_secret` | `products/map/supabase/config.toml` (edit) | Adds `jwt_secret = "env(SUPABASE_JWT_SECRET)"` to the existing `[auth]` block. Supabase CLI substitutes at `supabase start` time. Rationale + rejected alternatives in Decision 3. |
 | `fit-map activity start` | `products/map/src/commands/activity.js` (edit) | Stops printing the `export MAP_SUPABASE_*` block; emits a one-line ready confirmation. The local Supabase stack reads `SUPABASE_JWT_SECRET` via `config.toml`'s `env()` interpolation; no command-side wiring needed. |
@@ -92,33 +98,26 @@ through `libsupabase` without the static-inspection exemption design-a uses.
 ## `Config` accessor interface
 
 ```js
-import { readSupabaseEnv } from "@forwardimpact/libsupabase";
-
 class Config {
   static #CREDENTIAL_KEYS = new Set([
     "ANTHROPIC_API_KEY", "GH_TOKEN", "GITHUB_TOKEN", "MCP_TOKEN",
     "SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "SUPABASE_JWT_SECRET",
   ]);
-  supabaseUrl()            { return this.#cachedSupabase().url; }
-  supabaseAnonKey()        { return this.#cachedSupabase().anonKey; }
-  supabaseServiceRoleKey() { return this.#cachedSupabase().serviceRoleKey; }
-  supabaseJwtSecret()      { return this.#cachedSupabase().jwtSecret; }
-
-  #cachedSupabase() {
-    if (!this.#cache.has("__supabase")) {
-      this.#cache.set("__supabase", readSupabaseEnv({
-        process: this.#process,
-        envOverrides: this.#envOverrides,
-      }));
-    }
-    return this.#cache.get("__supabase");
-  }
+  supabaseUrl()            { return this.#resolve(["SUPABASE_URL"], stripTrailingSlashes); }
+  supabaseAnonKey()        { return this.#resolve(["SUPABASE_ANON_KEY"]); }
+  supabaseServiceRoleKey() { return this.#resolve(["SUPABASE_SERVICE_ROLE_KEY"]); }
+  supabaseJwtSecret()      { return this.#resolve(["SUPABASE_JWT_SECRET"]); }
 }
 ```
 
-`readSupabaseEnv` throws the same `"<KEY> not found in environment"` shape on
-first access of a missing field. The cache is on `Config` (not libsupabase),
-matching the existing `#resolve` cache discipline.
+Per-field lazy resolution matches the existing `mcpToken()` / `ghToken()`
+shape — a call to `supabaseUrl()` does not throw because `SUPABASE_JWT_SECRET`
+is unset. This is load-bearing for Decision 8: external
+`npx fit-landmark login` users have URL + anon but no JWT secret;
+`createAnonClient({config})` needs the first two and must not eagerly resolve
+the third. `libsupabase.readSupabaseEnv({process, envOverrides})` is still
+used by the bootstrap script and by `libstorage` — callers that genuinely
+need a complete record.
 
 ## Per-module migration
 
@@ -133,7 +132,8 @@ matching the existing `#resolve` cache discipline.
 | `products/map/src/commands/activity.js:20` | `createSupabaseCli()` constructed inside `start()`. The `formatSubheader("Export these variables…")` block is deleted in full. |
 | `products/landmark/src/lib/supabase.js:30-48` | `createLandmarkClient({config, jwt, schema})` calls `createAnonClient({config, jwt, schema})`. The persist-session-false invariant moves into libsupabase. |
 | `products/landmark/src/lib/identity.js:71-104,139,154-155` | Public API becomes `resolveIdentity({config, env})`. `env` is retained only for `LANDMARK_AUTH_TOKEN`. HMAC verify path calls `verifySupabaseJwt(jwt, config.supabaseJwtSecret())` inside a `try` — Decision 8. `refreshSession`'s dynamic `await import("@supabase/supabase-js")` is replaced by `createAnonClient({config})`, retiring the only dynamic Supabase import. |
-| `products/landmark/src/commands/login.js:116-134` | `resolveAnonClient({config, flowType})` calls `createAnonClient({config})` — the `flowType` PKCE option threads through as an additional named argument to `createAnonClient`'s `auth` block. Error wording points at `just env-setup`. |
+| `products/landmark/src/commands/login.js:103-134` | `createPkceStorage()` stays in-module (Landmark-local concern). `resolveAnonClient({config})` calls `createAnonClient({config, auth: {flowType: "pkce", storage: createPkceStorage()}})`. Error wording points at `just env-setup`. |
+| `products/map/test/activity-start.test.js:35-54` | The four `assert.match(text, /export MAP_SUPABASE_*/)` assertions and the order check are replaced with one assertion on the new ready-confirmation output (matching the `activity.js` rewrite). |
 | `products/summit/src/lib/supabase.js:27-51` | `createSummitClient({config, schema})` calls `createServiceClient({config, schema})`. |
 | `products/landmark/test/lib/sign-test-token.js:14-20` | Renames `process.env.MAP_SUPABASE_JWT_SECRET` → `process.env.SUPABASE_JWT_SECRET`. Test helper stays env-direct (test files are out of the static-inspection scope). |
 
@@ -151,12 +151,13 @@ matching the existing `#resolve` cache discipline.
 | 8 | Landmark HMAC stays best-effort: `try { verifySupabaseJwt(jwt, config.supabaseJwtSecret()) }`. | (a) Make HMAC mandatory. (b) Add `supabaseJwtSecretIfPresent()` accessor. | (a) breaks external `npx fit-landmark login` (engineers who never run bootstrap have no JWT secret; the comment at `identity.js:50-51` documents the intent). (b) is the same shape with a different name; idiomatic `try` for "may be unset on this install" suffices. |
 | 9 | Static-inspection extends to forbid `@supabase/supabase-js` imports (static **and** dynamic) outside `libsupabase/src/client.js` and the Deno edge function. | Trust code review; only forbid direct env reads. | Without the second rule, the next consumer skips `libsupabase` and re-introduces `createClient(...)` boilerplate. This is a design-introduced invariant beyond spec § Success Criteria; it is the load-bearing guard that makes Decision 2's centralization durable past the migration commit. |
 | 10 | Delete `MAP_SUPABASE_DB_PORT`. | Keep for documentary value. | Zero source consumers; spec § Scope requires removal. |
+| 11 | `@supabase/supabase-js` becomes a hard `dependencies` entry on `libsupabase`; `products/summit/package.json` and `libraries/libterrain/package.json` **drop** their existing `optionalDependencies: {"@supabase/supabase-js"}` declarations. | Keep `optionalDependencies` on summit / libterrain and mirror it on libsupabase. | Today's `optionalDependencies` guard is paired with a dynamic `try { await import(...) }` at the use site. Decision 9 forbids that import shape outside libsupabase, so the guard becomes vestigial. Summit and libterrain both unconditionally need Supabase to do their work; the "soft dep" framing was already aspirational. Owning the dep at libsupabase makes the install requirement explicit and one-source. |
 
 ## Test surfaces
 
 | Surface | What it covers |
 | --- | --- |
-| `libsupabase` unit | `readSupabaseEnv` returns the four values from a stubbed `process`/`envOverrides`; throws the `"<KEY> not found in environment"` shape on each missing field. `mintSupabaseAnonKey(secret)` and `mintSupabaseServiceRoleKey(secret)` produce HS256 JWTs that `verifySupabaseJwt(.., secret)` accepts. `createAnonClient` / `createServiceClient` accept a duck-typed `Config` and a plain record; both call `createClient` with `auth.persistSession = false`. |
+| `libsupabase` unit | `readSupabaseEnv` returns the four values from a stubbed `process`/`envOverrides`; throws the `"<KEY> not found in environment"` shape on each missing field. `mintSupabaseAnonKey(secret)` / `mintSupabaseServiceRoleKey(secret)` / `mintSupabaseJwt({email, secret, ttlSeconds})` produce HS256 JWTs that `verifySupabaseJwt(.., secret)` accepts. `createAnonClient` / `createServiceClient` require a `Config` instance (throw on plain records, matching Decision 2's strict contract); `createAnonClient({config, auth: {flowType, storage}})` threads PKCE options through; both call `createClient` with `auth.persistSession = false` merged under any caller-provided `auth` block. |
 | `libconfig` unit | The four accessors return env values; `SUPABASE_*` secrets do not appear on `process.env` after `Config.load()` (credential isolation); URL does appear on `process.env`; throw shape matches `#resolve`. |
 | `env-setup` integration | Bootstrap against a tmpdir produces a `.env` with all 8 expected keys; second run is idempotent; signed anon + service-role JWTs verify against the generated `SUPABASE_JWT_SECRET`. |
 | Static-inspection | No `process.env.SUPABASE_` / `process.env.MAP_SUPABASE_` in product/service/library `src/` + `bin/` (sole allow-list: `libsupabase/src/env.js`). No `createClient(.., .., ..)` from `@supabase/supabase-js` outside `libsupabase` + the Deno edge function. No hardcoded `"super-secret-jwt-token-..."` literal anywhere in source. |
