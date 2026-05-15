@@ -72,17 +72,31 @@ const okSession = {
   email: "alice@example.com",
 };
 
+function makeConfig({ url = "http://supabase.local", anonKey = "anon" } = {}) {
+  return {
+    supabaseUrl: () => {
+      if (!url) throw new Error("SUPABASE_URL not found in environment");
+      return url;
+    },
+    supabaseAnonKey: () => {
+      if (!anonKey)
+        throw new Error("SUPABASE_ANON_KEY not found in environment");
+      return anonKey;
+    },
+  };
+}
+
 describe("runLoginCommand — OTP flow", () => {
   let tempDir;
   let env;
+  let config;
 
   beforeEach(async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "landmark-login-"));
     env = {
       LANDMARK_CREDENTIALS_FILE: path.join(tempDir, "credentials.json"),
-      MAP_SUPABASE_URL: "http://supabase.local",
-      MAP_SUPABASE_ANON_KEY: "anon",
     };
+    config = makeConfig();
   });
 
   afterEach(async () => {
@@ -100,6 +114,7 @@ describe("runLoginCommand — OTP flow", () => {
     const result = await runLoginCommand({
       options: { email: "alice@example.com", otp: true },
       io,
+      config,
       env,
       createClient: () => stub,
     });
@@ -125,6 +140,7 @@ describe("runLoginCommand — OTP flow", () => {
         runLoginCommand({
           options: { email: "alice@example.com", otp: true },
           io,
+          config,
           env,
           createClient: () => stub,
         }),
@@ -136,14 +152,14 @@ describe("runLoginCommand — OTP flow", () => {
 describe("runLoginCommand — browser flow", () => {
   let tempDir;
   let env;
+  let config;
 
   beforeEach(async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "landmark-login-"));
     env = {
       LANDMARK_CREDENTIALS_FILE: path.join(tempDir, "credentials.json"),
-      MAP_SUPABASE_URL: "http://supabase.local",
-      MAP_SUPABASE_ANON_KEY: "anon",
     };
+    config = makeConfig();
   });
 
   afterEach(async () => {
@@ -169,6 +185,7 @@ describe("runLoginCommand — browser flow", () => {
     const result = await runLoginCommand({
       options: { email: "alice@example.com" },
       io,
+      config,
       env,
       createClient: () => stub,
       openListener: listener,
@@ -182,16 +199,17 @@ describe("runLoginCommand — browser flow", () => {
     assert.equal(result.summary.email, "alice@example.com");
   });
 
-  test("rejects when MAP_SUPABASE_URL is missing", async () => {
+  test("rejects when SUPABASE_URL is missing", async () => {
     await assert.rejects(
       () =>
         runLoginCommand({
           options: { email: "alice@example.com" },
           io: makeIo().io,
+          config: makeConfig({ url: null }),
           env: { LANDMARK_CREDENTIALS_FILE: env.LANDMARK_CREDENTIALS_FILE },
           createClient: () => makeSupabaseStub({}),
         }),
-      /MAP_SUPABASE_URL and MAP_SUPABASE_ANON_KEY/,
+      /SUPABASE_URL and SUPABASE_ANON_KEY/,
     );
   });
 });

@@ -49,7 +49,7 @@ function parseJwtSegment(seg, label) {
  * trusted at the shape level, and Postgres rejects forgeries at the
  * RLS clamp on the next round trip.
  */
-function resolveFromJwt(jwt, env) {
+function resolveFromJwt(jwt, config) {
   const parts = jwt.split(".");
   if (parts.length !== 3)
     throw new IdentityUnresolvedError("LANDMARK_AUTH_TOKEN is not a JWT");
@@ -68,13 +68,22 @@ function resolveFromJwt(jwt, env) {
   if (typeof claims.exp !== "number" || claims.exp * 1000 <= Date.now())
     throw new IdentityUnresolvedError("LANDMARK_AUTH_TOKEN is expired");
 
-  if (env.MAP_SUPABASE_JWT_SECRET) {
+  // HMAC verification is best-effort: monorepo contributors get the
+  // secret via `just env-setup`; external `npx fit-landmark login` users
+  // never get it, and Postgres RLS catches forgeries on the next call.
+  let secret;
+  try {
+    secret = config?.supabaseJwtSecret();
+  } catch {
+    // operator-only install path; engineer install never has the secret
+  }
+  if (secret) {
     const actual = Buffer.from(parts[2], "base64url");
     if (actual.length !== HS256_DIGEST_BYTES)
       throw new IdentityUnresolvedError(
         "LANDMARK_AUTH_TOKEN signature does not verify",
       );
-    const expected = createHmac("sha256", env.MAP_SUPABASE_JWT_SECRET)
+    const expected = createHmac("sha256", secret)
       .update(`${parts[0]}.${parts[1]}`)
       .digest();
     if (!timingSafeEqual(expected, actual))
@@ -91,16 +100,20 @@ function resolveFromJwt(jwt, env) {
  * "run login" prompt — a stale refresh token cannot recover itself.
  *
  * @param {{access_token:string,refresh_token:string,expires_at:number,email:string}} creds
+ * @param {object} config - libconfig Config for the landmark product.
  * @param {NodeJS.ProcessEnv} env
  * @param {(url:string,key:string) => any} createClient
  */
-async function refreshSession(creds, env, createClient) {
-  const url = env.MAP_SUPABASE_URL;
-  const anonKey = env.MAP_SUPABASE_ANON_KEY;
-  if (!url || !anonKey)
+async function refreshSession(creds, config, env, createClient) {
+  let url, anonKey;
+  try {
+    url = config.supabaseUrl();
+    anonKey = config.supabaseAnonKey();
+  } catch (err) {
     throw new IdentityUnresolvedError(
-      "session refresh needs MAP_SUPABASE_URL and MAP_SUPABASE_ANON_KEY",
+      `session refresh needs SUPABASE_URL and SUPABASE_ANON_KEY: ${err.message}`,
     );
+  }
   const sb = createClient(url, anonKey);
   const { data, error } = await sb.auth.refreshSession({
     refresh_token: creds.refresh_token,
@@ -131,14 +144,20 @@ async function refreshSession(creds, env, createClient) {
  *      access token has expired (or is within REFRESH_LEAD_MS of doing so),
  *      attempt a Supabase refresh and persist the result.
  *
- * @param {NodeJS.ProcessEnv} [env]
- * @param {{createClient?: (url:string,key:string)=>any}} [opts]
+ * @param {object} params
+ * @param {object} params.config - libconfig Config for the landmark product.
+ * @param {NodeJS.ProcessEnv} [params.env] - Process env; carries LANDMARK_AUTH_TOKEN and LANDMARK_CREDENTIALS_FILE.
+ * @param {(url:string,key:string)=>any} [params.createClient]
  * @returns {Promise<{email: string, jwt: string}>}
  * @throws {IdentityUnresolvedError}
  */
-export async function resolveIdentity(env = process.env, opts = {}) {
+export async function resolveIdentity({
+  config,
+  env = process.env,
+  createClient,
+} = {}) {
   if (env.LANDMARK_AUTH_TOKEN) {
-    return resolveFromJwt(env.LANDMARK_AUTH_TOKEN, env);
+    return resolveFromJwt(env.LANDMARK_AUTH_TOKEN, config);
   }
 
   const creds = await readCredentials(env);
@@ -151,9 +170,9 @@ export async function resolveIdentity(env = process.env, opts = {}) {
     typeof creds.expires_at === "number" &&
     Date.now() >= creds.expires_at - REFRESH_LEAD_MS
   ) {
-    const createClient =
-      opts.createClient ?? (await import("@supabase/supabase-js")).createClient;
-    const refreshed = await refreshSession(creds, env, createClient);
+    const cc =
+      createClient ?? (await import("@supabase/supabase-js")).createClient;
+    const refreshed = await refreshSession(creds, config, env, cc);
     return { email: refreshed.email, jwt: refreshed.access_token };
   }
 

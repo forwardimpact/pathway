@@ -13,6 +13,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createCli } from "@forwardimpact/libcli";
+import { createProductConfig } from "@forwardimpact/libconfig";
 
 import { runCompareCommand } from "../src/commands/compare.js";
 import { runCoverageCommand } from "../src/commands/coverage.js";
@@ -33,6 +34,8 @@ const VERSION =
   process.env.FIT_SUMMIT_VERSION ||
   JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"))
     .version;
+
+const config = await createProductConfig("summit");
 
 const COMMANDS = {
   compare: runCompareCommand,
@@ -273,7 +276,7 @@ async function main() {
   try {
     const dataDir = resolveDataDir(values);
     const data = await loadMapData(dataDir);
-    await handler({ data, args, options: values, dataDir });
+    await handler({ data, args, options: values, dataDir, config });
   } catch (error) {
     cli.error(error.message);
     process.exit(1);

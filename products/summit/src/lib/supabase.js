@@ -1,9 +1,10 @@
 /**
  * Supabase client factory for Summit.
  *
- * Mirrors the env-var contract used by `@forwardimpact/map`'s `createMapClient`.
- * The Map-sourced roster path depends on this from day one; later parts reuse
- * the same factory for evidence and outcomes decorators.
+ * Reads Supabase URL and service-role key through libconfig — never
+ * directly from process.env. Callers build a Config via
+ * `createProductConfig("summit")` in their bin and pass it through
+ * handler options.
  */
 
 /** Signals that the Supabase connection could not be established due to missing credentials or configuration. */
@@ -19,21 +20,24 @@ export class SupabaseUnavailableError extends Error {
  * Create a Supabase client configured for Map's activity schema.
  *
  * @param {object} [opts]
- * @param {string} [opts.url] - Override for MAP_SUPABASE_URL.
- * @param {string} [opts.serviceRoleKey] - Override for MAP_SUPABASE_SERVICE_ROLE_KEY.
+ * @param {object} opts.config - libconfig Config carrying Supabase URL and service-role key.
  * @param {string} [opts.schema] - Database schema (default: "activity").
  * @returns {Promise<import("@supabase/supabase-js").SupabaseClient>}
  */
-export async function createSummitClient(opts = {}) {
-  const url = opts.url ?? process.env.MAP_SUPABASE_URL;
-  const key = opts.serviceRoleKey ?? process.env.MAP_SUPABASE_SERVICE_ROLE_KEY;
-  const schema = opts.schema ?? "activity";
-
-  if (!url || !key) {
+export async function createSummitClient({ config, schema = "activity" } = {}) {
+  if (!config)
     throw new SupabaseUnavailableError(
-      "MAP_SUPABASE_URL / MAP_SUPABASE_SERVICE_ROLE_KEY not set. " +
-        "Run `fit-map activity start` and export the URL + key it prints, " +
-        "or use --roster <path> to load from a local YAML file instead.",
+      "config required — pass createProductConfig('summit') from the entrypoint",
+    );
+  let url, key;
+  try {
+    url = config.supabaseUrl();
+    key = config.supabaseServiceRoleKey();
+  } catch (err) {
+    throw new SupabaseUnavailableError(
+      "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set. " +
+        "Run `just env-setup` or use --roster <path> instead. " +
+        `Underlying: ${err.message}`,
     );
   }
 

@@ -11,16 +11,16 @@ function decode(part) {
 }
 
 describe("signTestToken", () => {
-  it("throws when neither argument nor MAP_SUPABASE_JWT_SECRET is set", () => {
-    const prior = process.env.MAP_SUPABASE_JWT_SECRET;
-    delete process.env.MAP_SUPABASE_JWT_SECRET;
+  it("throws when neither argument nor SUPABASE_JWT_SECRET is set", () => {
+    const prior = process.env.SUPABASE_JWT_SECRET;
+    delete process.env.SUPABASE_JWT_SECRET;
     try {
       assert.throws(
         () => signTestToken({ email: "alice@example.com" }),
-        /MAP_SUPABASE_JWT_SECRET not set/,
+        /SUPABASE_JWT_SECRET not set/,
       );
     } finally {
-      if (prior !== undefined) process.env.MAP_SUPABASE_JWT_SECRET = prior;
+      if (prior !== undefined) process.env.SUPABASE_JWT_SECRET = prior;
     }
   });
 

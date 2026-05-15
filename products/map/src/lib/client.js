@@ -1,32 +1,17 @@
 /**
  * Shared Supabase client wiring for fit-map CLI commands.
  *
- * Reads MAP_SUPABASE_URL and MAP_SUPABASE_SERVICE_ROLE_KEY from env or
- * from explicit options. Throws with a clear message pointing at the
- * activity start output when either is missing.
+ * Reads Supabase URL and service-role key from libconfig — never
+ * directly from process.env. Callers build a Config via
+ * `createProductConfig("map")` in their bin and pass it through.
  */
 
 import { createClient } from "@supabase/supabase-js";
 
-/** Create a Supabase client configured for the activity schema using env vars or explicit options. */
-export function createMapClient(opts = {}) {
-  const url = opts.url ?? process.env.MAP_SUPABASE_URL;
-  const serviceRoleKey =
-    opts.serviceRoleKey ?? process.env.MAP_SUPABASE_SERVICE_ROLE_KEY;
-  const schema = opts.schema ?? "activity";
-
-  if (!url) {
-    throw new Error(
-      "MAP_SUPABASE_URL is not set. Run `fit-map activity start` and " +
-        "export the URL it prints.",
-    );
-  }
-  if (!serviceRoleKey) {
-    throw new Error(
-      "MAP_SUPABASE_SERVICE_ROLE_KEY is not set. Run `fit-map activity " +
-        "start` and export the service-role key it prints.",
-    );
-  }
-
-  return createClient(url, serviceRoleKey, { db: { schema } });
+/** Create a Supabase client configured for the activity schema. */
+export function createMapClient({ config, schema = "activity" } = {}) {
+  if (!config) throw new Error("createMapClient: config required");
+  return createClient(config.supabaseUrl(), config.supabaseServiceRoleKey(), {
+    db: { schema },
+  });
 }

@@ -7,42 +7,59 @@ import {
   isRelationNotFoundError,
 } from "../../src/lib/supabase.js";
 
+function makeConfig({ url = "http://localhost:54321", anonKey = "anon" } = {}) {
+  return {
+    supabaseUrl: () => {
+      if (url === null)
+        throw new Error("SUPABASE_URL not found in environment");
+      return url;
+    },
+    supabaseAnonKey: () => {
+      if (anonKey === null)
+        throw new Error("SUPABASE_ANON_KEY not found in environment");
+      return anonKey;
+    },
+  };
+}
+
 describe("createLandmarkClient", () => {
-  it("throws SupabaseUnavailableError when url is missing", () => {
+  it("throws SupabaseUnavailableError when config is missing", () => {
     assert.throws(
-      () => createLandmarkClient({ jwt: "x", anonKey: "y", url: undefined }),
+      () => createLandmarkClient({ jwt: "x" }),
       SupabaseUnavailableError,
     );
   });
 
-  it("throws SupabaseUnavailableError when anonKey is missing", () => {
+  it("throws SupabaseUnavailableError when URL accessor fails", () => {
+    assert.throws(
+      () =>
+        createLandmarkClient({ jwt: "x", config: makeConfig({ url: null }) }),
+      /just env-setup/,
+    );
+  });
+
+  it("throws SupabaseUnavailableError when anon-key accessor fails", () => {
     assert.throws(
       () =>
         createLandmarkClient({
           jwt: "x",
-          url: "http://localhost:54321",
-          anonKey: undefined,
+          config: makeConfig({ anonKey: null }),
         }),
-      SupabaseUnavailableError,
+      /just env-setup/,
     );
   });
 
   it("throws SupabaseUnavailableError when jwt is missing", () => {
     assert.throws(
-      () =>
-        createLandmarkClient({
-          url: "http://localhost:54321",
-          anonKey: "anon",
-        }),
+      () => createLandmarkClient({ config: makeConfig() }),
       /missing JWT/,
     );
   });
 
-  it("constructs a client when url, anonKey, and jwt are present", () => {
+  it("constructs a client when config and jwt are present", () => {
     const client = createLandmarkClient({
       jwt: "header.payload.signature",
-      url: "http://localhost:54321",
-      anonKey: "anon-key",
+      config: makeConfig(),
     });
     assert.ok(client);
     assert.equal(typeof client.from, "function");

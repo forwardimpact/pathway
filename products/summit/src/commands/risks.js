@@ -31,12 +31,12 @@ import { risksToMarkdown } from "../formatters/risks/markdown.js";
  * @param {string[]} params.args
  * @param {object} params.options
  */
-export async function runRisksCommand({ data, args, options }) {
+export async function runRisksCommand({ data, args, options, config }) {
   const format = resolveFormat(options);
   const audience = resolveAudience(options);
   const target = resolveTarget(args, options);
 
-  const roster = await loadRoster(getRosterSource(options));
+  const roster = await loadRoster(getRosterSource(options, config));
   const resolved = safeResolveTeam(roster, data, target);
 
   if (resolved.members.length === 0) {
@@ -48,7 +48,7 @@ export async function runRisksCommand({ data, args, options }) {
   let risks = detectRisks({ resolvedTeam: resolved, coverage, data });
 
   if (options.evidenced) {
-    const evidence = await loadEvidenceSafe(resolved, options);
+    const evidence = await loadEvidenceSafe(resolved, options, config);
     coverage = decorateCoverageWithEvidence(coverage, evidence);
     risks = decorateRisksWithEvidence(risks, coverage, evidence);
   }
@@ -98,9 +98,9 @@ function safeResolveTeam(roster, data, target) {
   }
 }
 
-async function loadEvidenceSafe(resolved, options) {
+async function loadEvidenceSafe(resolved, options, config) {
   try {
-    const client = options.supabase ?? (await createSummitClient());
+    const client = options.supabase ?? (await createSummitClient({ config }));
     return await loadEvidence(client, {
       team: resolved,
       lookbackMonths: Number(options["lookback-months"] ?? 12),

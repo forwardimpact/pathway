@@ -28,12 +28,12 @@ import { coverageToMarkdown } from "../formatters/coverage/markdown.js";
  * @param {string[]} params.args
  * @param {object} params.options
  */
-export async function runCoverageCommand({ data, args, options }) {
+export async function runCoverageCommand({ data, args, options, config }) {
   const format = resolveFormat(options);
   const audience = resolveAudience(options);
   const target = resolveTarget(args, options);
 
-  const roster = await loadRoster(getRosterSource(options));
+  const roster = await loadRoster(getRosterSource(options, config));
   const resolved = resolveCommandTeam(roster, data, target);
 
   if (resolved.members.length === 0) {
@@ -44,7 +44,7 @@ export async function runCoverageCommand({ data, args, options }) {
   let coverage = computeCoverage(resolved, data);
 
   if (options.evidenced) {
-    coverage = await decorateWithEvidence(coverage, resolved, options);
+    coverage = await decorateWithEvidence(coverage, resolved, options, config);
   }
 
   const filtered = withAudienceFilter(coverage, audience);
@@ -84,9 +84,9 @@ function resolveCommandTeam(roster, data, target) {
   }
 }
 
-async function decorateWithEvidence(coverage, resolved, options) {
+async function decorateWithEvidence(coverage, resolved, options, config) {
   try {
-    const client = options.supabase ?? (await createSummitClient());
+    const client = options.supabase ?? (await createSummitClient({ config }));
     const evidence = await loadEvidence(client, {
       team: resolved,
       lookbackMonths: Number(options["lookback-months"] ?? 12),

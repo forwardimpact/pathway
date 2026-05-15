@@ -4,7 +4,7 @@
  * Spawns the bin/fit-landmark.js entrypoint via `node` with a controlled
  * env and asserts the documented exit codes:
  *   - 4: IdentityUnresolvedError (no LANDMARK_AUTH_TOKEN)
- *   - 3: SupabaseUnavailableError (token present but no MAP_SUPABASE_*)
+ *   - 3: SupabaseUnavailableError (token present but no SUPABASE_*)
  *   - 0: marker (needsSupabase: false, dispatcher skips identity)
  *
  * The "no Supabase query before error" half of criterion 3b is enforced
@@ -17,6 +17,8 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 
 import { signTestToken } from "./lib/sign-test-token.js";
 
@@ -27,12 +29,24 @@ const REPO_ROOT = resolve(__dirname, "..", "..", "..");
 const DATA_DIR = resolve(REPO_ROOT, "products", "map", "starter");
 
 function run(args, env) {
-  // Pin to `node` rather than `process.execPath` so the dispatcher's exit-code
-  // contract is tested under the same runtime external users invoke it with.
-  return spawnSync("node", [BIN, ...args], {
-    env: { PATH: process.env.PATH, ...env },
-    encoding: "utf8",
-  });
+  // Spawn from a clean tmpdir so the bin's createProductConfig("landmark")
+  // call doesn't pick up the repo's own .env file. Pin to `node` rather
+  // than `process.execPath` so the dispatcher's exit-code contract is
+  // tested under the same runtime external users invoke it with.
+  const cwd = mkdtempSync(resolve(tmpdir(), "landmark-dispatcher-"));
+  try {
+    return spawnSync("node", [BIN, ...args], {
+      env: { PATH: process.env.PATH, ...env },
+      encoding: "utf8",
+      cwd,
+    });
+  } finally {
+    try {
+      rmSync(cwd, { recursive: true });
+    } catch {
+      // ignore
+    }
+  }
 }
 
 describe("fit-landmark dispatcher exit codes", () => {
@@ -47,7 +61,7 @@ describe("fit-landmark dispatcher exit codes", () => {
     assert.match(res.stderr, /fit-landmark login/);
   });
 
-  test("exits 3 when token present but MAP_SUPABASE_URL is unset", () => {
+  test("exits 3 when token present but SUPABASE_URL is unset", () => {
     const token = signTestToken({
       email: "alice@example.com",
       secret: "dispatcher-test-secret",
@@ -56,11 +70,11 @@ describe("fit-landmark dispatcher exit codes", () => {
       ["voice", "--email", "alice@example.com", "--data", DATA_DIR],
       {
         LANDMARK_AUTH_TOKEN: token,
-        // Important: do not set MAP_SUPABASE_URL or MAP_SUPABASE_ANON_KEY.
+        // Important: do not set SUPABASE_URL or SUPABASE_ANON_KEY.
       },
     );
     assert.equal(res.status, 3);
-    assert.match(res.stderr, /MAP_SUPABASE_URL/);
+    assert.match(res.stderr, /just env-setup/);
   });
 
   test("marker does not need Supabase and skips identity resolution", () => {

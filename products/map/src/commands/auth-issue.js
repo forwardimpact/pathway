@@ -4,7 +4,7 @@
  *
  * Operator-only verb. Uses the service-role client (which we already need
  * to read `organization_people` and list `auth.users`) to verify both rows
- * exist before signing, then HMACs a JWT against MAP_SUPABASE_JWT_SECRET.
+ * exist before signing, then HMACs a JWT against SUPABASE_JWT_SECRET.
  * Output goes to stdout so the operator can capture it into `.env`, a
  * secret manager, or pipe it to an agent's `LANDMARK_AUTH_TOKEN` setting.
  */
@@ -40,22 +40,25 @@ async function findAuthUser(supabase, email) {
  *
  * @param {object} params
  * @param {import("@supabase/supabase-js").SupabaseClient} params.supabase
+ * @param {{supabaseJwtSecret: () => string}} params.config
  * @param {{email?: string, ttl?: string}} params.options
  * @returns {Promise<{summary: object, meta: object}>}
  */
-export async function runAuthIssueCommand({ supabase, options }) {
+export async function runAuthIssueCommand({ supabase, config, options }) {
   const email = options.email;
   if (!email) {
     throw new Error("auth issue: --email <e> is required");
   }
   const ttlString = options.ttl ?? DEFAULT_TTL;
   const ttlSeconds = parseDuration(ttlString);
-  const secret = process.env.MAP_SUPABASE_JWT_SECRET;
-  if (!secret) {
+  let secret;
+  try {
+    secret = config.supabaseJwtSecret();
+  } catch (err) {
     throw new Error(
-      "auth issue: MAP_SUPABASE_JWT_SECRET is not set. Run `fit-map " +
-        "activity start` (local) or fetch the JWT secret from your Supabase " +
-        "project's API settings (hosted) and export it.",
+      "auth issue: SUPABASE_JWT_SECRET is not set. Run `just env-setup` " +
+        "(local) or fetch the JWT secret from your Supabase project's API " +
+        `settings (hosted) and export it. Underlying: ${err.message}`,
     );
   }
 

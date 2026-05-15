@@ -14,6 +14,7 @@ import { readFileSync } from "fs";
 import { homedir } from "os";
 import { Finder } from "@forwardimpact/libutil";
 import { createLogger } from "@forwardimpact/libtelemetry";
+import { createProductConfig } from "@forwardimpact/libconfig";
 import {
   createCli,
   SummaryRenderer,
@@ -26,6 +27,7 @@ import {
 } from "@forwardimpact/libcli";
 
 const summary = new SummaryRenderer({ process });
+const config = await createProductConfig("map");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -67,24 +69,17 @@ const definition = {
       args: "<validate|push|provision> [file]",
       description:
         "Validate or push people files, or provision auth.users from the roster",
-      options: {
-        url: { type: "string", description: "Supabase URL" },
-      },
     },
     {
       name: "activity",
       args: "<start|stop|status|migrate|transform|verify|seed>",
       description: "Manage activity stack",
-      options: {
-        url: { type: "string", description: "Supabase URL" },
-      },
     },
     {
       name: "getdx",
       args: "sync",
       description: "Extract + transform GetDX snapshots",
       options: {
-        url: { type: "string", description: "Supabase URL" },
         "base-url": { type: "string", description: "GetDX API base URL" },
       },
     },
@@ -93,7 +88,6 @@ const definition = {
       args: "issue",
       description: "Issue a Supabase-shaped JWT for an existing roster row",
       options: {
-        url: { type: "string", description: "Supabase URL" },
         email: { type: "string", description: "Caller email to issue for" },
         ttl: {
           type: "string",
@@ -356,9 +350,9 @@ async function runGenerateIndex(dataDir) {
 
 // ── Dispatchers ──────────────────────────────────────────────────────────────
 
-async function mapClient(values) {
+async function mapClient() {
   const { createMapClient } = await import("../src/lib/client.js");
-  return createMapClient({ url: values.url });
+  return createMapClient({ config });
 }
 
 async function dispatchPeople(subcommand, rest, values) {
@@ -379,11 +373,11 @@ async function dispatchPeople(subcommand, rest, values) {
         cli.error("people push requires a file path");
         return 1;
       }
-      const supabase = await mapClient(values);
+      const supabase = await mapClient();
       return people.push(filePath, supabase);
     }
     case "provision": {
-      const supabase = await mapClient(values);
+      const supabase = await mapClient();
       const { runProvisionCommand } = await import(
         "../src/commands/people-provision.js"
       );
@@ -424,14 +418,14 @@ async function dispatchActivity(subcommand, rest, values) {
     case "migrate":
       return activity.migrate();
     case "transform":
-      return activity.transform(rest[0] ?? "all", await mapClient(values));
+      return activity.transform(rest[0] ?? "all", await mapClient());
     case "verify":
-      return activity.verify(await mapClient(values));
+      return activity.verify(await mapClient());
     case "seed": {
       const dataDir = await findDataDir(values.data);
       // findDataDir returns .../pathway; seed needs the parent data/ dir
       const data = dirname(dataDir);
-      return activity.seed({ data, supabase: await mapClient(values) });
+      return activity.seed({ data, supabase: await mapClient() });
     }
     default:
       cli.usageError(`unknown activity subcommand: ${subcommand || "(none)"}`);
@@ -443,7 +437,7 @@ async function dispatchGetdx(subcommand, rest, values) {
   const getdx = await import("../src/commands/getdx.js");
   switch (subcommand) {
     case "sync":
-      return getdx.sync(await mapClient(values), {
+      return getdx.sync(await mapClient(), {
         baseUrl: values["base-url"],
       });
     default:
@@ -455,12 +449,13 @@ async function dispatchGetdx(subcommand, rest, values) {
 async function dispatchAuth(subcommand, _rest, values) {
   switch (subcommand) {
     case "issue": {
-      const supabase = await mapClient(values);
+      const supabase = await mapClient();
       const { runAuthIssueCommand } = await import(
         "../src/commands/auth-issue.js"
       );
       await runAuthIssueCommand({
         supabase,
+        config,
         options: { email: values.email, ttl: values.ttl },
       });
       return 0;

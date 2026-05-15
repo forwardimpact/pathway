@@ -25,12 +25,12 @@ import { growthToMarkdown } from "../formatters/growth/markdown.js";
  * @param {string[]} params.args
  * @param {object} params.options
  */
-export async function runGrowthCommand({ data, args, options }) {
+export async function runGrowthCommand({ data, args, options, config }) {
   const format = resolveFormat(options);
   const audience = resolveAudience(options);
   const target = resolveTarget(args, options);
 
-  const roster = await loadRoster(getRosterSource(options));
+  const roster = await loadRoster(getRosterSource(options, config));
   let resolved;
   try {
     resolved = resolveTeam(roster, data, target);
@@ -49,10 +49,10 @@ export async function runGrowthCommand({ data, args, options }) {
   }));
 
   const evidence = options.evidenced
-    ? await loadEvidenceSafe(resolved, options)
+    ? await loadEvidenceSafe(resolved, options, config)
     : undefined;
   const driverScores = options.outcomes
-    ? await loadScoresSafe(resolved, options)
+    ? await loadScoresSafe(resolved, options, config)
     : undefined;
 
   const recommendations = computeGrowthAlignment({
@@ -94,9 +94,9 @@ function resolveTarget(args, options) {
   return { teamId };
 }
 
-async function loadEvidenceSafe(resolved, options) {
+async function loadEvidenceSafe(resolved, options, config) {
   try {
-    const client = options.supabase ?? (await createSummitClient());
+    const client = options.supabase ?? (await createSummitClient({ config }));
     return await loadEvidence(client, {
       team: resolved,
       lookbackMonths: Number(options["lookback-months"] ?? 12),
@@ -113,9 +113,9 @@ async function loadEvidenceSafe(resolved, options) {
   }
 }
 
-async function loadScoresSafe(resolved, options) {
+async function loadScoresSafe(resolved, options, config) {
   try {
-    const client = options.supabase ?? (await createSummitClient());
+    const client = options.supabase ?? (await createSummitClient({ config }));
     return await loadDriverScores(client, { team: resolved });
   } catch (e) {
     if (e instanceof SupabaseUnavailableError) {

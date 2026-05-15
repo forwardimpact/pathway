@@ -11,10 +11,9 @@ import { mintSupabaseJwt } from "@forwardimpact/libsecret";
  */
 export function signTestToken({
   email,
-  secret = process.env.MAP_SUPABASE_JWT_SECRET,
+  secret = process.env.SUPABASE_JWT_SECRET,
   ttlSeconds = 900,
 }) {
-  if (!secret)
-    throw new Error("signTestToken: MAP_SUPABASE_JWT_SECRET not set");
+  if (!secret) throw new Error("signTestToken: SUPABASE_JWT_SECRET not set");
   return mintSupabaseJwt({ email, secret, ttlSeconds });
 }

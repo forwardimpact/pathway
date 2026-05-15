@@ -13,9 +13,9 @@ import { Format, getRosterSource, resolveFormat } from "../lib/cli.js";
  * @param {object} params.data - Loaded Map standard data.
  * @param {object} params.options - Parsed CLI options.
  */
-export async function runValidateCommand({ data, options }) {
+export async function runValidateCommand({ data, options, config }) {
   const format = resolveFormat(options);
-  const roster = await loadRoster(getRosterSource(options));
+  const roster = await loadRoster(getRosterSource(options, config));
   const result = validateRosterAgainstStandard(roster, data);
 
   if (format === Format.JSON) {
