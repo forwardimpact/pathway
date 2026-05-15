@@ -39,13 +39,16 @@ query, so the token both authenticates you and determines what you can see.
 from the Supabase project you stand up via Map. Production-side issuance flows
 (a `fit-landmark login` verb, magic-link delivery, SSO bridge) are a
 follow-up — until they land, leaders and operators obtain a token by signing
-one against the local Supabase JWT secret.
+one against `SUPABASE_JWT_SECRET`.
 
 Today's minimum stand-up is four steps under Map:
 
-1. **Start the activity layer.** `npx fit-map activity start` prints
-   `MAP_SUPABASE_URL`, `MAP_SUPABASE_ANON_KEY`, and `MAP_SUPABASE_JWT_SECRET`.
-   Export all three.
+1. **Start the activity layer.** `npx fit-map activity start` brings the
+   Supabase stack up and prints a one-line ready confirmation. The stack
+   signs every token with `SUPABASE_JWT_SECRET`, which the bootstrap recipe
+   (`just env-setup` for monorepo contributors) writes to `.env` alongside
+   `SUPABASE_URL`, `SUPABASE_ANON_KEY`, and `SUPABASE_SERVICE_ROLE_KEY`.
+   Hosted Supabase users copy the same four values from Project Settings → API.
 2. **Push the roster.** `npx fit-map people push ./people.yaml` populates
    `activity.organization_people`.
 3. **Provision auth users.** `npx fit-map people provision` reconciles
@@ -54,8 +57,8 @@ Today's minimum stand-up is four steps under Map:
    [Provision Engineer Auth Users](/docs/products/provisioning-engineers/) for
    the operator workflow.
 4. **Obtain a JWT for yourself.** HMAC-sign a Supabase-shaped JWT against
-   `MAP_SUPABASE_JWT_SECRET` with your manager email in the `email` claim,
-   then export it:
+   `SUPABASE_JWT_SECRET` with your manager email in the `email` claim, then
+   export it:
 
    ```sh
    export LANDMARK_AUTH_TOKEN=<your signed JWT>

@@ -308,7 +308,7 @@ the full operator workflow.
 Provisioning ensures every engineer's email maps to an authenticable identity.
 It does not by itself deliver a JWT to engineer-side tooling —
 `fit-landmark login`, magic-link, and SSO are a follow-up. Until they land,
-Landmark callers obtain a token by signing one against `MAP_SUPABASE_JWT_SECRET`
+Landmark callers obtain a token by signing one against `SUPABASE_JWT_SECRET`
 locally; see
 [Authentication](/docs/getting-started/leaders/landmark/#authentication) in
 the Landmark guide.
