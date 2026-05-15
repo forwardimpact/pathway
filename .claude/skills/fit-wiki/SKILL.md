@@ -79,12 +79,9 @@ npx fit-wiki init
 | `--wiki-root`  | No       | Override wiki root directory (default: wiki)       |
 | `--skills-dir` | No       | Override skills directory (default: .claude/skills) |
 
-Idempotent — safe to run on an already-initialized wiki. The clone URL is
-derived from the parent repo's `origin` remote by appending `.wiki.git`. In
-sandboxed environments where `origin` is rewritten to a local proxy that does
-not serve the wiki, set `FIT_WIKI_URL` to the canonical wiki URL (e.g.
-`https://github.com/<owner>/<repo>.wiki.git`) and it takes precedence over
-the derivation.
+Idempotent — safe to run on an already-initialized wiki. Set
+`FIT_WIKI_URL` to override the wiki URL when the default derivation
+from `origin` does not resolve.
 
 ### `push` — Push wiki changes to remote
 
@@ -143,10 +140,7 @@ import {
 - `insertMarkers({ agentsDir, wikiRoot })` — idempotent marker insertion
 - `scanMarkers(text)` — find `<!-- xmr:... -->` marker pairs in markdown
 - `renderBlock({ metric, csvPath, projectRoot })` — render one XmR chart block
-- `new WikiRepo({ wikiDir, parentDir, resolveToken })` — git wrapper for wiki
-  operations; `resolveToken` is a callback returning a GitHub token string
-  (authenticate) or `null` (anonymous). Thrown errors propagate. Pair with
-  `@forwardimpact/libconfig` for env → `.env` → `gh auth token` resolution.
+- `new WikiRepo({ wikiDir, parentDir, resolveToken })` — git wrapper for wiki operations
 - `listSkills({ skillsDir })` — discover kata skills from `.claude/skills/`
 
 ## Documentation
