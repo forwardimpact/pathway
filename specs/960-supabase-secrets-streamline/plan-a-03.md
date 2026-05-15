@@ -4,7 +4,7 @@ Migrate every consumer that today reads `process.env.MAP_SUPABASE_*` to use `Con
 
 ## Step 0 — Bootstrap `Config` in the three product bins
 
-None of `products/{map,landmark,summit}/bin/fit-*.js` builds a `Config` today (`services/map/server.js:9` is the only existing `createServiceConfig` caller). Add an import and a top-level `await` to each before any consumer step runs.
+None of `products/{map,landmark,summit}/bin/fit-*.js` builds a `Config` today. Add an import and a top-level `await` to each before any consumer step runs. Pattern reference: `bin/fit-guide.js:15-16` (`createProductConfig` + `createServiceConfig`), `bin/fit-terrain.js:14,184` (`createScriptConfig`), `services/map/server.js:9` (`createServiceConfig`).
 
 Files modified: `products/map/bin/fit-map.js`, `products/landmark/bin/fit-landmark.js`, `products/summit/bin/fit-summit.js`.
 
@@ -16,15 +16,17 @@ import { createProductConfig } from "@forwardimpact/libconfig";
 const config = await createProductConfig("<product-name>");
 ```
 
-Where `<product-name>` is `"map"`, `"landmark"`, or `"summit"`. Insert `config` into the handler-context payload each bin already builds:
+Where `<product-name>` is `"map"`, `"landmark"`, or `"summit"`. The `config` binding sits at module top scope so every dispatcher and handler can reference it.
 
-| Bin | Existing context shape | Add |
+Per-bin wiring shape (each bin has a different dispatch surface):
+
+| Bin | Current dispatch | Threading |
 | --- | --- | --- |
-| `products/map/bin/fit-map.js` | `commands` dispatch table calls handlers with `{supabase, options, …}` | Thread `config` through the same object |
-| `products/landmark/bin/fit-landmark.js` | `buildContext({dataDir, options, needsSupabase, identity})` at `src/lib/context.js:14` | Add `config` param; pass through |
-| `products/summit/bin/fit-summit.js` | Each handler imports `createSummitClient` directly | Pass `config` into the handler invocation, then into `createSummitClient({config})` |
+| `products/map/bin/fit-map.js` | `switch (command)` with helpers `dispatchAuth`, `dispatchActivity`, etc., calling handlers like `runAuthIssueCommand({supabase, options})` | Pass `config` alongside `supabase` into each handler invocation (e.g. `runAuthIssueCommand({supabase, config, options})`). Steps 2–4 then read it. |
+| `products/landmark/bin/fit-landmark.js` | `buildContext({dataDir, options, needsSupabase, identity})` near line 292 + `resolveIdentity()` at line 291 | Pass `config` into `resolveIdentity({config})` (Step 6) and into `buildContext({…, config})` (Step 5b). |
+| `products/summit/bin/fit-summit.js` | Each handler imports `createSummitClient` directly via `options.supabase ?? (await createSummitClient())` (six call sites: `src/index.js`, `src/roster/loader.js`, `src/commands/coverage.js`, `src/commands/risks.js`, `src/commands/growth.js` ×2) | Bin builds `config` and passes through handler `options`; each call site changes to `options.supabase ?? (await createSummitClient({config}))` once Step 8 lands. |
 
-Verification: each bin starts (`bun products/<p>/bin/fit-<p>.js --help`) with a `.env` produced by Part 02; the `config` instance is reachable from at least one handler in each product. Test suites still green (no behaviour change yet — `config` is unused until subsequent steps).
+Verification: each bin starts (`bun products/<p>/bin/fit-<p>.js --help`) with a `.env` produced by Part 02; the `config` binding is reachable from every handler. Test suites still green (no behaviour change yet — `config` is unused until subsequent steps).
 
 ## Step 1 — `services/map/server.js`
 
@@ -114,7 +116,9 @@ Verification: `bun test products/map/test/activity-start.test.js` green; the fou
 
 ## Step 5 — `products/landmark/src/lib/supabase.js`
 
-Files modified: `products/landmark/src/lib/supabase.js`.
+Files modified: `products/landmark/src/lib/supabase.js`, `products/landmark/test/lib/supabase.test.js`.
+
+The test file exercises `createLandmarkClient` directly with the old `{ jwt, url, anonKey }` shape; rewrite every test invocation to pass a fake `config` stub returning `"http://supabase.local"` and `"anon"` (mirror Step 6's identity-test stub). The "throws when URL missing" test asserts the new wording (`/just env-setup/` matches the post-migration error message).
 
 Replace function signature and body:
 
@@ -326,7 +330,7 @@ export async function resolveSupabaseClient({ config }) {
 }
 ```
 
-Update `selectOutputSink` (passes `config` through) and the bin caller to construct `config` via `await createScriptConfig("terrain")`.
+`libraries/libterrain/bin/fit-terrain.js:14,184` already imports and builds `createScriptConfig("terrain")`; no new bootstrap needed. The only edits here are: extend `selectOutputSink`'s parameter object to include `config` (currently `{verb, load, monorepoRoot, prettierFn, logger}`), thread `config` from the bin call site through into `resolveSupabaseClient({config})`, and update the bin caller to pass `config` into `selectOutputSink({…, config})`.
 
 Verification: `bun test libraries/libterrain` green.
 
@@ -369,9 +373,9 @@ Verification: `bun test products/landmark/test/lib/sign-test-token.test.js` gree
 
 ## Step 12 — Live-Postgres test skip-gates rename
 
-Files modified: `products/map/test/activity/{migration-rls,rls-scope,people-provision}.test.js`, `products/map/test/activity/lib/live.js`, `products/landmark/test/{sources,dispatcher}.test.js`.
+Files modified: `products/map/test/activity/{migration-rls,rls-scope,people-provision}.test.js`, `products/map/test/activity/lib/live.js`, `products/landmark/test/sources.test.js`.
 
-Mechanical substring rename in every test file under `products/{map,landmark}/test/` (excluding tests already migrated in earlier steps):
+(`products/landmark/test/dispatcher.test.js` is owned by Step 7, not Step 12.) Mechanical substring rename in the remaining test files under `products/{map,landmark}/test/`:
 
 - `MAP_SUPABASE_URL` → `SUPABASE_URL`
 - `MAP_SUPABASE_ANON_KEY` → `SUPABASE_ANON_KEY`

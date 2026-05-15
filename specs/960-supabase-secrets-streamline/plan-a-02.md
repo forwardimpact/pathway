@@ -31,24 +31,16 @@ async function main() {
     "SUPABASE_JWT_SECRET",
     () => generateSecret(32),
   );
-  const supabaseAnonKey = await getOrGenerateSecret(
-    "SUPABASE_ANON_KEY",
-    () => mintSupabaseAnonKey({ secret: supabaseJwtSecret }),
-  );
-  const supabaseServiceRoleKey = await getOrGenerateSecret(
-    "SUPABASE_SERVICE_ROLE_KEY",
-    () => mintSupabaseServiceRoleKey({ secret: supabaseJwtSecret }),
-  );
-
+  const get = (key, gen) => getOrGenerateSecret(key, gen);
   const entries = [
-    ["SERVICE_SECRET", generateSecret()],
-    ["DATABASE_PASSWORD", generateSecret(16)],
-    ["MCP_TOKEN", generateSecret()],
+    ["SERVICE_SECRET", await get("SERVICE_SECRET", () => generateSecret())],
+    ["DATABASE_PASSWORD", await get("DATABASE_PASSWORD", () => generateSecret(16))],
+    ["MCP_TOKEN", await get("MCP_TOKEN", () => generateSecret())],
     ["SUPABASE_JWT_SECRET", supabaseJwtSecret],
-    ["SUPABASE_ANON_KEY", supabaseAnonKey],
-    ["SUPABASE_SERVICE_ROLE_KEY", supabaseServiceRoleKey],
-    ["AWS_ACCESS_KEY_ID", generateBase64Secret(16)],
-    ["AWS_SECRET_ACCESS_KEY", generateBase64Secret(32)],
+    ["SUPABASE_ANON_KEY", await get("SUPABASE_ANON_KEY", () => mintSupabaseAnonKey({ secret: supabaseJwtSecret }))],
+    ["SUPABASE_SERVICE_ROLE_KEY", await get("SUPABASE_SERVICE_ROLE_KEY", () => mintSupabaseServiceRoleKey({ secret: supabaseJwtSecret }))],
+    ["AWS_ACCESS_KEY_ID", await get("AWS_ACCESS_KEY_ID", () => generateBase64Secret(16))],
+    ["AWS_SECRET_ACCESS_KEY", await get("AWS_SECRET_ACCESS_KEY", () => generateBase64Secret(32))],
   ];
 
   if (values.output) {
@@ -68,9 +60,9 @@ async function main() {
 main();
 ```
 
-The three Supabase values are wrapped in `getOrGenerateSecret` so a re-run preserves them; the other five (`SERVICE_SECRET`, `DATABASE_PASSWORD`, `MCP_TOKEN`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) rotate every run, matching the current behaviour of `env-secrets.js:32-37` and `env-storage.js:22-27`. Rotation of `SUPABASE_JWT_SECRET` requires the operator to also delete `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` from `.env` so the derived keys re-mint against the new secret.
+All 8 values are wrapped in `getOrGenerateSecret` so a re-run preserves every value byte-identical (spec § Success Criteria: "every value written by the first run is preserved verbatim by the second"). Manual rotation: delete the line for the value the operator wants to rotate; for `SUPABASE_JWT_SECRET`, also delete `SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` so they re-mint against the new secret.
 
-Verification: `bun scripts/env-setup.js` against an empty `.env` writes all 8 keys; second run preserves the three Supabase values byte-identical; `--output /tmp/out` writes lowercase key=value pairs; `--add-mask --output /tmp/out` prints `::add-mask::` for each.
+Verification: `bun scripts/env-setup.js` against an empty `.env` writes all 8 keys; second run preserves every value byte-identical; `--output /tmp/out` writes lowercase key=value pairs; `--add-mask --output /tmp/out` prints `::add-mask::` for each.
 
 ## Step 2 — Replace `just env-setup`, drop `env-secrets`/`env-storage`
 
@@ -79,7 +71,7 @@ Files modified: `justfile`.
 Replace lines 357–370 (current `env-setup`, `env-reset`, `env-secrets`, `env-storage` recipes) with:
 
 ```just
-# Generate every secret in .env (idempotent — preserves Supabase keys across runs)
+# Generate every secret in .env (idempotent — preserves all values across runs)
 env-setup:
     bun scripts/env-setup.js
 
@@ -88,17 +80,15 @@ env-reset PROFILE="local": config-reset
     cp -f .env.{{PROFILE}}.example .env
 ```
 
-`env-setup` no longer depends on `env-reset`. Today's recipe wipes `.env` and regenerates on every invocation, contradicting spec § Success Criteria § "second run is idempotent". The new contract: `env-reset` is an explicit operator action for a clean slate; `env-setup` reads/preserves existing values. The two old recipes (`env-secrets`, `env-storage`) are deleted in full.
-
-Also update `quickstart` (line 35) so it still wipes-and-regenerates on first run:
+Update `quickstart` (currently line 35 — `quickstart: env-setup synthetic …`) to invoke `env-reset` explicitly so a fresh checkout still wipes-and-regenerates:
 
 ```just
 quickstart: env-reset env-setup synthetic data-init codegen process-fast _quickstart-seed
 ```
 
-(`quickstart` previously ran `env-reset` transitively via the old `env-setup: env-reset …` chain; calling it explicitly preserves the current bootstrap behaviour after the dependency-restructure.)
+The two old recipes (`env-secrets`, `env-storage`) are deleted in full.
 
-Verification: `just --list | rg env-` shows `env-reset` and `env-setup` only; `just env-reset && just env-setup` produces a fresh `.env`; a second `just env-setup` preserves all three Supabase values verbatim; `just quickstart` still wipes-and-regenerates on a fresh checkout.
+Verification: `just --list | rg env-` shows `env-reset` and `env-setup` only; `just env-reset && just env-setup` produces a fresh `.env`; a second `just env-setup` preserves every value byte-identical; `just quickstart` still wipes-and-regenerates on a fresh checkout.
 
 ## Step 3 — Delete the old scripts and their helper files
 
@@ -150,13 +140,13 @@ SUPABASE_URL=http://127.0.0.1:54321
 # SUPABASE_SERVICE_ROLE_KEY=
 ```
 
-Per file:
+Per file (additions and deletions explicit):
 
-| File | `SUPABASE_URL` value | Other diffs |
-| --- | --- | --- |
-| `.env.local.example` | `http://127.0.0.1:54321` | Delete `JWT_SECRET=` line, delete `MAP_SUPABASE_DB_PORT`, delete commented `MAP_SUPABASE_SERVICE_ROLE_KEY`, update quick-start comment to `just env-setup` |
-| `.env.docker-native.example` | `http://supabase-kong.local:8000` | Same deletions; HTTPS/HTTP/NO_PROXY block unchanged |
-| `.env.docker-supabase.example` | `http://supabase-kong.local:8000` | Same deletions; delete the commented `SUPABASE_SERVICE_ROLE_KEY` / `MAP_SUPABASE_*_KEY` triple under storage section (now generated by `just env-setup`) |
+| File | `SUPABASE_URL` | Additions | Deletions |
+| --- | --- | --- | --- |
+| `.env.local.example` | `http://127.0.0.1:54321` | Three commented placeholder lines for `SUPABASE_JWT_SECRET`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` | `JWT_SECRET=` (line 34), `MAP_SUPABASE_DB_PORT` (line 65), commented `MAP_SUPABASE_SERVICE_ROLE_KEY` (line 67), quick-start comment swap to `just env-setup` |
+| `.env.docker-native.example` | `http://supabase-kong.local:8000` | Same three placeholder lines | Same deletions; HTTPS/HTTP/NO_PROXY block unchanged |
+| `.env.docker-supabase.example` | `http://supabase-kong.local:8000` | Same three placeholder lines | Same deletions plus commented `SUPABASE_SERVICE_ROLE_KEY` / `MAP_SUPABASE_SERVICE_ROLE_KEY` / `MAP_SUPABASE_ANON_KEY` triple (lines 72–74) under storage section |
 
 Update each file's header quick-start comment from `just env-secrets && just env-storage && just env-github` to `just env-setup && just env-github`.
 
@@ -168,12 +158,14 @@ Files created: `tests/env-setup.test.js`.
 
 Test location is `tests/` (not `scripts/test/`) because `package.json:31`'s test command runs `find ./tests ./libraries ./products ./services -name '*.test.js'` — anything under `scripts/` is invisible to CI.
 
-Test cases (run with `bun:test`, no fixtures except a tmpdir):
+Each test case spawns the script with `cwd` set to a fresh tmpdir (`mkdtempSync`), via `child_process.spawnSync("bun", [path.resolve("scripts/env-setup.js")], { cwd: tmpdir })`, so the script's `.env` reads and writes hit the isolated tmpdir, not the repo root.
+
+Test cases (run with `bun:test`):
 
 | Case | Assertion |
 | --- | --- |
 | Empty tmpdir | After `bun scripts/env-setup.js` (cwd=tmpdir), `.env` exists with the 8 keys and chmod 600 |
-| Second run | Every value present after run 1 is byte-identical after run 2 |
+| Second run | All 8 values present after run 1 are byte-identical after run 2 (spec § Success Criteria § idempotency) |
 | Anon key verifies | Decode `SUPABASE_ANON_KEY` header, payload, signature; HMAC the header.payload against `SUPABASE_JWT_SECRET`; signature matches |
 | Service-role key verifies | Same as anon, with `role: "service_role"` |
 | Demo literal absent | `rg 'super-secret-jwt-token-with-at-least-32-characters-long' scripts libraries products services` returns zero matches |

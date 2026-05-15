@@ -25,9 +25,7 @@ Verification: `rg MAP_SUPABASE docker-compose.yml` returns zero matches; `rg JWT
 
 Files modified: `products/map/test/activity/service-role-still-used.test.js`.
 
-Rename the test description, the body's `body.includes("MAP_SUPABASE_SERVICE_ROLE_KEY")` (line 35) → `body.includes("supabaseServiceRoleKey")`, and the failure message. The new assertion: at least one src file calls `config.supabaseServiceRoleKey()` — that is the new write-path credential signal.
-
-Rationale: post-migration, src code does not contain the env-var name as a string literal; it contains the accessor call. The test's *intent* (catch a silent migration of ingestion away from the write-path credential) survives intact under the accessor shape.
+Rename the test description, the body's `body.includes("MAP_SUPABASE_SERVICE_ROLE_KEY")` (line 35) → `body.includes("supabaseServiceRoleKey")`, and the failure message. The new assertion: at least one src file calls `config.supabaseServiceRoleKey()` — the post-migration write-path credential signal.
 
 Verification: `bun test products/map/test/activity/service-role-still-used.test.js` green; a synthetic test that removes every `supabaseServiceRoleKey()` from src fails the test.
 
@@ -109,13 +107,17 @@ async function* productionFiles() {
   }
 }
 
+// Catches every form spec § Success Criteria § "No legacy shims" forbids:
+// process.env.SUPABASE_*, process.env.MAP_SUPABASE_*, and standalone
+// process.env.JWT_SECRET (the unprefixed legacy name).
+const FORBIDDEN = /process\.env\.(MAP_SUPABASE_|SUPABASE_|JWT_SECRET\b)/;
+
 describe("Spec 960: no direct Supabase env reads in src/bin", () => {
-  test("no process.env.SUPABASE_ or process.env.MAP_SUPABASE_ literals", async () => {
-    const re = /process\.env\.(MAP_)?SUPABASE_/;
+  test("no process.env.SUPABASE_, MAP_SUPABASE_, or JWT_SECRET literals", async () => {
     const hits = [];
     for await (const file of productionFiles()) {
       const body = await readFile(file, "utf8");
-      if (re.test(body)) hits.push(file);
+      if (FORBIDDEN.test(body)) hits.push(file);
     }
     assert.deepEqual(hits, [], `Direct Supabase env reads found: ${hits.join(", ")}`);
   });
