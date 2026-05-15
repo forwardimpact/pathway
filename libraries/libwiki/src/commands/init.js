@@ -6,7 +6,10 @@ import { Finder } from "@forwardimpact/libutil";
 import { WikiRepo } from "../wiki-repo.js";
 import { listSkills } from "../skill-roster.js";
 
-function deriveWikiUrl(parentDir) {
+/** Resolve the wiki clone URL. Honors the FIT_WIKI_URL env var as an explicit override (for sandboxed environments where `origin` is rewritten to a local proxy that does not serve wiki repos); otherwise derives the URL by appending `.wiki.git` to the parent repo's `origin` remote. */
+export function deriveWikiUrl(parentDir) {
+  if (process.env.FIT_WIKI_URL) return process.env.FIT_WIKI_URL;
+
   const r = spawnSync("git", ["-C", parentDir, "remote", "get-url", "origin"], {
     encoding: "utf-8",
     stdio: "pipe",
