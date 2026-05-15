@@ -17,42 +17,31 @@ import {
 
 const summary = new SummaryRenderer({ process });
 
-const supabaseCli = createSupabaseCli();
-
-/** Start the local Supabase instance and print connection environment variables. */
-export async function start({ cli = supabaseCli, out = process.stdout } = {}) {
+/** Start the local Supabase instance and print a one-line confirmation. */
+export async function start({ cli, out = process.stdout } = {}) {
+  cli = cli ?? createSupabaseCli();
   await cli.run(["start"]);
   const json = await cli.capture(["status", "--output", "json"]);
   const status = JSON.parse(json);
-  out.write("\n");
-  out.write(
-    formatSubheader("Export these variables to use the activity layer:") +
-      "\n\n",
-  );
-  out.write(`  export MAP_SUPABASE_URL=${status.api_url}\n`);
-  out.write(
-    `  export MAP_SUPABASE_SERVICE_ROLE_KEY=${status.service_role_key}\n`,
-  );
-  out.write(`  export MAP_SUPABASE_ANON_KEY=${status.anon_key}\n`);
-  out.write(`  export MAP_SUPABASE_JWT_SECRET=${status.jwt_secret}\n\n`);
+  out.write("\n" + formatSuccess(`Supabase ready at ${status.api_url}`) + "\n");
   return 0;
 }
 
 /** Stop the local Supabase instance. */
 export async function stop() {
-  await supabaseCli.run(["stop"]);
+  await createSupabaseCli().run(["stop"]);
   return 0;
 }
 
 /** Print the current status of the local Supabase instance. */
 export async function status() {
-  await supabaseCli.run(["status"]);
+  await createSupabaseCli().run(["status"]);
   return 0;
 }
 
 /** Reset the local Supabase database by re-applying all migrations. */
 export async function migrate() {
-  await supabaseCli.run(["db", "reset"]);
+  await createSupabaseCli().run(["db", "reset"]);
   return 0;
 }
 

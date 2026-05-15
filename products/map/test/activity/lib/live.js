@@ -3,7 +3,7 @@
  *
  * Six new tests need a running Supabase stack (migrate, apply RLS, mint
  * JWTs, exercise the policy matrix). The harness:
- *   - skips when `MAP_SUPABASE_URL` and `MAP_SUPABASE_JWT_SECRET` are unset
+ *   - skips when `SUPABASE_URL` and `SUPABASE_JWT_SECRET` are unset
  *     (CI runs the suite without booting Supabase)
  *   - applies the RLS migration via `bunx fit-map activity migrate`
  *   - seeds a per-test fixture under the service-role admin client
@@ -18,7 +18,7 @@ import { createClient } from "@supabase/supabase-js";
 /** Return true when env vars for a running local Supabase stack are set. */
 export function isLiveSupabaseAvailable() {
   return Boolean(
-    process.env.MAP_SUPABASE_URL && process.env.MAP_SUPABASE_JWT_SECRET,
+    process.env.SUPABASE_URL && process.env.SUPABASE_JWT_SECRET,
   );
 }
 
@@ -28,11 +28,11 @@ export function isLiveSupabaseAvailable() {
  * @returns {import("@supabase/supabase-js").SupabaseClient}
  */
 export function createAdminClient() {
-  const url = process.env.MAP_SUPABASE_URL;
-  const key = process.env.MAP_SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key)
     throw new Error(
-      "createAdminClient: MAP_SUPABASE_URL and MAP_SUPABASE_SERVICE_ROLE_KEY required",
+      "createAdminClient: SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY required",
     );
   return createClient(url, key, { db: { schema: "activity" } });
 }

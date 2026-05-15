@@ -5,7 +5,7 @@
  * a different manager M') hit each table; this test asserts the admit/deny
  * matrix matches the per-row-class scope rule.
  *
- * Live-Postgres only — skipped when MAP_SUPABASE_URL / MAP_SUPABASE_JWT_SECRET
+ * Live-Postgres only — skipped when SUPABASE_URL / SUPABASE_JWT_SECRET
  * are unset.
  */
 
@@ -21,8 +21,8 @@ import {
 import { signTestToken } from "../../../landmark/test/lib/sign-test-token.js";
 
 function clientFor(email) {
-  const url = process.env.MAP_SUPABASE_URL;
-  const anon = process.env.MAP_SUPABASE_ANON_KEY;
+  const url = process.env.SUPABASE_URL;
+  const anon = process.env.SUPABASE_ANON_KEY;
   const jwt = signTestToken({ email });
   return createClient(url, anon, {
     db: { schema: "activity" },
@@ -32,7 +32,7 @@ function clientFor(email) {
 
 describe("Spec 840 — RLS scope matrix", () => {
   if (!isLiveSupabaseAvailable()) {
-    test("skipped — MAP_SUPABASE_URL / MAP_SUPABASE_JWT_SECRET not set", {
+    test("skipped — SUPABASE_URL / SUPABASE_JWT_SECRET not set", {
       skip: true,
     }, () => {});
     return;
@@ -279,8 +279,8 @@ describe("Spec 840 — RLS scope matrix", () => {
         },
       ]);
       const anon = createClient(
-        process.env.MAP_SUPABASE_URL,
-        process.env.MAP_SUPABASE_ANON_KEY,
+        process.env.SUPABASE_URL,
+        process.env.SUPABASE_ANON_KEY,
         { db: { schema: "activity" } },
       );
       const { data } = await anon.from("organization_people").select("email");

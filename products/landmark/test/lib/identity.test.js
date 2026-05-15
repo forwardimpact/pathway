@@ -17,16 +17,33 @@ import { signTestToken } from "./sign-test-token.js";
 
 const SECRET = "test-secret-do-not-reuse";
 
-function envWith(overrides = {}) {
-  return { ...overrides };
+function makeConfig({ url, anonKey, jwtSecret } = {}) {
+  return {
+    supabaseUrl: () => {
+      if (!url) throw new Error("SUPABASE_URL not found in environment");
+      return url;
+    },
+    supabaseAnonKey: () => {
+      if (!anonKey) throw new Error("SUPABASE_ANON_KEY not found in environment");
+      return anonKey;
+    },
+    supabaseJwtSecret: () => {
+      if (!jwtSecret)
+        throw new Error("SUPABASE_JWT_SECRET not found in environment");
+      return jwtSecret;
+    },
+  };
 }
 
 describe("resolveIdentity — env-only path", () => {
   it("rejects when neither LANDMARK_AUTH_TOKEN nor a session is set", async () => {
-    const env = envWith({ LANDMARK_CREDENTIALS_FILE: "/nonexistent/file" });
-    await assert.rejects(() => resolveIdentity(env), IdentityUnresolvedError);
+    const env = { LANDMARK_CREDENTIALS_FILE: "/nonexistent/file" };
     await assert.rejects(
-      () => resolveIdentity(env),
+      () => resolveIdentity({ config: makeConfig(), env }),
+      IdentityUnresolvedError,
+    );
+    await assert.rejects(
+      () => resolveIdentity({ config: makeConfig(), env }),
       /run `fit-landmark login`/,
     );
   });
@@ -34,7 +51,10 @@ describe("resolveIdentity — env-only path", () => {
   it("throws on a non-JWT shape", async () => {
     await assert.rejects(
       () =>
-        resolveIdentity(envWith({ LANDMARK_AUTH_TOKEN: "not.a.jwt.really" })),
+        resolveIdentity({
+          config: makeConfig(),
+          env: { LANDMARK_AUTH_TOKEN: "not.a.jwt.really" },
+        }),
       /not a JWT/,
     );
   });
@@ -52,7 +72,11 @@ describe("resolveIdentity — env-only path", () => {
     const sig = "a".repeat(43);
     const bad = `${header}.${payload}.${sig}`;
     await assert.rejects(
-      () => resolveIdentity(envWith({ LANDMARK_AUTH_TOKEN: bad })),
+      () =>
+        resolveIdentity({
+          config: makeConfig(),
+          env: { LANDMARK_AUTH_TOKEN: bad },
+        }),
       /header rejected/,
     );
   });
@@ -64,7 +88,11 @@ describe("resolveIdentity — env-only path", () => {
     const payload = Buffer.from("not-json").toString("base64url");
     const bad = `${header}.${payload}.aaaa`;
     await assert.rejects(
-      () => resolveIdentity(envWith({ LANDMARK_AUTH_TOKEN: bad })),
+      () =>
+        resolveIdentity({
+          config: makeConfig(),
+          env: { LANDMARK_AUTH_TOKEN: bad },
+        }),
       /payload is not valid JSON/,
     );
   });
@@ -86,12 +114,10 @@ describe("resolveIdentity — env-only path", () => {
     const noEmail = `${header}.${payload}.${sig}`;
     await assert.rejects(
       () =>
-        resolveIdentity(
-          envWith({
-            LANDMARK_AUTH_TOKEN: noEmail,
-            MAP_SUPABASE_JWT_SECRET: SECRET,
-          }),
-        ),
+        resolveIdentity({
+          config: makeConfig({ jwtSecret: SECRET }),
+          env: { LANDMARK_AUTH_TOKEN: noEmail },
+        }),
       /missing string email claim/,
     );
   });
@@ -108,7 +134,11 @@ describe("resolveIdentity — env-only path", () => {
     ).toString("base64url");
     const bad = `${header}.${payload}.aaaa`;
     await assert.rejects(
-      () => resolveIdentity(envWith({ LANDMARK_AUTH_TOKEN: bad })),
+      () =>
+        resolveIdentity({
+          config: makeConfig(),
+          env: { LANDMARK_AUTH_TOKEN: bad },
+        }),
       /missing string email claim/,
     );
   });
@@ -122,7 +152,11 @@ describe("resolveIdentity — env-only path", () => {
     ).toString("base64url");
     const bad = `${header}.${payload}.aaaa`;
     await assert.rejects(
-      () => resolveIdentity(envWith({ LANDMARK_AUTH_TOKEN: bad })),
+      () =>
+        resolveIdentity({
+          config: makeConfig(),
+          env: { LANDMARK_AUTH_TOKEN: bad },
+        }),
       /expired/,
     );
   });
@@ -143,12 +177,10 @@ describe("resolveIdentity — env-only path", () => {
     const expired = `${header}.${payload}.${sig}`;
     await assert.rejects(
       () =>
-        resolveIdentity(
-          envWith({
-            LANDMARK_AUTH_TOKEN: expired,
-            MAP_SUPABASE_JWT_SECRET: SECRET,
-          }),
-        ),
+        resolveIdentity({
+          config: makeConfig({ jwtSecret: SECRET }),
+          env: { LANDMARK_AUTH_TOKEN: expired },
+        }),
       /expired/,
     );
   });
@@ -159,31 +191,30 @@ describe("resolveIdentity — env-only path", () => {
     const bad = `${h}.${p}.${"a".repeat(43)}`;
     await assert.rejects(
       () =>
-        resolveIdentity(
-          envWith({
-            LANDMARK_AUTH_TOKEN: bad,
-            MAP_SUPABASE_JWT_SECRET: SECRET,
-          }),
-        ),
+        resolveIdentity({
+          config: makeConfig({ jwtSecret: SECRET }),
+          env: { LANDMARK_AUTH_TOKEN: bad },
+        }),
       /signature does not verify/,
     );
   });
 
   it("returns { email, jwt } on a happy path with the secret present", async () => {
     const token = signTestToken({ email: "alice@example.com", secret: SECRET });
-    const out = await resolveIdentity(
-      envWith({
-        LANDMARK_AUTH_TOKEN: token,
-        MAP_SUPABASE_JWT_SECRET: SECRET,
-      }),
-    );
+    const out = await resolveIdentity({
+      config: makeConfig({ jwtSecret: SECRET }),
+      env: { LANDMARK_AUTH_TOKEN: token },
+    });
     assert.equal(out.email, "alice@example.com");
     assert.equal(out.jwt, token);
   });
 
   it("trusts the JWT shape when the secret is absent (production path)", async () => {
     const token = signTestToken({ email: "bob@example.com", secret: SECRET });
-    const out = await resolveIdentity(envWith({ LANDMARK_AUTH_TOKEN: token }));
+    const out = await resolveIdentity({
+      config: makeConfig(),
+      env: { LANDMARK_AUTH_TOKEN: token },
+    });
     assert.equal(out.email, "bob@example.com");
   });
 });
@@ -202,7 +233,7 @@ describe("resolveIdentity — credentials-store fallback", () => {
   });
 
   it("reads a valid (unexpired) session from the store", async () => {
-    const env = envWith({ LANDMARK_CREDENTIALS_FILE: credsFile });
+    const env = { LANDMARK_CREDENTIALS_FILE: credsFile };
     await writeCredentials(
       {
         access_token: "access-from-store",
@@ -212,13 +243,13 @@ describe("resolveIdentity — credentials-store fallback", () => {
       },
       env,
     );
-    const out = await resolveIdentity(env);
+    const out = await resolveIdentity({ config: makeConfig(), env });
     assert.equal(out.email, "carol@example.com");
     assert.equal(out.jwt, "access-from-store");
   });
 
   it("env LANDMARK_AUTH_TOKEN takes precedence over the store", async () => {
-    const env = envWith({ LANDMARK_CREDENTIALS_FILE: credsFile });
+    const env = { LANDMARK_CREDENTIALS_FILE: credsFile };
     await writeCredentials(
       {
         access_token: "from-store",
@@ -230,20 +261,15 @@ describe("resolveIdentity — credentials-store fallback", () => {
     );
     const token = signTestToken({ email: "dave@example.com", secret: SECRET });
     const out = await resolveIdentity({
-      ...env,
-      LANDMARK_AUTH_TOKEN: token,
-      MAP_SUPABASE_JWT_SECRET: SECRET,
+      config: makeConfig({ jwtSecret: SECRET }),
+      env: { ...env, LANDMARK_AUTH_TOKEN: token },
     });
     assert.equal(out.email, "dave@example.com");
     assert.equal(out.jwt, token);
   });
 
   it("refreshes when expires_at is past and persists new tokens", async () => {
-    const env = envWith({
-      LANDMARK_CREDENTIALS_FILE: credsFile,
-      MAP_SUPABASE_URL: "http://supabase.local",
-      MAP_SUPABASE_ANON_KEY: "anon",
-    });
+    const env = { LANDMARK_CREDENTIALS_FILE: credsFile };
     await writeCredentials(
       {
         access_token: "stale",
@@ -278,7 +304,11 @@ describe("resolveIdentity — credentials-store fallback", () => {
       };
     };
 
-    const out = await resolveIdentity(env, { createClient });
+    const out = await resolveIdentity({
+      config: makeConfig({ url: "http://supabase.local", anonKey: "anon" }),
+      env,
+      createClient,
+    });
     assert.equal(refreshArgs, "old-refresh");
     assert.equal(out.email, "eve@example.com");
     assert.equal(out.jwt, "new-access");
@@ -290,11 +320,7 @@ describe("resolveIdentity — credentials-store fallback", () => {
   });
 
   it("clears the store and throws when refresh fails", async () => {
-    const env = envWith({
-      LANDMARK_CREDENTIALS_FILE: credsFile,
-      MAP_SUPABASE_URL: "http://supabase.local",
-      MAP_SUPABASE_ANON_KEY: "anon",
-    });
+    const env = { LANDMARK_CREDENTIALS_FILE: credsFile };
     await writeCredentials(
       {
         access_token: "stale",
@@ -314,14 +340,19 @@ describe("resolveIdentity — credentials-store fallback", () => {
     });
 
     await assert.rejects(
-      () => resolveIdentity(env, { createClient }),
+      () =>
+        resolveIdentity({
+          config: makeConfig({ url: "http://supabase.local", anonKey: "anon" }),
+          env,
+          createClient,
+        }),
       /refresh failed.*run `fit-landmark login`/s,
     );
     assert.equal(await readCredentials(env), null);
   });
 
-  it("rejects when refresh is needed but MAP_SUPABASE_URL is missing", async () => {
-    const env = envWith({ LANDMARK_CREDENTIALS_FILE: credsFile });
+  it("rejects when refresh is needed but SUPABASE_URL is missing", async () => {
+    const env = { LANDMARK_CREDENTIALS_FILE: credsFile };
     await writeCredentials(
       {
         access_token: "stale",
@@ -331,6 +362,9 @@ describe("resolveIdentity — credentials-store fallback", () => {
       },
       env,
     );
-    await assert.rejects(() => resolveIdentity(env), /MAP_SUPABASE_URL/);
+    await assert.rejects(
+      () => resolveIdentity({ config: makeConfig(), env }),
+      /SUPABASE_URL/,
+    );
   });
 });

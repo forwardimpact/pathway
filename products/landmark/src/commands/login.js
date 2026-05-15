@@ -113,14 +113,16 @@ function createPkceStorage() {
   };
 }
 
-function resolveAnonClient({ env, createClient, flowType = "implicit" }) {
-  const url = env.MAP_SUPABASE_URL;
-  const anonKey = env.MAP_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) {
+function resolveAnonClient({ config, createClient, flowType = "implicit" }) {
+  let url, anonKey;
+  try {
+    url = config.supabaseUrl();
+    anonKey = config.supabaseAnonKey();
+  } catch (err) {
     throw new Error(
-      "fit-landmark login: MAP_SUPABASE_URL and MAP_SUPABASE_ANON_KEY " +
-        "must be set. Run `fit-map activity start` (local) or copy them " +
-        "from your Supabase project settings (hosted).",
+      "fit-landmark login: SUPABASE_URL and SUPABASE_ANON_KEY must be set. " +
+        "Run `just env-setup` (local) or copy them from your Supabase " +
+        `project settings (hosted). Underlying: ${err.message}`,
     );
   }
   return createClient(url, anonKey, {
@@ -139,13 +141,15 @@ function resolveAnonClient({ env, createClient, flowType = "implicit" }) {
  * @param {object} params
  * @param {{email?:string, otp?:boolean}} params.options
  * @param {{stdin?:NodeJS.ReadableStream,stdout?:NodeJS.WritableStream}} [params.io]
- * @param {NodeJS.ProcessEnv} [params.env]
+ * @param {object} params.config - libconfig Config carrying Supabase URL + anon key.
+ * @param {NodeJS.ProcessEnv} [params.env] - Carries LANDMARK_CREDENTIALS_FILE.
  * @param {(url:string,key:string)=>any} [params.createClient]
  * @param {() => Promise<{port:number,codePromise:Promise<string>,close:()=>void}>} [params.openListener]
  */
 export async function runLoginCommand({
   options = {},
   io = { stdin: process.stdin, stdout: process.stdout },
+  config,
   env = process.env,
   createClient,
   openListener = startCallbackServer,
@@ -158,14 +162,14 @@ export async function runLoginCommand({
   if (!email) throw new Error("fit-landmark login: email is required");
 
   if (options.otp) {
-    const client = resolveAnonClient({ env, createClient });
+    const client = resolveAnonClient({ config, createClient });
     return runOtpFlow({ client, email, io, env });
   }
   // Browser flow needs PKCE so the magic-link redirect lands `?code=` (a
   // query param the localhost listener can read) rather than the default
   // implicit flow's `#access_token=...` URL fragment (which browsers strip
   // before sending the request — making it invisible to the listener).
-  const client = resolveAnonClient({ env, createClient, flowType: "pkce" });
+  const client = resolveAnonClient({ config, createClient, flowType: "pkce" });
   return runBrowserFlow({ client, email, io, env, openListener });
 }
 

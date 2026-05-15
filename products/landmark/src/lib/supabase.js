@@ -22,25 +22,28 @@ export class SupabaseUnavailableError extends Error {
  *
  * @param {object} opts
  * @param {string} opts.jwt - Supabase Auth JWT; transports as Authorization: Bearer.
- * @param {string} [opts.url] - Override for MAP_SUPABASE_URL.
- * @param {string} [opts.anonKey] - Override for MAP_SUPABASE_ANON_KEY.
+ * @param {{supabaseUrl: () => string, supabaseAnonKey: () => string}} opts.config - libconfig Config providing the Supabase URL and anon key.
  * @param {string} [opts.schema] - Database schema (default: "activity").
  * @returns {import("@supabase/supabase-js").SupabaseClient}
  */
-export function createLandmarkClient({
-  jwt,
-  url = process.env.MAP_SUPABASE_URL,
-  anonKey = process.env.MAP_SUPABASE_ANON_KEY,
-  schema = "activity",
-} = {}) {
-  if (!url || !anonKey)
+export function createLandmarkClient({ jwt, config, schema = "activity" } = {}) {
+  if (!config)
     throw new SupabaseUnavailableError(
-      "MAP_SUPABASE_URL / MAP_SUPABASE_ANON_KEY not set. Run `fit-map activity start` and export the URL + anon key it prints.",
+      "Supabase URL + anon key not set. Run `just env-setup`.",
     );
   if (!jwt)
     throw new SupabaseUnavailableError(
       "missing JWT — resolveIdentity must run first",
     );
+  let url, anonKey;
+  try {
+    url = config.supabaseUrl();
+    anonKey = config.supabaseAnonKey();
+  } catch (err) {
+    throw new SupabaseUnavailableError(
+      `Supabase URL + anon key not set. Run \`just env-setup\`. Underlying: ${err.message}`,
+    );
+  }
   return createClient(url, anonKey, {
     db: { schema },
     global: { headers: { Authorization: `Bearer ${jwt}` } },

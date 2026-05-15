@@ -45,9 +45,13 @@ import {
 import { loadToSupabase } from "./load.js";
 
 /**
- * Build the Supabase client used by LoadSink, validating env vars first.
+ * Build the Supabase client used by LoadSink, validating config first.
+ *
+ * @param {object} params
+ * @param {object} params.config - libconfig Config carrying Supabase URL + service-role key.
  */
-export async function resolveSupabaseClient() {
+export async function resolveSupabaseClient({ config }) {
+  if (!config) throw new Error("resolveSupabaseClient: config required");
   let createClient;
   try {
     ({ createClient } = await import("@supabase/supabase-js"));
@@ -56,16 +60,14 @@ export async function resolveSupabaseClient() {
       "build --load requires @supabase/supabase-js. Install with: bun add @supabase/supabase-js",
     );
   }
-  const url = process.env.MAP_SUPABASE_URL;
-  const key = process.env.MAP_SUPABASE_SERVICE_ROLE_KEY;
-  if (!url) {
+  let url, key;
+  try {
+    url = config.supabaseUrl();
+    key = config.supabaseServiceRoleKey();
+  } catch (err) {
     throw new Error(
-      "MAP_SUPABASE_URL is not set. Run `fit-map activity start` and export the URL it prints.",
-    );
-  }
-  if (!key) {
-    throw new Error(
-      "MAP_SUPABASE_SERVICE_ROLE_KEY is not set. Run `just env-secrets` to generate it.",
+      "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY not set. " +
+        `Run \`just env-setup\` to generate them. Underlying: ${err.message}`,
     );
   }
   return createClient(url, key);
@@ -155,6 +157,7 @@ export async function selectOutputSink({
   monorepoRoot,
   prettierFn,
   logger,
+  config,
 }) {
   if (verb === "inspect") return new InspectSink();
   if (verb !== "build" && verb !== "generate") return new NullSink();
@@ -162,7 +165,7 @@ export async function selectOutputSink({
   const writeSink = new WriteSink({ monorepoRoot, prettierFn, logger });
   if (!load) return writeSink;
 
-  const supabase = await resolveSupabaseClient();
+  const supabase = await resolveSupabaseClient({ config });
   const loadSink = new LoadSink({
     prettierFn,
     supabase,

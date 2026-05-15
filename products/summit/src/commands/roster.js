@@ -15,9 +15,9 @@ import { rosterToJson } from "../formatters/roster/json.js";
  * @param {object} params.data - Loaded Map standard data.
  * @param {object} params.options - Parsed CLI options.
  */
-export async function runRosterCommand({ data, options }) {
+export async function runRosterCommand({ data, options, config }) {
   const format = resolveFormat(options);
-  const roster = await loadRoster(getRosterSource(options));
+  const roster = await loadRoster(getRosterSource(options, config));
 
   if (format === Format.JSON) {
     process.stdout.write(JSON.stringify(rosterToJson(roster), null, 2) + "\n");

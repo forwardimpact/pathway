@@ -12,6 +12,7 @@ import { createLandmarkClient } from "./supabase.js";
  *
  * @param {object} params
  * @param {string} params.dataDir - Resolved Map data directory.
+ * @param {object} params.config - libconfig Config for the landmark product.
  * @param {object} params.options - Parsed CLI options.
  * @param {boolean} params.needsSupabase - Whether to open a Supabase client.
  * @param {{email: string, jwt: string}|null} [params.identity] - Resolved caller identity (required when needsSupabase).
@@ -19,13 +20,14 @@ import { createLandmarkClient } from "./supabase.js";
  */
 export async function buildContext({
   dataDir,
+  config,
   options,
   needsSupabase,
   identity = null,
 }) {
   const mapData = await loadMapData(dataDir);
   const supabase = needsSupabase
-    ? createLandmarkClient({ jwt: identity?.jwt })
+    ? createLandmarkClient({ jwt: identity?.jwt, config })
     : null;
   const format = resolveFormat(options);
   return { mapData, supabase, format, options, identity };

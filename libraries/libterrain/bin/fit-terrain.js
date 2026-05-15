@@ -229,6 +229,7 @@ async function runVerb(options) {
     monorepoRoot,
     prettierFn: format,
     logger,
+    config,
   });
   const writeStats = await sink.accept(result);
 

@@ -21,9 +21,10 @@ import {
  *
  * @param {object} options
  * @param {string} [options.rosterPath] - Path to a `summit.yaml` file.
+ * @param {object} [options.config] - libconfig Config to pass to createSummitClient.
  * @param {import("@supabase/supabase-js").SupabaseClient} [options.supabase] -
  *   Optional pre-built Supabase client (tests inject fakes through this).
- * @param {() => import("@supabase/supabase-js").SupabaseClient} [options.createClient] -
+ * @param {(opts: object) => import("@supabase/supabase-js").SupabaseClient} [options.createClient] -
  *   Alternative Supabase factory (defaults to `createSummitClient`).
  * @param {(path: string) => Promise<string>} [options.readFile] - Override file reader for tests.
  * @returns {Promise<import("./yaml.js").Roster>}
@@ -31,6 +32,7 @@ import {
 export async function loadRoster(options = {}) {
   const {
     rosterPath,
+    config,
     supabase,
     createClient = createSummitClient,
     readFile: read = defaultRead,
@@ -45,7 +47,7 @@ export async function loadRoster(options = {}) {
   let client = supabase;
   if (!client) {
     try {
-      client = await createClient();
+      client = await createClient({ config });
     } catch (e) {
       if (e instanceof SupabaseUnavailableError) {
         throw new Error(

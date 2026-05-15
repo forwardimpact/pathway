@@ -77,8 +77,10 @@ export function resolveFormat(options) {
  * Normalize the source of the roster (explicit path vs. Map-sourced).
  *
  * @param {object} options
- * @returns {{ rosterPath?: string }}
+ * @param {object} [config] - libconfig Config to forward to createSummitClient.
+ * @returns {{ rosterPath?: string, config?: object }}
  */
-export function getRosterSource(options) {
-  return options.roster ? { rosterPath: options.roster } : {};
+export function getRosterSource(options, config) {
+  if (options.roster) return { rosterPath: options.roster };
+  return config ? { config } : {};
 }

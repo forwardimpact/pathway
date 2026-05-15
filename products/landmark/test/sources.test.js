@@ -1,7 +1,7 @@
 /**
  * Spec 840 criterion 5/6/7 — fit-landmark sources verb.
  *
- * Live-Postgres only — skipped when MAP_SUPABASE_URL / MAP_SUPABASE_JWT_SECRET
+ * Live-Postgres only — skipped when SUPABASE_URL / SUPABASE_JWT_SECRET
  * are unset.
  *
  * Covers:
@@ -28,8 +28,8 @@ import { clearRetentionCache } from "@forwardimpact/map/activity/retention";
 
 function clientFor(email) {
   return createClient(
-    process.env.MAP_SUPABASE_URL,
-    process.env.MAP_SUPABASE_ANON_KEY,
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_ANON_KEY,
     {
       db: { schema: "activity" },
       global: {
@@ -41,7 +41,7 @@ function clientFor(email) {
 
 describe("Spec 840 — fit-landmark sources", () => {
   if (!isLiveSupabaseAvailable()) {
-    test("skipped — MAP_SUPABASE_URL / MAP_SUPABASE_JWT_SECRET not set", {
+    test("skipped — SUPABASE_URL / SUPABASE_JWT_SECRET not set", {
       skip: true,
     }, () => {});
     return;
@@ -51,7 +51,7 @@ describe("Spec 840 — fit-landmark sources", () => {
   // → `supabase db reset` on the first invocation in the process. That takes
   // roughly 25 seconds on a warm runner, which exceeds bun:test's 5s default
   // timeout. Pin the timeout explicitly so a full-suite local run with the
-  // MAP_SUPABASE_* env vars set surfaces real assertion failures, not the
+  // SUPABASE_* env vars set surfaces real assertion failures, not the
   // structural cost of the migrate step.
   test("populated classes appear with five fields; empty classes are omitted", {
     timeout: 120000,

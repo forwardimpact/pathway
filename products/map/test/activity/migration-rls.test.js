@@ -1,7 +1,7 @@
 /**
  * Spec 840 criterion 1 — every Landmark-read activity.* table has RLS on.
  *
- * Live-Postgres test. Skipped when MAP_SUPABASE_URL / MAP_SUPABASE_JWT_SECRET
+ * Live-Postgres test. Skipped when SUPABASE_URL / SUPABASE_JWT_SECRET
  * are unset (CI today does not boot Supabase).
  */
 
@@ -25,7 +25,7 @@ const TABLES = [
 
 describe("Spec 840 — RLS + retention migration", () => {
   if (!isLiveSupabaseAvailable()) {
-    test("skipped — MAP_SUPABASE_URL / MAP_SUPABASE_JWT_SECRET not set", {
+    test("skipped — SUPABASE_URL / SUPABASE_JWT_SECRET not set", {
       skip: true,
     }, () => {});
     return;

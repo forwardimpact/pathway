@@ -10,14 +10,8 @@ const config = await createServiceConfig("map");
 const logger = createLogger("map");
 const tracer = await createTracer("map");
 
-const supabaseUrl =
-  config.supabaseUrl ||
-  process.env.MAP_SUPABASE_URL ||
-  process.env.SUPABASE_URL;
-const supabaseKey =
-  config.supabaseKey ||
-  process.env.MAP_SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = config.supabaseUrl();
+const supabaseKey = config.supabaseServiceRoleKey();
 const supabase = createSupabaseClient(supabaseUrl, supabaseKey, {
   db: { schema: "activity" },
 });

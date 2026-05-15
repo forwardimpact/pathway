@@ -1,8 +1,8 @@
 /**
  * Spec 840 criterion 10/11 — admin provisioning lifecycle.
  *
- * Live-Postgres only — skipped when MAP_SUPABASE_URL /
- * MAP_SUPABASE_JWT_SECRET are unset.
+ * Live-Postgres only — skipped when SUPABASE_URL /
+ * SUPABASE_JWT_SECRET are unset.
  *
  * Covers:
  *   - first run creates one auth.users row per roster email
@@ -38,7 +38,7 @@ async function listEmails(admin) {
 
 describe("Spec 840 — fit-map people provision lifecycle", () => {
   if (!isLiveSupabaseAvailable()) {
-    test("skipped — MAP_SUPABASE_URL / MAP_SUPABASE_JWT_SECRET not set", {
+    test("skipped — SUPABASE_URL / SUPABASE_JWT_SECRET not set", {
       skip: true,
     }, () => {});
     return;

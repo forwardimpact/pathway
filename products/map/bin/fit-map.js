@@ -14,6 +14,7 @@ import { readFileSync } from "fs";
 import { homedir } from "os";
 import { Finder } from "@forwardimpact/libutil";
 import { createLogger } from "@forwardimpact/libtelemetry";
+import { createProductConfig } from "@forwardimpact/libconfig";
 import {
   createCli,
   SummaryRenderer,
@@ -26,6 +27,7 @@ import {
 } from "@forwardimpact/libcli";
 
 const summary = new SummaryRenderer({ process });
+const config = await createProductConfig("map");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -356,9 +358,9 @@ async function runGenerateIndex(dataDir) {
 
 // ── Dispatchers ──────────────────────────────────────────────────────────────
 
-async function mapClient(values) {
+async function mapClient(_values) {
   const { createMapClient } = await import("../src/lib/client.js");
-  return createMapClient({ url: values.url });
+  return createMapClient({ config });
 }
 
 async function dispatchPeople(subcommand, rest, values) {
@@ -416,7 +418,7 @@ async function dispatchActivity(subcommand, rest, values) {
   const activity = await import("../src/commands/activity.js");
   switch (subcommand) {
     case "start":
-      return activity.start();
+      return activity.start({ config });
     case "stop":
       return activity.stop();
     case "status":
@@ -461,6 +463,7 @@ async function dispatchAuth(subcommand, _rest, values) {
       );
       await runAuthIssueCommand({
         supabase,
+        config,
         options: { email: values.email, ttl: values.ttl },
       });
       return 0;

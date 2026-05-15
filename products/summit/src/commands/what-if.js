@@ -24,7 +24,7 @@ import { whatIfToMarkdown } from "../formatters/what-if/markdown.js";
  * @param {string[]} params.args
  * @param {object} params.options
  */
-export async function runWhatIfCommand({ data, args, options }) {
+export async function runWhatIfCommand({ data, args, options, config }) {
   const format = resolveFormat(options);
   const target = resolveTarget(args, options);
 
@@ -38,7 +38,7 @@ export async function runWhatIfCommand({ data, args, options }) {
     throw e;
   }
 
-  const roster = await loadRoster(getRosterSource(options));
+  const roster = await loadRoster(getRosterSource(options, config));
 
   const before = computeSnapshot(roster, data, target);
   let mutated;

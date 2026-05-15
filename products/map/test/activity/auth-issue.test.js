@@ -52,18 +52,27 @@ function captureStdout() {
   };
 }
 
+function makeConfig(secret = "test-secret") {
+  return {
+    supabaseJwtSecret: () => {
+      if (secret === null) {
+        throw new Error("SUPABASE_JWT_SECRET not found in environment");
+      }
+      return secret;
+    },
+  };
+}
+
 describe("runAuthIssueCommand", () => {
-  const savedSecret = process.env.MAP_SUPABASE_JWT_SECRET;
   let out;
+  let config;
 
   beforeEach(() => {
-    process.env.MAP_SUPABASE_JWT_SECRET = "test-secret";
+    config = makeConfig("test-secret");
     out = captureStdout();
   });
   afterEach(() => {
     out.restore();
-    if (savedSecret === undefined) delete process.env.MAP_SUPABASE_JWT_SECRET;
-    else process.env.MAP_SUPABASE_JWT_SECRET = savedSecret;
   });
 
   test("happy path mints a JWT for a human row", async () => {
@@ -73,6 +82,7 @@ describe("runAuthIssueCommand", () => {
     });
     const result = await runAuthIssueCommand({
       supabase,
+      config,
       options: { email: "alice@example.com" },
     });
     assert.equal(result.meta.ok, true);
@@ -96,6 +106,7 @@ describe("runAuthIssueCommand", () => {
     });
     const result = await runAuthIssueCommand({
       supabase,
+      config,
       options: { email: "agent@example.com" },
     });
     assert.equal(result.summary.kind, "service_account");
@@ -108,6 +119,7 @@ describe("runAuthIssueCommand", () => {
     });
     const result = await runAuthIssueCommand({
       supabase,
+      config,
       options: { email: "alice@example.com", ttl: "30d" },
     });
     assert.equal(result.summary.ttlSeconds, 30 * 86_400);
@@ -116,13 +128,12 @@ describe("runAuthIssueCommand", () => {
   test("rejects missing --email", async () => {
     const supabase = makeStub({});
     await assert.rejects(
-      () => runAuthIssueCommand({ supabase, options: {} }),
+      () => runAuthIssueCommand({ supabase, config, options: {} }),
       /--email <e> is required/,
     );
   });
 
   test("rejects missing JWT secret", async () => {
-    delete process.env.MAP_SUPABASE_JWT_SECRET;
     const supabase = makeStub({
       rosterRow: { email: "alice@example.com", kind: "human" },
       authUsers: [{ id: "u1", email: "alice@example.com" }],
@@ -131,9 +142,10 @@ describe("runAuthIssueCommand", () => {
       () =>
         runAuthIssueCommand({
           supabase,
+          config: makeConfig(null),
           options: { email: "alice@example.com" },
         }),
-      /MAP_SUPABASE_JWT_SECRET is not set/,
+      /SUPABASE_JWT_SECRET is not set/,
     );
   });
 
@@ -146,6 +158,7 @@ describe("runAuthIssueCommand", () => {
       () =>
         runAuthIssueCommand({
           supabase,
+          config,
           options: { email: "alice@example.com" },
         }),
       /no organization_people row[\s\S]*fit-map people push/,
@@ -161,6 +174,7 @@ describe("runAuthIssueCommand", () => {
       () =>
         runAuthIssueCommand({
           supabase,
+          config,
           options: { email: "alice@example.com" },
         }),
       /no auth\.users row[\s\S]*fit-map people provision/,
@@ -176,6 +190,7 @@ describe("runAuthIssueCommand", () => {
       () =>
         runAuthIssueCommand({
           supabase,
+          config,
           options: { email: "alice@example.com", ttl: "5m" },
         }),
       /invalid duration/,

@@ -19,14 +19,14 @@ import { compareToJson } from "../formatters/compare/json.js";
  * @param {string[]} params.args
  * @param {object} params.options
  */
-export async function runCompareCommand({ data, args, options }) {
+export async function runCompareCommand({ data, args, options, config }) {
   const format = resolveFormat(options);
   const audience = resolveAudience(options);
 
   const leftTarget = parseCompareTarget(args[0], options, "left-project");
   const rightTarget = parseCompareTarget(args[1], options, "right-project");
 
-  const roster = await loadRoster(getRosterSource(options));
+  const roster = await loadRoster(getRosterSource(options, config));
 
   const left = snapshotTeam(roster, data, leftTarget);
   const right = snapshotTeam(roster, data, rightTarget);

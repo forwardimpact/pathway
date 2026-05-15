@@ -13,6 +13,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createCli } from "@forwardimpact/libcli";
+import { createProductConfig } from "@forwardimpact/libconfig";
 
 import { runOrgCommand } from "../src/commands/org.js";
 import { runSnapshotCommand } from "../src/commands/snapshot.js";
@@ -285,12 +286,14 @@ async function main() {
     process.exit(2);
   }
 
+  const config = await createProductConfig("landmark");
   try {
     const dataDir = resolveDataDir(values);
     let identity = null;
-    if (entry.needsSupabase) identity = await resolveIdentity();
+    if (entry.needsSupabase) identity = await resolveIdentity({ config });
     const ctx = await buildContext({
       dataDir,
+      config,
       options: values,
       needsSupabase: entry.needsSupabase,
       identity,
@@ -299,6 +302,7 @@ async function main() {
     const result = await entry.handler({
       args,
       options: values,
+      config,
       mapData: ctx.mapData,
       supabase: ctx.supabase,
       format: ctx.format,
