@@ -95,8 +95,9 @@ does on every event the agents run.
 ### In scope
 
 The seven open questions from the research corpus (index § Open questions,
-beginning at line 114 of `memory-protocol-research-2026-05-16.md`) become
-seven decision areas the redesign must take an explicit position on. Each
+beginning at line 114 of `memory-protocol-research-2026-05-16.md`), plus
+the `fit-wiki` CLI surface that realizes the redesigned protocol, become
+eight decision areas the redesign must take an explicit position on. Each
 names a Failure id the area closes (or accepts),
 a target end-state, and the decision the design phase must produce. The
 spec stakes the *outcome*; the design and plan choose the mechanism.
@@ -110,8 +111,9 @@ spec stakes the *outcome*; the design and plan choose the mechanism.
 | 5 | **Mechanical enforcement of the summary contract.** | F10 | The 80-line summary cap, the `<!-- memo:inbox -->` marker, and the "Inbox is the first H2" rule are each, independently, either (a) mechanically gated on commit so a violation fails a checked surface, or (b) explicitly redesigned out of the contract — for example, the 80-line cap could be replaced by a different bound, the marker by a different convention, or a rule could be dropped entirely with rationale. The redesign decides per-rule. The disallowed end-state is "rule remains in the contract text, unchanged, and still unchecked." |
 | 6 | **Decision-block adoption rule.** | F6, F13 | The redesign states whether the `### Decision` block is required as the *opening* of each weekly-log entry going forward, and whether the requirement is gated mechanically or by convention. The historical 14-of-40 W14–W16 gap is left in place — past entries are not retrofitted. |
 | 7 | **Tool-vs-memory habit position.** | F5; indirect on F4 (append-position guesswork) and F11 (priority surface dark) | The redesign text explicitly states whether agents are expected to prefer memory, prefer tool re-derivation, or use both with a named decision rule, and links the stated position to at least one of F4, F5, or F11 by failure-id reference. Whichever position is taken, the rest of the protocol is consistent with it. The current text is silent on the question; silence is not an acceptable end-state. |
+| 8 | **`fit-wiki` CLI surface composition.** | Cross-cuts F3, F5, F8, F10, F17, F18 | The redesign names the complete `fit-wiki` subcommand set that realizes the new protocol — what subcommands exist post-redesign, what each enforces or produces, and which protocol contracts the CLI gates (on commit, in the Stop-hook, or at runtime). Existing subcommands (`memo`, `push`, `pull`, `init`, `refresh`) and the audit script (`scripts/wiki-audit.sh`) are each, independently, retained as-is, modified, retired, or absorbed — with rationale. New primitives required by decision areas #1–#7 (for example, an append-log primitive that closes F4, an in-flight-claim primitive that realizes #4, a Tier 1 read-check primitive that gates #3) are named in the spec and specified in the design. Coherence rule: after redesign, no contract in the protocol is silent on whether the CLI gates it, and no `fit-wiki` subcommand exists without a contract in the protocol it serves. Building the CLI changes is plan/implement-phase work, but they ship in the same PR series as the protocol redesign — the protocol and the CLI that realizes it land together, not in sequence. |
 
-Beyond the seven decision areas, the redesign:
+Beyond the eight decision areas, the redesign:
 
 - **Names the jobs it serves.** The shared jobs the protocol demonstrably
   serves but does not name today — "find next thing to pick up without
@@ -150,14 +152,18 @@ Beyond the seven decision areas, the redesign:
   Assess procedure, its skill mappings) is not. Escape route: if the
   redesign cannot land without a substantive profile change, the implementer
   halts and files a follow-up spec rather than expanding this one.
-- **`fit-wiki` CLI surface redesign.** The CLI already provides
-  `fit-wiki memo` and the Stop-hook `fit-wiki push`. The redesign may
-  require new CLI primitives (for example, `fit-wiki append-log` to close
-  F4) — naming those is in scope; building them is plan-phase work, and
-  building anything substantially beyond what the redesign requires is
-  follow-up. Escape route: any new CLI primitive whose implementation does
-  not fit inside the redesign PR is filed as a follow-up spec; the redesign
-  PR may declare the CLI primitive in spec/design text without shipping it.
+- **`fit-wiki` internal refactor unrelated to the protocol.** Refactoring
+  of `libraries/libwiki/` internals that is not driven by a decision area
+  above — code organization, dependency cleanup, test restructure,
+  unrelated UX polish — is out of scope. The CLI surface as the protocol
+  sees it (subcommands, what each enforces, Stop-hook behavior, audit-script
+  coverage) is fully in scope per decision area #8. Escape route: if a new
+  subcommand the redesign requires demands a substantial dependency change
+  (new library, new service, new infra) that doesn't fit in the redesign
+  PR series, the implementer halts and files a follow-up spec — but the
+  redesign retains the primitive's contract in spec/design text so the
+  protocol is not silent on the gap, and the follow-up spec inherits the
+  contract.
 - **Backfill of past weekly logs to the new contract.** If the redesign
   imposes a weekly-log budget or a Decision-block requirement, past logs
   remain as they are (append-only). The cutover date is named in the
@@ -189,7 +195,7 @@ Beyond the seven decision areas, the redesign:
 | Claim | Verification |
 |---|---|
 | The redesigned protocol exists at the same path. | `.claude/agents/references/memory-protocol.md` exists on `main` after the implementation lands; its `git log` shows the redesign commit; the file's first H2 still names "Memory Tiers" or its renamed equivalent and the file is still the file every agent's profile cites for the on-boot contract. |
-| Every decision area carries an explicit position. | A checklist mapping each of the seven decision areas above to a present-position assertion in the redesigned protocol passes for every row. A supporting (not sufficient) mechanical check: `rg -n 'F(3\|4\|5\|6\|8\|10\|11\|13\|17\|18)\b' .claude/agents/references/memory-protocol.md` (extended-regex tool; equivalent forms acceptable) returns at least one hit for each id in the set the redesign decides to keep, where the kept-set is named in the redesign's reference convention. |
+| Every decision area carries an explicit position. | A checklist mapping each of the eight decision areas above to a present-position assertion in the redesigned protocol (or, for decision area #8, in the protocol or the `fit-wiki` reference it points to) passes for every row. A supporting (not sufficient) mechanical check: `rg -n 'F(3\|4\|5\|6\|8\|10\|11\|13\|17\|18)\b' .claude/agents/references/memory-protocol.md` (extended-regex tool; equivalent forms acceptable) returns at least one hit for each id in the set the redesign decides to keep, where the kept-set is named in the redesign's reference convention. |
 | Tier 1 read set is no more than 3 files and at least 1 file, and named. | The redesigned protocol contains a list (heading, table, or diagram) the implementer can copy verbatim; the count of file paths in that list is between 1 and 3 inclusive; every path in the list exists in `wiki/` or is created by the implementation in the same PR. |
 | Canonical priority surface is read by every Tier 1 boot. | A post-implementation trace sample of at least 8 runs — comprising at least 3 React-mode participant runs and at least 3 direct skill invocations across at least 3 distinct agents — shows the named priority surface opened in each run's first ten tool calls. The sample is collected by the spec implementer or a designated verifier and posted as a PR comment on the implementation PR; the implementation does not merge until the sample passes. The 0-of-8 finding from the study is not reproduced on this sample. |
 | Weekly logs have a budget that binds file state. | The redesigned protocol contains a numeric or rule-based bound on weekly-log size or growth, and the design names a cutover date. After the cutover, every weekly-log file on `main` whose ISO week is on or after the cutover satisfies the bound under `wc -l` (or the equivalent measure the budget specifies). Pre-cutover logs are exempt and remain as-is. |
@@ -197,6 +203,9 @@ Beyond the seven decision areas, the redesign:
 | In-flight work has a machine-readable read surface. | A new agent run that opens its Tier 1 set obtains the in-flight claim set by file open alone (no `gh pr list`, no `git ls-remote`, no separate tool round-trip). The surface is parseable by a normal Read of the file — for example, by line-prefix grep, by table row, or by a documented schema. A verifier can reproduce the claim set from the surface alone, in under one minute, by reading the file. |
 | Decision block requirement is stated. | The redesigned protocol's section on the `### Decision` block contains an unambiguous statement: required at the opening of each weekly-log entry, required at run end, optional, or some named hybrid. The choice is locatable by `rg -n '### Decision' .claude/agents/references/memory-protocol.md` returning a context window that contains a "required/optional/hybrid" keyword within five lines. |
 | Tool-vs-memory position is stated and anchored. | The redesigned protocol contains a section, paragraph, or named heading that states the redesign's position on the tool-vs-memory habit and references at least one of the failure ids F4, F5, or F11 by name. The reference is locatable by `rg -n 'F4\|F5\|F11' .claude/agents/references/memory-protocol.md` returning at least one hit inside the tool-vs-memory section. |
+| `fit-wiki` CLI surface is enumerated and coherent with the protocol. | The redesigned protocol (or a section it points to) contains a complete list of `fit-wiki` subcommands and audit checks post-redesign. For each existing subcommand (`memo`, `push`, `pull`, `init`, `refresh`) and for `scripts/wiki-audit.sh`, the list states one of: retained, modified (with what changed), retired, or absorbed (into what). For each new subcommand introduced by the redesign, the list states which decision area or protocol contract it serves. The disallowed end-state is a subcommand or audit check that exists in the implemented CLI but is not named in this list. |
+| Every CLI primitive maps to a protocol contract, and vice versa. | A two-column mapping (filed in the design or as a section of the redesigned protocol) connects each `fit-wiki` subcommand post-redesign to the protocol contract(s) it gates or surfaces, and each protocol contract that the redesign assigns to the CLI to the subcommand(s) that realize it. A verifier can read the mapping and confirm: no protocol contract assigned to the CLI lacks a subcommand; no subcommand sits without a contract. |
+| Protocol redesign and CLI changes ship together. | The implementation PR series that lands the redesigned protocol also lands the CLI changes the redesign requires (added subcommands, modified subcommands, retired subcommands, audit-script changes). The implementation does not merge with a protocol that names a CLI primitive the CLI does not yet implement, unless that primitive's deferral is documented per the escape route in § Out of scope, deferred and the protocol text reflects the deferral. |
 | No dangling references to the old file map. | A citation inventory (filed as part of the design or plan) enumerates the call sites of the old file map across `.claude/`, `wiki/<agent>.md` files, `CONTRIBUTING.md`, and `KATA.md`. After implementation, every call site in the inventory either matches the redesigned protocol's terminology or is documented in the inventory as an exempt historical reference (research artifacts dated `2026-05-16`, weekly logs whose ISO week predates the cutover, past changelog entries). New agent-facing references — agent profiles, currently-active skills, and `wiki/MEMORY.md` itself — must match the redesigned terminology with no exempt entries. |
 | The corpus stays the diagnostic. | The research corpus pages at `wiki/memory-protocol-*-2026-05-16.md` are not edited or removed by the implementation, verifiable by `git log --follow` on each file showing no commit between the spec merge and the implementation merge. The redesign cites them; it does not retcon them. |
 
