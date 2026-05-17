@@ -81,6 +81,15 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           SUBSTRATE_FORCE_EMPTY_CORPUS: ${{ inputs.empty-corpus-test }}
         run: |
+          # Belt-and-braces: $GITHUB_PATH propagation from the previous
+          # step should already include $HOME/.bun/bin, but spawn() in
+          # supabase-cli.js reads PATH from process.env directly, so we
+          # also export it inline here. `which supabase` proves the
+          # binary is reachable before we hand control to fit-map.
+          export PATH="$HOME/.bun/bin:$PATH"
+          echo "PATH=$PATH"
+          which supabase || { echo "FAIL: supabase not on PATH after bun -g install" >&2; ls -la "$HOME/.bun/bin" >&2 || true; exit 1; }
+
           bunx fit-map substrate stage --cwd "${{ steps.agent-workspace.outputs.dir }}"
 
           # Propagate the local Supabase URL + anon key to subsequent
