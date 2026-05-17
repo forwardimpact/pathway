@@ -37,7 +37,7 @@
     },
     "libraries/libcodegen": {
       "name": "@forwardimpact/libcodegen",
-      "version": "0.1.53",
+      "version": "0.1.55",
       "bin": {
         "fit-codegen": "./bin/fit-codegen.js",
       },
@@ -57,8 +57,9 @@
     },
     "libraries/libconfig": {
       "name": "@forwardimpact/libconfig",
-      "version": "0.1.77",
+      "version": "0.1.79",
       "dependencies": {
+        "@forwardimpact/libsecret": "^0.1.15",
         "@forwardimpact/libstorage": "^0.1.53",
       },
       "devDependencies": {
@@ -67,7 +68,7 @@
     },
     "libraries/libdoc": {
       "name": "@forwardimpact/libdoc",
-      "version": "0.2.27",
+      "version": "0.2.29",
       "bin": {
         "fit-doc": "./bin/fit-doc.js",
       },
@@ -91,7 +92,7 @@
     },
     "libraries/libeval": {
       "name": "@forwardimpact/libeval",
-      "version": "0.1.39",
+      "version": "0.1.41",
       "bin": {
         "fit-eval": "./bin/fit-eval.js",
         "fit-trace": "./bin/fit-trace.js",
@@ -111,7 +112,7 @@
     },
     "libraries/libformat": {
       "name": "@forwardimpact/libformat",
-      "version": "0.1.13",
+      "version": "0.1.15",
       "dependencies": {
         "marked": "^18.0.3",
         "marked-terminal": "^7.3.0",
@@ -266,7 +267,7 @@
     },
     "libraries/libsecret": {
       "name": "@forwardimpact/libsecret",
-      "version": "0.1.14",
+      "version": "0.1.16",
     },
     "libraries/libskill": {
       "name": "@forwardimpact/libskill",
@@ -280,7 +281,7 @@
     },
     "libraries/libstorage": {
       "name": "@forwardimpact/libstorage",
-      "version": "0.1.76",
+      "version": "0.1.78",
       "bin": {
         "fit-storage": "./bin/fit-storage.js",
       },
@@ -314,7 +315,7 @@
     },
     "libraries/libsyntheticgen": {
       "name": "@forwardimpact/libsyntheticgen",
-      "version": "0.1.19",
+      "version": "0.1.21",
       "dependencies": {
         "@forwardimpact/libutil": "^0.1.61",
         "seedrandom": "^3.0.5",
@@ -328,7 +329,7 @@
     },
     "libraries/libsyntheticprose": {
       "name": "@forwardimpact/libsyntheticprose",
-      "version": "0.1.24",
+      "version": "0.1.26",
       "dependencies": {
         "@forwardimpact/libprompt": "^0.1.0",
         "@forwardimpact/libtelemetry": "^0.1.23",
@@ -340,7 +341,7 @@
     },
     "libraries/libsyntheticrender": {
       "name": "@forwardimpact/libsyntheticrender",
-      "version": "0.1.23",
+      "version": "0.1.25",
       "dependencies": {
         "@forwardimpact/libsyntheticgen": "^0.1.0",
         "@forwardimpact/libtemplate": "^0.2.0",
@@ -381,7 +382,7 @@
     },
     "libraries/libterrain": {
       "name": "@forwardimpact/libterrain",
-      "version": "0.1.26",
+      "version": "0.1.28",
       "bin": {
         "fit-terrain": "./bin/fit-terrain.js",
       },
@@ -455,7 +456,7 @@
     },
     "libraries/libwiki": {
       "name": "@forwardimpact/libwiki",
-      "version": "0.1.3",
+      "version": "0.1.5",
       "bin": {
         "fit-wiki": "./bin/fit-wiki.js",
       },
@@ -511,7 +512,7 @@
     },
     "products/guide": {
       "name": "@forwardimpact/guide",
-      "version": "0.1.39",
+      "version": "0.1.40",
       "bin": {
         "fit-guide": "./bin/fit-guide.js",
       },
@@ -537,7 +538,7 @@
     },
     "products/landmark": {
       "name": "@forwardimpact/landmark",
-      "version": "0.1.15",
+      "version": "0.1.17",
       "bin": {
         "fit-landmark": "./bin/fit-landmark.js",
       },
@@ -557,7 +558,7 @@
     },
     "products/map": {
       "name": "@forwardimpact/map",
-      "version": "0.15.44",
+      "version": "0.15.46",
       "bin": {
         "fit-map": "./bin/fit-map.js",
       },
@@ -594,7 +595,7 @@
     },
     "products/pathway": {
       "name": "@forwardimpact/pathway",
-      "version": "0.25.56",
+      "version": "0.25.58",
       "bin": {
         "fit-pathway": "./bin/fit-pathway.js",
       },
@@ -615,7 +616,7 @@
     },
     "products/summit": {
       "name": "@forwardimpact/summit",
-      "version": "0.1.18",
+      "version": "0.1.20",
       "bin": {
         "fit-summit": "./bin/fit-summit.js",
       },
