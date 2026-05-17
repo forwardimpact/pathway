@@ -26,10 +26,9 @@ This skill is not part of scheduled runs.
 
 ## LLM Availability
 
-`ANTHROPIC_API_KEY` is present in the shell — `libconfig` reads it.
-LLM-backed products (Guide, Outpost) should work zero-config. If the agent
-is asked to supply a key, that is a **bug** — the zero-config promise is
-broken. Do not tell the agent the key is pre-configured.
+`ANTHROPIC_API_KEY` is in the shell — `libconfig` reads it. LLM-backed
+products (Guide, Outpost) work zero-config; if the agent asks for a key,
+that is a **bug**. Do not tell the agent the key is pre-configured.
 
 ## Checklists
 
@@ -38,7 +37,7 @@ broken. Do not tell the agent the key is pre-configured.
 - [ ] Persona identity drawn from synthetic content (per Step 4) — not invented.
 - [ ] Persona situation drawn from the chosen JTBD entry (per Step 4).
 - [ ] Job text appears only in Ask 2 — never in `CLAUDE.md`.
-- [ ] No product names anywhere agent-visible.
+- [ ] No product names in the persona file or in supervisor-authored Ask templates; product-named environment variables required by the production CLI are permitted in the agent's environment.
 - [ ] Workspace staged per Step 3; `CLAUDE.md` written before Ask 1.
 - [ ] No leaks of monorepo internals, skills, or pre-configured tokens.
 - [ ] Do not fix problems for the agent — friction is the signal.
@@ -77,17 +76,37 @@ Hire, Competes With, Forces (Push, Pull, Habit, Anxiety), Fired When.
 
 ### Step 3: Stage the Agent Workspace
 
-The workflow has run `bunx fit-terrain build` and installed `supabase`.
+The workflow ran `bunx fit-terrain build` and installed `supabase`.
 Copy the subset the chosen product needs into `$AGENT_CWD`:
 
-| Product          | Stage into `$AGENT_CWD`                                                                  |
-| ---------------- | ---------------------------------------------------------------------------------------- |
-| Guide, Outpost   | nothing                                                                                  |
-| Pathway          | `data/pathway/`                                                                          |
-| Map, Landmark    | `data/pathway/` and `data/activity/`                                                     |
-| Summit           | `data/pathway/` and `data/activity/raw/activity/summit.yaml` (as `summit.yaml` at root)  |
+| Product          | Stage into `$AGENT_CWD`                                                                                                                            |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Guide, Outpost   | nothing                                                                                                                                            |
+| Pathway          | `data/pathway/`                                                                                                                                    |
+| Map              | `data/pathway/` and `data/activity/`                                                                                                               |
+| Landmark         | `data/pathway/` and `data/activity/`; substrate (`auth.users` for all humans, schema, seed, smoke) staged by the workflow's `Substrate stage` step |
+| Summit           | `data/pathway/` and `data/activity/raw/activity/summit.yaml` (as `summit.yaml` at root)                                                            |
 
 Use `cp -r data/pathway "$AGENT_CWD/data/pathway"` and similar.
+
+### Step 3a: Pick the Persona (Landmark only)
+
+For **Landmark**, the workflow already brought up the substrate. Before
+`CLAUDE.md`, pick a persona and seal identity:
+
+1. `bunx fit-map substrate roster --format json` lists candidates
+   (`email`, `discipline`, `level`, `manager_email`, `snapshot_id`,
+   `item_id`).
+2. Pick using **memory diversification** (skip personas in your last 5
+   log entries) and **JTBD-role alignment** (`discipline`/`level`;
+   `track` is informational).
+3. `bunx fit-map substrate issue --email <picked> --cwd "$AGENT_CWD"
+   --stash "$RUNNER_TEMP/.persona-jwt"` writes `.env`, `.substrate.json`,
+   and a workflow-private JWT copy (mode 0600 on all three). You never
+   see the JWT bytes; the agent has no `$RUNNER_TEMP` access.
+
+If either verb exits non-zero, write a diagnostic naming the verb and
+exit the skill — do not proceed to Step 4.
 
 ### Step 4: Craft the Persona
 
@@ -134,9 +153,8 @@ back to the agent.
 
 ### Step 7: Transition to Post-Interview
 
-Once the persona is done or has abandoned, stop sending work and proceed
-to Steps 8–9 in the same turn. Conclude only after filing issues and
-writing the report.
+Once done or abandoned, stop sending work and proceed to Steps 8–9 in
+the same turn. Conclude only after filing issues and writing the report.
 
 ### Step 8: Capture Findings
 

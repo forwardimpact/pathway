@@ -15,6 +15,11 @@ on:
         description: "Additional text appended to the task prompt for steering"
         required: false
         type: string
+      empty-corpus-test:
+        description: "Force substrate-stage to see an empty corpus (CI assertion)"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: kata-interview
@@ -26,6 +31,7 @@ permissions:
 jobs:
   interview:
     runs-on: ubuntu-latest
+    timeout-minutes: 50
     steps:
       - name: Generate installation token
         id: ci-app
@@ -62,6 +68,36 @@ jobs:
 
           echo "dir=$agent_dir" >> "$GITHUB_OUTPUT"
 
+      - name: Substrate stage
+        id: substrate-stage
+        if: inputs.product == 'landmark'
+        shell: bash
+        env:
+          SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          SUBSTRATE_FORCE_EMPTY_CORPUS: ${{ inputs.empty-corpus-test }}
+        run: |
+          # Provision $AGENT_CWD/config/ so libconfig's findUpward("config")
+          # resolves uniformly from the agent's cwd.
+          mkdir -p "${{ steps.agent-workspace.outputs.dir }}/config"
+          bunx fit-map substrate stage
+
+          # Propagate the local Supabase URL + anon key to subsequent
+          # workflow steps. The Node process running `bunx fit-map
+          # substrate stage` sets these in its own process.env only;
+          # the supervisor's later `bunx fit-map substrate roster/issue`
+          # invocations and the agent's `fit-landmark` spawns need them
+          # via $GITHUB_ENV.
+          status_json=$(bunx --no-install -- supabase status --output json)
+          api_url=$(echo "$status_json" | python3 -c 'import sys,json; print(json.load(sys.stdin)["api_url"])')
+          anon_key=$(echo "$status_json" | python3 -c 'import sys,json; print(json.load(sys.stdin)["anon_key"])')
+          if [ -z "$api_url" ] || [ -z "$anon_key" ]; then
+            echo "FAIL: supabase status did not yield api_url + anon_key" >&2
+            exit 1
+          fi
+          echo "SUPABASE_URL=$api_url" >> "$GITHUB_ENV"
+          echo "SUPABASE_ANON_KEY=$anon_key" >> "$GITHUB_ENV"
+
       - name: Compose task amendment
         id: amend
         shell: bash
@@ -84,6 +120,9 @@ jobs:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ steps.ci-app.outputs.token }}
           CLAUDE_CODE_USE_BEDROCK: "0"
+          AGENT_CWD: ${{ inputs.product == 'landmark' && steps.agent-workspace.outputs.dir || '' }}
+          SUPABASE_JWT_SECRET: ${{ inputs.product == 'landmark' && secrets.SUPABASE_JWT_SECRET || '' }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ inputs.product == 'landmark' && secrets.SUPABASE_SERVICE_ROLE_KEY || '' }}
         with:
           mode: "supervise"
           task-text: |
@@ -99,3 +138,60 @@ jobs:
           allowed-tools: "Bash,Read,Glob,Grep,Write,Edit,WebFetch,WebSearch"
           supervisor-allowed-tools: "Bash,Read,Glob,Grep,Write,Edit,Skill,TodoWrite"
           task-amend: ${{ steps.amend.outputs.amend }}
+
+      - name: Scan logs for sensitive values
+        if: always() && inputs.product == 'landmark'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ steps.ci-app.outputs.token }}
+          JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
+          SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          stash="$RUNNER_TEMP/.persona-jwt"
+          if [ ! -f "$stash" ]; then
+            echo "No persona-JWT stash at $stash — substrate issue did not run."
+            persona_jwt=""
+          else
+            persona_jwt=$(cat "$stash")
+            echo "::add-mask::$persona_jwt"
+          fi
+
+          # Download the in-progress run's log archive. GH serves the
+          # archive of all completed-step logs even while the run is
+          # active; only the scan step's own logs are excluded — fine,
+          # since the scan step never echoes the JWT. Spec § Success
+          # Criteria row 8 requires the assertion to fire non-zero on a
+          # literal hit; a fail-open `exit 0` on download failure would
+          # silently disarm the gate, so we fail closed.
+          if ! gh api -H "Accept: application/vnd.github+json" \
+              "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/logs" \
+              > /tmp/run-logs.zip 2>/tmp/gh-err.log; then
+            echo "FAIL: log archive download failed — gh api stderr:" >&2
+            cat /tmp/gh-err.log >&2
+            echo "App installation must carry 'Actions: Read'; see PR description." >&2
+            exit 1
+          fi
+          if ! unzip -q /tmp/run-logs.zip -d /tmp/run-logs/; then
+            echo "FAIL: log archive empty/unreadable — cannot verify scan." >&2
+            exit 1
+          fi
+
+          fail=0
+          # Spec § Success Criteria row 8: scan for all three literals.
+          # GH Actions auto-masks the two repo secrets, so grepping for
+          # them is normally a no-op — but the scan still performs the
+          # grep so the criterion is satisfied literally and to catch the
+          # unlikely case where GH's masker fails on a partial match.
+          for pair in \
+              "persona-jwt:$persona_jwt" \
+              "jwt-secret:$JWT_SECRET" \
+              "service-role-key:$SERVICE_ROLE_KEY"; do
+            label="${pair%%:*}"
+            value="${pair#*:}"
+            [ -z "$value" ] && continue
+            if grep -RFq -- "$value" /tmp/run-logs/; then
+              echo "FAIL: $label literal in run logs" >&2
+              fail=1
+            fi
+          done
+          exit $fail

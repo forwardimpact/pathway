@@ -6,7 +6,7 @@
  * to read `organization_people` and list `auth.users`) to verify both rows
  * exist before signing, then HMACs a JWT against SUPABASE_JWT_SECRET.
  * Output goes to stdout so the operator can capture it into `.env`, a
- * secret manager, or pipe it to an agent's `LANDMARK_AUTH_TOKEN` setting.
+ * secret manager, or pipe it to an agent's `PRODUCT_LANDMARK_TOKEN` setting.
  */
 
 import {
@@ -15,25 +15,9 @@ import {
   formatBullet,
 } from "@forwardimpact/libcli";
 import { mintSupabaseJwt, parseDuration } from "@forwardimpact/libsecret";
+import { findAuthUser } from "../lib/auth-helpers.js";
 
 const DEFAULT_TTL = "8760h"; // 1 year.
-
-async function findAuthUser(supabase, email) {
-  // Roster size in the hundreds; one page covers any practical org.
-  // listUsers() returns paginated results; iterate to be safe.
-  let page = 1;
-  while (true) {
-    const { data, error } = await supabase.auth.admin.listUsers({
-      page,
-      perPage: 1000,
-    });
-    if (error) throw new Error(`listUsers: ${error.message}`);
-    const match = data.users.find((u) => u.email === email);
-    if (match) return match;
-    if (data.users.length < 1000) return null;
-    page += 1;
-  }
-}
 
 /**
  * Run the auth-issue command.
@@ -91,7 +75,7 @@ export async function runAuthIssueCommand({ supabase, config, options }) {
   process.stdout.write(jwt + "\n\n");
   process.stdout.write(
     formatBullet(
-      "Export: LANDMARK_AUTH_TOKEN=<jwt above>; never commit or echo it.",
+      "Export: PRODUCT_LANDMARK_TOKEN=<jwt above>; never commit or echo it.",
       0,
     ) + "\n",
   );
