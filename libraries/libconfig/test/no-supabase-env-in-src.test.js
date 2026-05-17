@@ -7,11 +7,18 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = join(__dirname, "..", "..", "..");
 
-// Permanent exemptions. Both are documented in spec 960 design § Per-module
-// injection seams. Do not add entries without a corresponding design-doc note.
+// Permanent exemptions. Documented in spec 960 design § Per-module injection
+// seams and spec 990 design-c § Three setup paths. Do not add entries without
+// a corresponding design-doc note.
 const ALLOW = new Set([
   // libstorage: libconfig depends on libstorage; threading Config would cycle.
   "libraries/libstorage/src/index.js",
+  // substrate-stage: discovers SUPABASE_URL/SUPABASE_ANON_KEY from the local
+  // stack after `supabase start` (only known post-bring-up). The values must
+  // propagate to in-process createMapClient (libconfig #env() reads
+  // process.env first); cross-step propagation is via $GITHUB_ENV in the
+  // workflow. Spec 990 design-c documents this seam.
+  "products/map/src/commands/substrate-stage.js",
 ]);
 
 // Walks one directory tree (src/ or bin/ or a flat services entry) and yields
