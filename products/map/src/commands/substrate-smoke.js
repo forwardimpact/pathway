@@ -9,9 +9,6 @@
  */
 
 import { spawnSync } from "node:child_process";
-import fs from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
 import { Buffer } from "node:buffer";
 import { mintSupabaseJwt, parseDuration } from "@forwardimpact/libsecret";
 
@@ -21,11 +18,19 @@ const ROW_CLASS_KEYS = {
   practice: "patterns",
 };
 
-async function fetchManifest() {
-  const manifestRes = spawnSync("bunx", ["fit-landmark", "_commands"], {
+// Use the parent process's cwd (the CI checkout root) for bunx spawns so
+// fit-landmark resolves via the workspace; a fresh tmpdir would push bunx
+// up the filesystem looking for node_modules, hit nothing, and 404 from
+// npm. JWT/secret isolation comes from spawn-options env, not cwd.
+function fitLandmarkSpawn(argv, extraEnv = {}) {
+  return spawnSync("bunx", ["fit-landmark", ...argv], {
     encoding: "utf8",
-    cwd: await freshTmpdir(),
+    env: { ...process.env, ...extraEnv },
   });
+}
+
+function fetchManifest() {
+  const manifestRes = fitLandmarkSpawn(["_commands"]);
   if (manifestRes.status !== 0) {
     throw new Error(`_commands: ${manifestRes.stderr}`);
   }
@@ -54,12 +59,8 @@ function buildSmokeArgv({ command, smokeOptions }, persona, discovery) {
   return argv;
 }
 
-function runSmokeCommand(argv, jwt, cwd) {
-  const res = spawnSync("bunx", ["fit-landmark", ...argv], {
-    encoding: "utf8",
-    env: { ...process.env, PRODUCT_LANDMARK_TOKEN: jwt },
-    cwd,
-  });
+function runSmokeCommand(argv, jwt) {
+  const res = fitLandmarkSpawn(argv, { PRODUCT_LANDMARK_TOKEN: jwt });
   if (res.status !== 0) {
     throw new Error(`${argv.join(" ")} exited ${res.status}: ${res.stderr}`);
   }
@@ -96,13 +97,12 @@ export async function runSelfSmoke({ supabase, config }) {
   await assertPersonaIsHuman(supabase, persona.email);
   assertDiscoveryResolves(persona, discovery);
 
-  const manifest = await fetchManifest();
+  const manifest = fetchManifest();
   const smokeList = buildSmokeList(manifest);
 
-  const spawnCwd = await freshTmpdir();
   for (const item of smokeList) {
     const argv = buildSmokeArgv(item, persona, discovery);
-    const res = runSmokeCommand(argv, jwt, spawnCwd);
+    const res = runSmokeCommand(argv, jwt);
     const rowKey = ROW_CLASS_KEYS[item.command];
     if (rowKey) assertNonEmpty(res.stdout, rowKey);
   }
@@ -113,10 +113,6 @@ function expand(template, persona, discovery) {
     .replace("$PERSONA_EMAIL", persona.email)
     .replace("$SNAPSHOT_ID", discovery.snapshot_id)
     .replace("$ITEM_ID", discovery.item_id);
-}
-
-async function freshTmpdir() {
-  return fs.mkdtemp(path.join(os.tmpdir(), "substrate-smoke-"));
 }
 
 /**

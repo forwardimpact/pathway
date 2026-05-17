@@ -159,18 +159,21 @@ jobs:
           # Download the in-progress run's log archive. GH serves the
           # archive of all completed-step logs even while the run is
           # active; only the scan step's own logs are excluded — fine,
-          # since the scan step never echoes the JWT.
+          # since the scan step never echoes the JWT. Spec § Success
+          # Criteria row 8 requires the assertion to fire non-zero on a
+          # literal hit; a fail-open `exit 0` on download failure would
+          # silently disarm the gate, so we fail closed.
           if ! gh api -H "Accept: application/vnd.github+json" \
               "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/logs" \
               > /tmp/run-logs.zip 2>/tmp/gh-err.log; then
-            echo "WARN: log archive not yet available — gh api stderr:" >&2
+            echo "FAIL: log archive download failed — gh api stderr:" >&2
             cat /tmp/gh-err.log >&2
-            echo "Relying on ::add-mask:: at-issue protection."
-            exit 0
+            echo "App installation must carry 'Actions: Read'; see PR description." >&2
+            exit 1
           fi
           if ! unzip -q /tmp/run-logs.zip -d /tmp/run-logs/; then
-            echo "WARN: log archive empty/unreadable; relying on ::add-mask::"
-            exit 0
+            echo "FAIL: log archive empty/unreadable — cannot verify scan." >&2
+            exit 1
           fi
 
           fail=0

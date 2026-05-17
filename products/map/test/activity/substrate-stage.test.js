@@ -44,16 +44,28 @@ function buildDeps({ failPhase = null, invocations }) {
 describe("substrate-stage phase ordering", () => {
   let invocations;
   let stdoutWrite;
+  let prevSupabaseUrl;
+  let prevSupabaseAnonKey;
 
   beforeEach(() => {
     invocations = [];
     delete process.env.SUBSTRATE_FORCE_EMPTY_CORPUS;
+    // The url-discovery phase writes SUPABASE_URL/ANON_KEY to process.env
+    // (intentional in production; see no-supabase-env-in-src.test.js ALLOW
+    // entry). Snapshot whatever's there and restore in afterEach so
+    // subsequent tests in this Bun process don't inherit the stub values.
+    prevSupabaseUrl = process.env.SUPABASE_URL;
+    prevSupabaseAnonKey = process.env.SUPABASE_ANON_KEY;
     stdoutWrite = process.stdout.write.bind(process.stdout);
     process.stdout.write = () => true;
   });
 
   afterEach(() => {
     delete process.env.SUBSTRATE_FORCE_EMPTY_CORPUS;
+    if (prevSupabaseUrl === undefined) delete process.env.SUPABASE_URL;
+    else process.env.SUPABASE_URL = prevSupabaseUrl;
+    if (prevSupabaseAnonKey === undefined) delete process.env.SUPABASE_ANON_KEY;
+    else process.env.SUPABASE_ANON_KEY = prevSupabaseAnonKey;
     process.stdout.write = stdoutWrite;
   });
 

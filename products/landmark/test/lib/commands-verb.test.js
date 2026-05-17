@@ -1,12 +1,16 @@
 /**
- * Verifies the hidden `_commands` argv branch on fit-landmark.js. This
+ * Verifies the hidden `_commands` argv branch on fit-landmark.js. The
  * branch must run BEFORE the top-level `await createProductConfig` so
- * substrate-smoke's introspection does not pay the libconfig load cost
- * and is independent of the spawn cwd's `.env` or `config/` walk.
+ * substrate-smoke's introspection does not pay the libconfig load cost.
  *
- * If a future contributor moves createProductConfig earlier in the bin,
- * this test will fail because the spawn will be unable to find a
- * supabase URL/anon key and exit with an unrelated error.
+ * Two spawn paths exercised:
+ *   1. Direct `node bin/fit-landmark.js _commands` from a fresh tmpdir —
+ *      proves the verb is above the libconfig load (no .env / config/
+ *      walk required).
+ *   2. `bunx fit-landmark _commands` from the parent (workspace) cwd —
+ *      proves substrate-smoke's production spawn shape resolves the
+ *      package via workspace `node_modules/.bin` rather than fetching
+ *      from npm (which would 404 the published "fit-landmark" name).
  */
 
 import { describe, test } from "node:test";
@@ -20,16 +24,20 @@ import { tmpdir } from "node:os";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const BIN = resolve(__dirname, "..", "..", "bin", "fit-landmark.js");
 
+function assertManifestShape(stdout) {
+  const parsed = JSON.parse(stdout);
+  assert.ok(parsed.commands, "missing commands");
+  assert.ok(parsed.subcommandExpansions, "missing subcommandExpansions");
+  assert.ok(parsed.flatSmokeOptions, "missing flatSmokeOptions");
+  assert.ok(parsed.commands.org, "missing org command");
+  assert.equal(parsed.commands.org.needsSupabase, true);
+}
+
 describe("fit-landmark _commands hidden verb", () => {
-  test("emits the manifest JSON shape and exits 0 with no config", () => {
-    // Pin spawn cwd to a fresh tmpdir so libconfig has neither a .env
-    // nor a discoverable config/ directory; this verifies the verb sits
-    // above the top-level createProductConfig await.
+  test("node bin _commands exits 0 with no env/config (verb above libconfig load)", () => {
     const cwd = mkdtempSync(resolve(tmpdir(), "landmark-_commands-"));
     try {
       const res = spawnSync("node", [BIN, "_commands"], {
-        // Strip every PRODUCT_LANDMARK_*, SUPABASE_* env to make sure
-        // the verb does not depend on them.
         env: { PATH: process.env.PATH },
         encoding: "utf8",
         cwd,
@@ -39,12 +47,7 @@ describe("fit-landmark _commands hidden verb", () => {
         0,
         `_commands exited ${res.status}: ${res.stderr}`,
       );
-      const parsed = JSON.parse(res.stdout);
-      assert.ok(parsed.commands, "missing commands");
-      assert.ok(parsed.subcommandExpansions, "missing subcommandExpansions");
-      assert.ok(parsed.flatSmokeOptions, "missing flatSmokeOptions");
-      assert.ok(parsed.commands.org, "missing org command");
-      assert.equal(parsed.commands.org.needsSupabase, true);
+      assertManifestShape(res.stdout);
     } finally {
       try {
         rmSync(cwd, { recursive: true });
@@ -52,5 +55,21 @@ describe("fit-landmark _commands hidden verb", () => {
         // ignore
       }
     }
+  });
+
+  test("bunx fit-landmark _commands resolves via the workspace (smoke spawn path)", () => {
+    // Run from the test file's directory so bunx walks up to the
+    // workspace node_modules/.bin and finds fit-landmark — exactly the
+    // path substrate-smoke takes when it spawns from the CI checkout.
+    const res = spawnSync("bunx", ["fit-landmark", "_commands"], {
+      encoding: "utf8",
+      cwd: __dirname,
+    });
+    assert.equal(
+      res.status,
+      0,
+      `bunx _commands exited ${res.status}: ${res.stderr}`,
+    );
+    assertManifestShape(res.stdout);
   });
 });

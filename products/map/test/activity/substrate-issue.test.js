@@ -230,4 +230,66 @@ describe("substrate issue", () => {
       /no auth.users row/,
     );
   });
+
+  test("rename failure on .env: no target files land, tmp files cleaned up", async () => {
+    // Make `.env` an existing non-empty directory so fs.rename(envTmp, envPath)
+    // fails with EISDIR/ENOTDIR before .substrate.json's rename runs.
+    await fs.mkdir(path.join(tmpdir, ".env"));
+    await fs.writeFile(path.join(tmpdir, ".env", "marker"), "blocker");
+
+    const supabase = makeSupabase({
+      personRow: { email: "alice@x", kind: "human", manager_email: null },
+    });
+    await assert.rejects(() =>
+      runSubstrateIssueCommand({
+        supabase,
+        config,
+        options: { email: "alice@x", cwd: tmpdir },
+      }),
+    );
+
+    const entries = await fs.readdir(tmpdir);
+    // No orphan .env.tmp-* or .substrate.json.tmp-* left behind.
+    assert.equal(
+      entries.filter((e) => e.includes(".tmp-")).length,
+      0,
+      `expected no orphan tmp files, got ${entries.join(", ")}`,
+    );
+    // .substrate.json must not exist (first rename failed before second).
+    assert.equal(entries.includes(".substrate.json"), false);
+  });
+
+  test("rename failure on .substrate.json: .env lands, .substrate.json absent, tmp files cleaned up", async () => {
+    // .env is plain (so its rename succeeds), but .substrate.json is a
+    // non-empty directory so fs.rename(subTmp, subPath) fails.
+    await fs.mkdir(path.join(tmpdir, ".substrate.json"));
+    await fs.writeFile(
+      path.join(tmpdir, ".substrate.json", "marker"),
+      "blocker",
+    );
+
+    const supabase = makeSupabase({
+      personRow: { email: "alice@x", kind: "human", manager_email: null },
+    });
+    await assert.rejects(() =>
+      runSubstrateIssueCommand({
+        supabase,
+        config,
+        options: { email: "alice@x", cwd: tmpdir },
+      }),
+    );
+
+    const entries = await fs.readdir(tmpdir);
+    // .env landed (first rename succeeded — atomicity is per-file, not
+    // cross-file; plan-a-02 § Step 6 commits to this contract).
+    assert.equal(entries.includes(".env"), true);
+    const envContent = await fs.readFile(path.join(tmpdir, ".env"), "utf8");
+    assert.match(envContent, /^PRODUCT_LANDMARK_TOKEN=/);
+    // No orphan tmp files.
+    assert.equal(
+      entries.filter((e) => e.includes(".tmp-")).length,
+      0,
+      `expected no orphan tmp files, got ${entries.join(", ")}`,
+    );
+  });
 });
