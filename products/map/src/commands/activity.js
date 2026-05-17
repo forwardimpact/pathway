@@ -23,7 +23,10 @@ export async function start({ cli, out = process.stdout } = {}) {
   await cli.run(["start"]);
   const json = await cli.capture(["status", "--output", "json"]);
   const status = JSON.parse(json);
-  out.write("\n" + formatSuccess(`Supabase ready at ${status.api_url}`) + "\n");
+  // supabase CLI ≥2.96 emits uppercase JSON keys; older versions used
+  // lowercase. Accept both for compatibility.
+  const apiUrl = status.API_URL ?? status.api_url;
+  out.write("\n" + formatSuccess(`Supabase ready at ${apiUrl}`) + "\n");
   return 0;
 }
 
