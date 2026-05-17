@@ -1,4 +1,4 @@
-# Spec 1000 — Teams Using Agents persona, canonical JTBD entry
+# Spec 1010 — Teams Using Agents persona, canonical JTBD entry
 
 **Persona / job:** Teams Using Agents — _Run an autonomous, continuously
 improving development team that plans, ships, studies its own traces, and acts
