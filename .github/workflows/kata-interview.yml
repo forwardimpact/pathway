@@ -64,7 +64,11 @@ jobs:
 
           # Install the Supabase CLI globally — npm's global install is
           # blocked by supabase's postinstall script, so we use bun.
+          # bun's global bin dir isn't on PATH by default in CI, so we
+          # write it to $GITHUB_PATH for subsequent steps (the Substrate
+          # stage step spawns `supabase` directly, not via `bunx`).
           bun install -g supabase
+          echo "$HOME/.bun/bin" >> "$GITHUB_PATH"
 
           echo "dir=$agent_dir" >> "$GITHUB_OUTPUT"
 
