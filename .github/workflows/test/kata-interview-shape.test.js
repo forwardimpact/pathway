@@ -20,11 +20,17 @@ const wf = parse(readFileSync(WORKFLOW_PATH, "utf8"));
 const steps = wf.jobs.interview.steps;
 
 const ADDED_STEPS = ["Substrate stage", "Scan logs for sensitive values"];
-// Every key added to `Run interview`'s env by spec 990. Must match what
-// Step 4 of plan-a-03 lands. SUPABASE_URL is propagated via $GITHUB_ENV
-// (Step 3) and does not appear in the env: map here.
-const ADDED_RUN_ENV_KEYS = [
-  "AGENT_CWD",
+// AGENT_CWD is the only key still set directly on the Run interview
+// env block: it points at the agent's pre-staged workspace and must
+// be empty for non-Landmark runs. SUPABASE_JWT_SECRET and
+// SUPABASE_SERVICE_ROLE_KEY now flow through from $GITHUB_ENV
+// (written by the Landmark-gated Substrate stage step) — see
+// `substrate-stage-propagates-supabase-env` below for the equivalent
+// invariant.
+const ADDED_RUN_ENV_KEYS = ["AGENT_CWD"];
+const SUBSTRATE_PROPAGATED_KEYS = [
+  "SUPABASE_URL",
+  "SUPABASE_ANON_KEY",
   "SUPABASE_JWT_SECRET",
   "SUPABASE_SERVICE_ROLE_KEY",
 ];
@@ -50,6 +56,26 @@ describe("kata-interview.yml spec 990 non-Landmark invariant", () => {
         String(run.env[key]),
         /inputs\.product\s*==\s*'landmark'\s*&&[^|]+\|\|\s*''/,
         `${key} missing Landmark ternary`,
+      );
+    }
+  });
+
+  it("substrate-stage step propagates supabase env keys via $GITHUB_ENV", () => {
+    // The supabase env keys flow through from $GITHUB_ENV rather than
+    // sitting on the Run interview env: block — the substrate stage
+    // step (which is Landmark-gated) reads the values from
+    // `supabase status -o json` and writes them via $GITHUB_ENV. This
+    // keeps the Run interview env identical between Landmark and
+    // non-Landmark runs (substrate-stage doesn't run for non-Landmark,
+    // so the env vars are never set).
+    const substrate = steps.find((s) => s.name === "Substrate stage");
+    assert.ok(substrate, "expected 'Substrate stage' step");
+    const run = substrate.run ?? "";
+    for (const key of SUBSTRATE_PROPAGATED_KEYS) {
+      assert.match(
+        run,
+        new RegExp(`${key}=\\$?[a-zA-Z_]+["']?\\s*>>\\s*"?\\$GITHUB_ENV`),
+        `Substrate stage should write ${key} to $GITHUB_ENV`,
       );
     }
   });
