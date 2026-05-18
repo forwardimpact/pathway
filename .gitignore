@@ -99,3 +99,6 @@ design/scripts/bun.lock
 
 # Other stuff
 **/.DS_Store
+
+# Pitch material
+pitch/
