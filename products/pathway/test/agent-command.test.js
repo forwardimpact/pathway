@@ -86,12 +86,21 @@ function setTrackTeamInstructions(work, trackId, body) {
 
 function clearTrackTeamInstructions(work, trackId) {
   const trackPath = join(work, "data", "tracks", `${trackId}.yaml`);
-  let content = readFileSync(trackPath, "utf-8");
-  content = content.replace(
+  const before = readFileSync(trackPath, "utf-8");
+  const after = before.replace(
     /^ {2}teamInstructions:.*?(?=^\S|^ {2}\S|^$)/ms,
     "",
   );
-  writeFileSync(trackPath, content, "utf-8");
+  // Sanity guard: silent no-op on YAML shape changes (e.g. indent style) would
+  // leave the teamInstructions intact and let the absent-teamInstructions cases
+  // exercise the populated path by accident. Fail fast if the strip did
+  // nothing.
+  assert.notStrictEqual(
+    after,
+    before,
+    `clearTrackTeamInstructions made no change to ${trackPath}`,
+  );
+  writeFileSync(trackPath, after, "utf-8");
 }
 
 async function runAgent(work) {
