@@ -3,9 +3,9 @@
 ## Architectural Posture
 
 The current protocol asks agents to *find files, read files, parse files, write
-files.* Every gap the spec catalogues (F3, F4, F5, F6, F10, F11, F13, F17, F18)
-is a tax that lands on the agent because the protocol contracts the work but
-not the surface that performs it. The redesign inverts that: **`fit-wiki`
+files.* Every gap the spec catalogues (F3, F4, F5, F6, F8, F10, F11, F13, F17,
+F18) is a tax that lands on the agent because the protocol contracts the work
+but not the surface that performs it. The redesign inverts that: **`fit-wiki`
 becomes the agent's interface to memory.** Reads collapse to one call that
 returns a structured digest. Writes collapse to one call that resolves paths,
 dates, headings, and budgets. Direct file edits remain possible but become the
@@ -18,30 +18,31 @@ alternative it competes with.
 
 ```mermaid
 graph LR
-  A[Agent] -- "fit-wiki boot" --> D[On-boot Digest]
-  D --> S["wiki/{self}.md"]
-  D --> M["wiki/MEMORY.md"]
-  M -. "## Active Claims" .-> M
-  A -- "fit-wiki log decision" --> W["wiki/{self}-YYYY-Www.md"]
-  A -- "fit-wiki claim / release" --> M
-  A -- "fit-wiki audit (Stop-hook)" --> G[Gate verdict]
+  A[Agent] -- "boot" --> D[On-boot Digest]
+  D -.contains.- S["wiki/{self}.md"]
+  D -.contains.- P["MEMORY.md priority slice"]
+  D -.contains.- C["MEMORY.md ## Active Claims"]
+  A -- "log decision/note/done" --> W["wiki/{self}-YYYY-Www.md"]
+  A -- "claim / release" --> C
+  A -- "audit (Stop-hook)" --> G[Gate verdict]
 ```
 
 ## Components
 
-| Component | Where | Responsibility |
-|---|---|---|
-| **`fit-wiki boot`** | `libraries/libwiki/src/commands/boot.js` (new) | Read Tier 1, emit structured digest (summary, priority slice for `{self}`, active claims, inbox count, storyboard pointer). One tool call replaces three file reads. |
-| **`fit-wiki log`** | `libraries/libwiki/src/commands/log.js` (new) | Append `## YYYY-MM-DD` + leading `### Decision` block to the current week's log. Subcommands: `decision`, `note`, `done`. |
-| **`fit-wiki claim` / `release`** | `libraries/libwiki/src/commands/claim.js` (new) | Read/write the `## Active Claims` section of `wiki/MEMORY.md`. |
-| **`fit-wiki inbox`** | `libraries/libwiki/src/commands/inbox.js` (new) | Subcommands: `list`, `ack`, `promote`, `drop`. Inbox lifecycle without hand-editing. |
-| **`fit-wiki rotate`** | `libraries/libwiki/src/commands/rotate.js` (new) | When a weekly log crosses the line budget, archive to `wiki/{agent}-YYYY-Www-partN.md` and start a fresh part. Called automatically by `log`. |
-| **`fit-wiki audit`** | `libraries/libwiki/src/commands/audit.js` (absorbs `scripts/wiki-audit.sh`) | Runs every contract gate. Stop-hook + CI step. |
-| **`fit-wiki memo`** | unchanged | Send a cross-agent memo. Existing contract preserved. |
-| **`fit-wiki push` / `pull` / `init` / `refresh`** | unchanged | Existing lifecycle commands; `init` extended to scaffold the `## Active Claims` section. |
-| **`memory-protocol.md`** | `.claude/agents/references/` | Rewritten to specify CLI contracts (WHAT the CLI guarantees), not file-shape contracts (HOW agents touch files). |
-| **`MEMORY.md`** | `wiki/` | Retains canonical-priority role; gains the `## Active Claims` schema. |
-| **Stop-hook wiring** | `.claude/settings.json` (extended) | `fit-wiki audit` runs on Stop; failure surfaces in the agent's own session. |
+| Component | Responsibility |
+|---|---|
+| **`fit-wiki boot`** | Read Tier 1, emit structured digest (summary, priority slice for `{self}`, active claims, inbox count, storyboard pointer). One tool call replaces three file reads. |
+| **`fit-wiki log`** | Append `## YYYY-MM-DD` + leading `### Decision` block to the current week's log. Subcommands: `decision`, `note`, `done`. |
+| **`fit-wiki claim` / `release`** | Read/write the `## Active Claims` section of `wiki/MEMORY.md`. |
+| **`fit-wiki inbox`** | Subcommands: `list`, `ack`, `promote`, `drop`. Inbox lifecycle without hand-editing. |
+| **`fit-wiki rotate`** | Archive a weekly log over the line budget to `wiki/{agent}-YYYY-Www-partN.md` and start a fresh part. Invoked automatically by `log done`; exposed as a standalone subcommand for operator use on oversized historical logs. |
+| **`fit-wiki audit`** | Absorbs `scripts/wiki-audit.sh`. Runs every contract gate. Stop-hook + pre-merge CI. |
+| **`fit-wiki memo`** | Unchanged. Send a cross-agent memo. |
+| **`fit-wiki push` / `pull` / `refresh`** | Unchanged. |
+| **`fit-wiki init`** | Modified additively (idempotent): when MEMORY.md exists, insert the `## Active Claims` heading + table header below the priorities table if missing; never rewrites existing content. |
+| **`memory-protocol.md`** | Rewritten to specify CLI contracts (WHAT the CLI guarantees), not file-shape contracts (HOW agents touch files). |
+| **`MEMORY.md`** | Retains canonical-priority role; gains the `## Active Claims` schema. |
+| **Stop-hook wiring** | `.claude/settings.json` carries the `Stop` → `fit-wiki audit` entry; installed by `init` on new installations and a one-shot migration on existing ones. |
 
 ## Data Flow
 
@@ -82,16 +83,18 @@ sequenceDiagram
 
 ## Decision-area Positions
 
-| # | Area | Position |
-|---|---|---|
-| 1 | **Tier 1 read set** | 2 files: `wiki/{self}.md` + `wiki/MEMORY.md`. Storyboard moves to Tier 2 (pulled by skills that need it: `kata-session`, `kata-wiki-curate`). The agent's *interface* to Tier 1 is `fit-wiki boot`, not three file paths. |
-| 2 | **Weekly-log size budget** | 500 lines per file, anchored on **≤2.5% of a 200k context window** (~3,750 tokens at 7.5 tokens/line) for a Tier 2 read. Overflow rotates to `…-Www-part2.md`. Cutover: ISO **2026-W23** (Mon 2026-06-01). Pre-cutover logs exempt and unmodified. Append-only guarantee preserved — rotation seals a part rather than rewriting it. |
-| 3 | **Canonical priority surface** | `wiki/MEMORY.md` retained. Read-on-every-boot is realized by `fit-wiki boot` emitting the priority slice for `{self}` in the first response. The 0-of-8 trace finding cannot recur because *no skill's Step 0 reads files anymore* — they call `boot`. |
-| 4 | **In-flight work surface** | New `## Active Claims` section in `MEMORY.md`. Schema: `\| agent \| target \| branch \| pr \| claimed_at \| expires_at \|`. Written by `fit-wiki claim`, removed by `fit-wiki release`, auto-flagged stale by `audit` after `expires_at` (default: claim+24h). Read by `boot`. Machine-readable: parseable markdown table. |
-| 5 | **Mechanical enforcement** | `fit-wiki audit` (absorbs `scripts/wiki-audit.sh`) gates: 80-line summary cap, `<!-- memo:inbox -->` marker present, `## Message Inbox` is first H2, weekly-log cap, claim-row schema. Wired to Stop-hook (per-run, agent-self-correcting) and pre-merge CI (collective gate). |
-| 6 | **Decision-block adoption** | Required at the **opening** of each weekly-log entry. Mechanism: `fit-wiki log decision` is the only sanctioned way to start a run entry; `audit` flags entries that lack a leading `### Decision`. Past entries not retrofitted. |
-| 7 | **Tool-vs-memory habit** | **Memory-first**, anchored on CLI cost. Stated in protocol: when deciding between asking memory and re-deriving via `gh`/`git`/source, prefer memory because the CLI is calibrated to be cheaper. One call for the on-boot read set (closes F11). One call to record a decision (closes F4). One call to surface inbox state (closes F5 partial). |
-| 8 | **`fit-wiki` CLI surface** | See § CLI Surface table. Every protocol contract maps to a CLI subcommand; every subcommand maps to a protocol contract. The protocol's CLI-gated rules and the CLI's subcommand list are kept in lock-step by a doc-test that diffs them. |
+Each row carries the redesign's position, the rejected alternative, and why.
+
+| # | Area | Position | Rejected · Why |
+|---|---|---|---|
+| 1 | **Tier 1 read set** (closes F5, F11) | 2 files: `wiki/{self}.md` + `wiki/MEMORY.md`. Storyboard moves to Tier 2 (loaded only by `kata-session`, `kata-wiki-curate`). The agent's *interface* is `fit-wiki boot`, not three file paths. | Rejected: keep the 3-file Tier 1 instruction (status quo). · The current list is the source of F11 (0/8 reads of MEMORY.md). A CLI primitive calibrated cheaper than three file opens removes the "skip Step 0" Habit. |
+| 2 | **Weekly-log size budget** (closes F3, F17) | 500 lines per file. Anchored at ~21,000 tokens per Tier 2 read (~10% of a 200k context window) via the spec's 25k-token / 600-line Read-cap proxy (≈42 tokens/line). Overflow rotates to `…-Www-partN.md`; rotation seals the prior part read-only (append-only audit preserved). Cutover: ISO **2026-W23** (Mon 2026-06-01). Pre-cutover logs exempt. | Rejected: daily file rotation; no cap. · Daily explodes file count 7×; no-cap reproduces F3/F17. The 500-line cap preserves one-file-per-week as the common case while bounding worst-case context cost. |
+| 3 | **Canonical priority surface** (closes F11, F8) | `wiki/MEMORY.md` retained. Read-on-every-boot is realized by `fit-wiki boot` emitting the priority slice for `{self}`. Skills' Step 0 calls `boot` rather than naming files. | Rejected: distribute priorities across agent summaries; or retire MEMORY.md. · Distributing reintroduces drift; retiring sheds the cross-cutting role. Retain and make cheap to read. |
+| 4 | **In-flight work surface** (closes F8, F18) | New `## Active Claims` section in `MEMORY.md`. Schema: `\| agent \| target \| branch \| pr \| claimed_at \| expires_at \|`. **Row presence = "actively working on X"; row absence (or post-`expires_at`) = "settled state."** Written by `claim`, removed by `release`, auto-marked stale (separate column flag) by `audit` after `expires_at` (default: claim+24h). Stale rows are visible but excluded from `boot`'s active set. Read by `boot`; machine-readable as a parseable markdown table. | Rejected: separate `wiki/CLAIMS.md`. · One read fetches priorities and claims together. Claims *are* priorities-in-flight; co-locating saves a Tier 1 file. |
+| 5 | **Mechanical enforcement of summary contract** (closes F10) | Per rule, each of the three is **kept and gated** by `fit-wiki audit`: (a) 80-line summary cap (`wc -l`), (b) `<!-- memo:inbox -->` marker present directly below `## Message Inbox`, (c) `## Message Inbox` is the first H2. Audit runs on the Stop-hook (per-run self-correction) and pre-merge CI (collective gate). | Rejected per rule: (a) raise the cap and skip gating, (b) drop the marker convention, (c) drop the first-H2 requirement. · The rules are already documented and load-bearing for on-boot inbox visibility; the problem named in F10 is that they are unchecked, not that they are wrong. |
+| 6 | **Decision-block adoption** (closes F6, F13) | Required at the **opening** of each weekly-log entry. `fit-wiki log decision` is the only sanctioned start-of-run write; `audit` flags entries that lack a leading `### Decision`. Past entries not retrofitted. | Rejected: status quo (closing-position, retroactive). · F6/F13 are about retroactive writing. Opening-position is enforceable because the CLI owns the start-of-run write. |
+| 7 | **Tool-vs-memory habit** (closes F4, F5, F11) | **Memory-first**, anchored on CLI cost. The redesigned protocol states: when deciding between asking memory and re-deriving via `gh`/`git`/source, prefer memory because the CLI is calibrated to be cheaper. One call for the on-boot read set (F11). One call to record a decision (F4). One call for inbox state (F5 partial). | Rejected: tool-first; or silence (status quo). · The Habit (gh/git/source) competes only when memory access is more expensive. A position taken on exhortation alone will not shift behaviour; one taken via primitive cost will. |
+| 8 | **`fit-wiki` CLI surface composition** (cross-cuts F3, F5, F8, F10, F17, F18) | See § CLI Surface. Every protocol contract maps to a subcommand; every subcommand maps to a protocol contract. A doc-test diffs the protocol's CLI-gated rule list against the CLI's subcommand list; mismatch fails CI. | Rejected: ship a subset CLI and leave gaps. · Spec § In scope (#8) requires bidirectional mapping; partial coverage reproduces the read/write asymmetry that produced F11. |
 
 ## CLI Surface
 
@@ -101,29 +104,23 @@ sequenceDiagram
 | `log decision` | new | Decision block at run opening | F4, F6, F13 |
 | `log note` | new | Field appends within the open run entry | F4 |
 | `log done` | new | Closes the entry, runs `audit`, triggers `rotate` if needed | F3, F17 |
-| `claim` / `release` | new | In-flight work surface, append-only audit trail | F8, F18 |
+| `claim` / `release` | new | In-flight work surface; append-only audit trail | F8, F18 |
 | `inbox list` / `ack` / `promote` / `drop` | new | Inbox lifecycle | F5 (partial) |
 | `rotate` | new | Weekly-log overflow handling | F3, F17 |
-| `audit` | absorbed (from `scripts/wiki-audit.sh`) | All gated rules; Stop-hook + CI | F10, F13 |
+| `audit` | absorbed (`scripts/wiki-audit.sh`) | All gated rules; Stop-hook + CI | F3, F10, F13, F17, F8, F18 |
 | `memo` | retained (unchanged) | Cross-agent memo into recipient inbox | — |
 | `push` / `pull` | retained (unchanged) | Wiki git sync | — |
-| `init` | modified | Scaffold MEMORY.md `## Active Claims` section | #4 |
+| `init` | modified (additive, idempotent) | Scaffold MEMORY.md `## Active Claims` section; install Stop-hook entry on new installs | F8, F18 |
 | `refresh` | retained (unchanged) | Storyboard XmR chart refresh | — |
 
-## Key Decisions
+## Cross-cutting Architectural Choices
 
-| Decision | Chosen | Rejected alternative | Why |
-|---|---|---|---|
-| Read primitive | `fit-wiki boot` returns a structured digest | Keep "read these 3 files" Tier 1 list | The current 3-file list is the source of F11 (0 reads of MEMORY.md across 8 traces). One CLI call calibrated cheaper than 3 file opens removes the "skip Step 0" Habit. |
-| Tier 1 size | 2 files (own summary + MEMORY.md) | Keep storyboard in Tier 1 (3 files) | Storyboard is 537 lines today (~5% of 200k context). Useful only for storyboard-shaped work. Move to Tier 2, demanded by `kata-session` / `kata-wiki-curate` only. |
-| Claims location | New `## Active Claims` section inside MEMORY.md | Separate `wiki/CLAIMS.md` | One read fetches priorities and claims together. Claims *are* priorities-in-flight; co-locating them is conceptually honest and saves a Tier 1 file. |
-| Decision-block timing | Required at run **open** | Required at run end (status quo) | F6/F13 are about retroactive writing. Opening-position can be enforced because `log decision` is the only sanctioned start-of-run write; later notes append within. |
-| Weekly-log budget | 500 lines / file with mid-week rotation to `-partN` | Daily file rotation; or no cap | Daily rotation explodes file count (7×). No-cap reproduces F3/F17. 500-line cap preserves one-file-per-week as the common case while bounding worst-case context cost at 2.5% of a 200k window. |
-| Append-only preservation | Rotation seals a part (read-only) and starts a new file; never rewrites | Truncate in place | Audit trail (the original justification for append-only) survives because no part is ever rewritten; only new parts are added. |
-| Audit timing | Stop-hook + CI | CI-only (status quo of `scripts/wiki-audit.sh`) | Pre-merge gating fires too late — bad state has already shipped to wiki. Stop-hook catches violations in the run that produced them, giving the agent the chance to self-correct *before* it leaves a mess. |
-| Habit position | Memory-first, anchored on CLI cost | Tool-first; or silence (status quo) | Spec § Forces names Habit (gh/git/source) as the dominant competitor to memory. A position taken on exhortation alone won't shift behaviour. The position is enforced by primitive cost, not by rule. |
-| MEMORY.md retention | Retained as canonical priority surface | Fold MEMORY.md into agent summaries; or retire entirely | The priority schema needs *one* writable surface that the curator owns. Distributing it across 6 summaries reintroduces drift; retiring it sheds the cross-cutting role. Retaining and making it cheap to read (via `boot`) closes F11 without rehoming the schema. |
-| Coordination/coupling | `coordination-protocol.md` and `approval-signals.md` not modified | Fold them in | Spec § Out of scope. CLI surface respects boundaries: `memo` (memory write) is here; `agent-react` dispatch (coordination) stays in `coordination-protocol.md`. |
+| Choice | Position | Rejected · Why |
+|---|---|---|
+| Named jobs in protocol text (spec § In scope) | The protocol explicitly names the three jobs the spec calls out and binds each to a CLI primitive: "find next thing to pick up without colliding" → `claim`/`release`; "trust another agent's reported state without re-deriving" → `boot` digest + MEMORY.md; "receive memos without breaking my contract" → `inbox list/ack/promote/drop`. | Rejected: leave them unnamed; or disclaim. · Read-write asymmetry produced F11. Naming the jobs in the read contract and pointing each to its write contract closes the loop. |
+| Append-only audit preservation under rotation | Rotation seals a part read-only and starts a new part. No part is ever rewritten. | Rejected: truncate the oldest entries in place. · Audit trail survives because no part is rewritten; only new parts are added. |
+| MEMORY.md retention | Retained as canonical priority surface. | Rejected: fold into agent summaries or retire entirely. · Priority schema needs one writable surface the curator owns; distributing reintroduces drift, retiring sheds the cross-cutting role. |
+| Coordination boundary | `coordination-protocol.md` and `approval-signals.md` not modified. `memo` (memory write) stays here; `agent-react` dispatch stays in `coordination-protocol.md`. | Rejected: fold sibling references in. · Spec § Out of scope; collapsing them blurs distinct contracts. |
 
 ## Non-Goals (Restated from Spec)
 
@@ -135,27 +132,26 @@ sequenceDiagram
 
 ## Trade-offs Accepted
 
-- **CLI dependency.** Skills now require `fit-wiki` to be on `PATH` for Step 0
-  to function. Mitigated: `fit-wiki` already ships in every Kata installation
-  (`just quickstart` includes it). Failure mode: a broken `fit-wiki` fails
-  loud, where today a broken `Read wiki/MEMORY.md` quietly returns nothing
-  agents notice.
-- **One more abstraction layer.** Agents now interact with memory via a
-  command surface rather than the filesystem. The 6-probe write fan-out (F4)
-  is the cost the abstraction collapses; the win on every weekly-log write
-  exceeds the conceptual cost.
-- **Structured digest format.** `fit-wiki boot`'s output shape is now an
-  interface that downstream skills depend on. Versioned via the CLI's
-  `--version` and treated as a stable contract — changes go through a
-  follow-up spec, not silent edits.
+- **CLI dependency.** Step 0 now requires `fit-wiki` on `PATH`. Mitigated:
+  `fit-wiki` already ships in every Kata installation (`just quickstart`). A
+  broken CLI fails loud, where a missed `Read wiki/MEMORY.md` fails silent.
+- **One more abstraction layer.** Agents interact with memory via a command
+  surface rather than the filesystem. The win on every weekly-log write (6
+  probes → 1 call, F4) and every cold boot (3 reads → 1 call) exceeds the
+  conceptual cost.
+- **Digest-format coupling.** Downstream skills consume `boot`'s output shape.
+  Treated as a stable contract under semantic versioning; format changes
+  require a follow-up spec.
 
 ## Open Questions for Plan Phase
 
-- Digest format — JSON-by-default with markdown-rendered for human reading, or
-  the reverse? Plan decides; spec is silent.
-- Stop-hook installation — `.claude/settings.json` edit, or `init` script?
-- `inbox promote` target — MEMORY.md row, or a separate follow-up?
-- Migration order for the 6 agent profile Step 0 updates — staged or atomic?
+- **Digest format** — JSON-by-default with markdown-rendered for human reading,
+  or the reverse? Both are reasonable read paths for agents; the plan picks one
+  and documents it.
+- **`inbox promote` target** — MEMORY.md row directly, or a separate follow-up
+  artifact (GitHub Issue / Discussion) the curator then promotes? Plan decides.
+- **Migration order for the 6 agent profile Step 0 updates** — atomic single
+  PR, or staged per-agent with a feature-flag period? Plan decides.
 
 ## References
 
