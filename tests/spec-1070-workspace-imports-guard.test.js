@@ -3,7 +3,7 @@
  *
  * Exercises `findUndeclaredImports` from `scripts/check-workspace-imports.mjs`
  * against synthetic in-memory inputs. The test does not touch real product
- * source — that's covered by the guard running in CI via `bun run context`.
+ * source — that's covered by the guard running in CI via `bun run invariants`.
  */
 import { test, describe } from "node:test";
 import assert from "node:assert";

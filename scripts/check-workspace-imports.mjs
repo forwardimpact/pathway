@@ -135,21 +135,6 @@ function declaredDeps(manifest) {
   return out;
 }
 
-/**
- * Pure check used by both the CLI and the unit test. Inputs are
- * in-memory: no disk access. Returns an array of findings.
- *
- * @param {object} opts
- * @param {{ path: string, source: string, packageDir: string }[]} opts.files
- * @param {Record<string, object>} opts.manifests — keyed by absolute path
- *   to package directory; value is the parsed `package.json`.
- * @param {Set<string>} [opts.workspacePackages] — names of packages that
- *   exist in the workspace. When provided, imports whose package name is
- *   not in this set are ignored (they reference something outside the
- *   workspace and are a different failure mode — Node's resolver catches
- *   them at runtime).
- * @returns {{ file: string, line: number, packageName: string, packageDir: string }[]}
- */
 function findingsForFile(file, manifest, workspacePackages) {
   let imports;
   try {
@@ -189,6 +174,21 @@ function shouldSkip(pkg, selfName, declared, workspacePackages) {
   return declared.has(pkg);
 }
 
+/**
+ * Pure check used by both the CLI and the unit test. Inputs are
+ * in-memory: no disk access. Returns an array of findings.
+ *
+ * @param {object} opts
+ * @param {{ path: string, source: string, packageDir: string }[]} opts.files
+ * @param {Record<string, object>} opts.manifests — keyed by absolute path
+ *   to package directory; value is the parsed `package.json`.
+ * @param {Set<string>} [opts.workspacePackages] — names of packages that
+ *   exist in the workspace. When provided, imports whose package name is
+ *   not in this set are ignored (they reference something outside the
+ *   workspace and are a different failure mode — Node's resolver catches
+ *   them at runtime).
+ * @returns {{ file: string, line: number, packageName: string, packageDir: string }[]}
+ */
 export function findUndeclaredImports({ files, manifests, workspacePackages }) {
   const findings = [];
   for (const file of files) {
