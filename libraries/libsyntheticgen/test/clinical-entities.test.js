@@ -229,7 +229,14 @@ describe("clinical entity generation", () => {
     ast.trials[0].principal_investigator = "nobody";
     assert.throws(
       () =>
-        buildClinicalEntities(ast, makePeople(), makeOrgs(), makeProjects(), domain, rng),
+        buildClinicalEntities(
+          ast,
+          makePeople(),
+          makeOrgs(),
+          makeProjects(),
+          domain,
+          rng,
+        ),
       /unknown principal investigator '@nobody'/,
     );
   });
@@ -239,7 +246,14 @@ describe("clinical entity generation", () => {
     ast.trials[0].conditions = ["nonexistent"];
     assert.throws(
       () =>
-        buildClinicalEntities(ast, makePeople(), makeOrgs(), makeProjects(), domain, rng),
+        buildClinicalEntities(
+          ast,
+          makePeople(),
+          makeOrgs(),
+          makeProjects(),
+          domain,
+          rng,
+        ),
       /unknown condition 'nonexistent'/,
     );
   });
@@ -248,9 +262,7 @@ describe("clinical entity generation", () => {
     const { createEntityGenerator } = await import("../src/engine/tier0.js");
     const { tokenize } = await import("../src/dsl/tokenizer.js");
     const { parse } = await import("../src/dsl/parser.js");
-    const { MINI_TERRAIN } = await import(
-      "./fixtures/mini-terrain.fixture.js"
-    );
+    const { MINI_TERRAIN } = await import("./fixtures/mini-terrain.fixture.js");
     const logger = { warn: () => {} };
     const gen = createEntityGenerator(logger);
     const ast = parse(tokenize(MINI_TERRAIN));

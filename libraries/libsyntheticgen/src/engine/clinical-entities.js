@@ -82,7 +82,9 @@ export function buildClinicalEntities(
     }
     researcherMap.get(piPerson.id).trial_ids.push(t.id);
 
-    const project = t.project_ref ? projectMap.get(t.project_ref) || null : null;
+    const project = t.project_ref
+      ? projectMap.get(t.project_ref) || null
+      : null;
 
     if (t.criteria) {
       criteria.push({
@@ -106,7 +108,9 @@ export function buildClinicalEntities(
         person: piPerson,
       },
       project_ref: t.project_ref || null,
-      project: project ? { id: project.id, name: project.name, iri: project.iri } : null,
+      project: project
+        ? { id: project.id, name: project.name, iri: project.iri }
+        : null,
       sponsor: t.sponsor,
       status: t.status,
       target_enrollment: t.target_enrollment,

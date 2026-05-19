@@ -138,7 +138,11 @@ describe("clinical prose key generation", () => {
     );
     for (const [key, ctx] of keys) {
       assert.ok(Array.isArray(ctx.messages), `Key '${key}' missing messages`);
-      assert.strictEqual(ctx.messages.length, 2, `Key '${key}' needs 2 messages`);
+      assert.strictEqual(
+        ctx.messages.length,
+        2,
+        `Key '${key}' needs 2 messages`,
+      );
       assert.strictEqual(ctx.messages[0].role, "system");
       assert.strictEqual(ctx.messages[1].role, "user");
       assert.ok(ctx.messages[0].content.length > 0);
@@ -185,12 +189,8 @@ describe("clinical prose key generation", () => {
     const stories = keys.filter(([k]) =>
       k.startsWith("clinical_patient_story_"),
     );
-    const diabetesStories = stories.filter(([k]) =>
-      k.includes("diabetes_t2"),
-    );
-    const cardioStories = stories.filter(([k]) =>
-      k.includes("cardiovascular"),
-    );
+    const diabetesStories = stories.filter(([k]) => k.includes("diabetes_t2"));
+    const cardioStories = stories.filter(([k]) => k.includes("cardiovascular"));
     assert.strictEqual(diabetesStories.length, 2);
     assert.strictEqual(cardioStories.length, 2);
   });
@@ -223,7 +223,9 @@ describe("collectProseKeys with clinical entities", () => {
       activity: {},
       clinical: null,
     };
-    const keys = collectProseKeys(entities, { promptLoader: makePromptLoader() });
+    const keys = collectProseKeys(entities, {
+      promptLoader: makePromptLoader(),
+    });
     const clinicalKeys = Array.from(keys.keys()).filter((k) =>
       k.startsWith("clinical_"),
     );
@@ -255,7 +257,9 @@ describe("collectProseKeys with clinical entities", () => {
       activity: {},
       clinical: makeClinicalEntities(),
     };
-    const keys = collectProseKeys(entities, { promptLoader: makePromptLoader() });
+    const keys = collectProseKeys(entities, {
+      promptLoader: makePromptLoader(),
+    });
     const clinicalKeys = Array.from(keys.keys()).filter((k) =>
       k.startsWith("clinical_"),
     );

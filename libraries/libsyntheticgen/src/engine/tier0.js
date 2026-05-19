@@ -39,7 +39,14 @@ export class EntityGenerator {
     const activity = generateActivity(ast, rng, people, teams);
 
     const clinical = ast.clinical
-      ? buildClinicalEntities(ast.clinical, people, orgs, projects, ast.domain, rng)
+      ? buildClinicalEntities(
+          ast.clinical,
+          people,
+          orgs,
+          projects,
+          ast.domain,
+          rng,
+        )
       : null;
 
     return {

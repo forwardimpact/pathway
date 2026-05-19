@@ -161,7 +161,12 @@ export function collectProseKeys(entities, { promptLoader } = {}) {
   }
 
   if (entities.clinical && promptLoader) {
-    for (const [k, ctx] of clinicalProseKeys(entities.clinical, domain, orgName, promptLoader)) {
+    for (const [k, ctx] of clinicalProseKeys(
+      entities.clinical,
+      domain,
+      orgName,
+      promptLoader,
+    )) {
       keys.set(k, ctx);
     }
   }
