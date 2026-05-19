@@ -562,9 +562,8 @@ export function createSupervisor({
   });
 
   // Block the SDK's sub-agent spawn tools on the supervisor: its job is to
-  // coordinate the agent through the libeval orchestration harness (Ask /
-  // Answer / Announce / Redirect / Conclude), not to fan work out to ad-hoc
-  // Claude Code sub-agents. Mirrors the facilitator.
+  // coordinate the agent through the libeval orchestration harness, not to
+  // fan work out to ad-hoc Claude Code sub-agents. Mirrors the facilitator.
   const defaultDisallowed = ["Agent", "Task", "TaskOutput", "TaskStop"];
   const disallowedTools = supervisorDisallowedTools
     ? [...new Set([...defaultDisallowed, ...supervisorDisallowedTools])]
