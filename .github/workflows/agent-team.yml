@@ -44,6 +44,7 @@ jobs:
           agent-profile: ${{ matrix.agent.name }}
           case: ${{ matrix.agent.name }}
           max-turns: ${{ matrix.agent.max-turns || '1500' }}
+          timeout-minutes: "300"
           task-text: >-
             Assess the current state of your domain and act on the highest-priority finding.
           task-amend: ${{ inputs.task-amend }}

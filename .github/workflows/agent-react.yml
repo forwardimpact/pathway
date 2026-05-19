@@ -183,3 +183,4 @@ jobs:
           facilitator-profile: "release-engineer"
           agent-profiles: "product-manager,security-engineer,staff-engineer,technical-writer"
           max-turns: "1500"
+          timeout-minutes: "300"
