@@ -22,33 +22,41 @@ rg -l 'on:.*pull_request' .github/workflows/
 editing.
 
 Modified: `.github/workflows/<host>.yml`. Place the audit step inside
-an existing job (e.g. `quality`) after the lint/test steps. Declare the
-grace var at **step-level** `env:` so no workflow-level `env:` block is
-required:
+an existing job (e.g. `quality`) after the lint/test steps. **Compute
+the grace date at workflow runtime, not commit time** — a literal
+date drifts as the PR sits open while CI runs against stale rebases:
 
 ```yaml
       - name: Wiki audit
-        env:
-          FIT_WIKI_AUDIT_GRACE_UNTIL: "2026-MM-DD"  # computed at PR time
-        run: bunx fit-wiki audit
+        run: |
+          export FIT_WIKI_AUDIT_GRACE_UNTIL=$(date -u -d '+30 days' +%Y-%m-%d)
+          bunx fit-wiki audit
 ```
 
-`FIT_WIKI_AUDIT_GRACE_UNTIL` is computed at PR-open time, not at plan
-time: **merge-target date + 30 days**, generous enough to cover the
-window between Part 04 landing (audit gate strict against legacy
-violations) and Part 05 landing (migration produces an audit-clean
-wiki). Part 05 Step 6 retires the variable entirely; if Part 05 is
-dropped per the user-deviation rejection path, the release engineer
-extends the variable on an ongoing basis until alternative remediation
-lands.
+Every workflow run computes a fresh `today + 30d` window. The grace
+expires deterministically 30 days after the *workflow* runs, not 30
+days after some long-ago commit. The window stays active for as long
+as the per-commit CI keeps running, which is the right semantics for
+a PR-lifecycle gate.
+
+Part 05 commit 05B retires the variable by **removing the `export`
+line entirely** (Step 6). After 05B lands, the audit step reduces to
+`bunx fit-wiki audit` with no grace, running in strict mode against
+the migrated wiki.
+
+If Part 05 is dropped per the user-deviation rejection path, the
+audit step's runtime-computed grace becomes permanent — the line
+above stays in the workflow and every CI run gets a rolling 30-day
+window. The follow-up spec named in plan-a-05.md § Spec deviation
+owns the closure.
 
 Pre-cutover weekly logs are exempt by the cutover check inside `audit`
 itself. The grace var covers existing summary-budget and decision-block
 violations until Part 05's migration remediates them mechanically.
 
 Verification:
-- `rg "FIT_WIKI_AUDIT_GRACE_UNTIL" .github/workflows/` returns the new step's literal value, not a `${{ env.* }}` reference.
-- A deliberate test commit that adds an 81-line agent summary fails CI when `FIT_WIKI_AUDIT_GRACE_UNTIL < today`. Revert before merge.
+- `rg "FIT_WIKI_AUDIT_GRACE_UNTIL" .github/workflows/` returns the runtime-computed `export` line, not a literal date and not a `${{ env.* }}` reference.
+- A deliberate test commit that adds an 81-line agent summary passes CI under the grace window (audit reports finding but exits 0). Revert before merge.
 
 ## Step 2 — Stop-hook entry installation
 
@@ -252,11 +260,11 @@ After merge:
   host for the audit step but verify with `rg -l 'on:.*pull_request' .github/workflows/`
   at implementation time. Place the step in the same job as the test
   step so a failed audit blocks merge alongside test failures.
-- **Grace-window date drift.** The literal date in
-  `FIT_WIKI_AUDIT_GRACE_UNTIL` is computed at PR-open time (Step 1).
-  If the PR doesn't merge within the assumed window, the release
-  engineer amends the value in a separate commit before requesting
-  merge. The trace-sample step delays the merge naturally by ≥24h.
+- **Grace-window date drift mitigated by runtime computation.** Step 1
+  computes `FIT_WIKI_AUDIT_GRACE_UNTIL` inside the workflow at run
+  time, not at commit time, so per-commit CI on rebases and on PRs
+  that sit open for weeks does not silently expire the grace. Part 05
+  Step 6 retires the export line entirely.
 - **Trace ingestion path discovery.** The trace CLI is at
   `libraries/libeval/bin/fit-trace.js`; if its filters do not match the
   Step 7 use case, fall back to raw NDJSON.

@@ -261,6 +261,12 @@ Register the new subcommands in the `commands` array of `definition`:
 carries `args`, `options`, and `description`. Add the new handlers to
 the `COMMANDS` map.
 
+The `audit` subcommand's options block must include `--legacy-only`
+(boolean) and `--format` (string, default `text`, allowed `text|json`)
+— `--legacy-only` is named in Step 6 and load-bearing for Part 05's
+per-step verification (`bunx fit-wiki audit --legacy-only`), so it
+ships as a real CLI flag, not a development-only helper.
+
 `log`, `inbox` are routed to a sub-dispatcher inside their handler
 because they carry sub-subcommands (`decision|note|done` /
 `list|ack|promote|drop`).

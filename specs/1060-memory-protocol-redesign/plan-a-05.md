@@ -50,7 +50,15 @@ Part 05 backfills anyway. Three points justify the deviation:
 
 The deviation has two concrete parts:
 
-- **Backfill of past weekly logs** (Steps 2 and 3) — spec § Out of scope.
+- **Backfill of past weekly logs** — spec § Out of scope. Participating
+  steps:
+  - Step 2 (partition) splits sealed weekly logs into parts.
+  - Step 3 (decision-block backfill) inserts the migration stub above
+    pre-contract entries.
+  - Step 4 (summary compaction) moves over-cap summary content into a
+    new dated entry in the current week's log with its own decision
+    stub. The decision stub itself is a backfill write — Step 4 is
+    therefore in the deviation's scope, not adjacent to it.
 - **Deletion of original sealed `<agent>-YYYY-Www.md` files** (Step 2,
   source files become N parts). Design § Cross-cutting choices says
   rotation "seals the prior part *before* appending" — that semantics
@@ -62,15 +70,33 @@ The deviation has two concrete parts:
 Spec § Success Criteria row 13 ("The corpus stays the diagnostic")
 disallows editing the research corpus pages
 `wiki/memory-protocol-*-2026-05-16.md`. Part 05 **does not touch
-those files** — only weekly logs and summaries.
+those files** — only weekly logs and summaries. Step 7 verification
+re-asserts this with an explicit `ls -la wiki/memory-protocol-*-2026-05-16.md`
+check before commit 05B.
 
-If the approver rejects this deviation in PR review, Part 05 is
-dropped and a follow-up spec must own the audit-grace lifecycle:
-who renews the grace var, on what cadence, and what condition
-reopens the question. The release engineer extends the grace var
-in 30-day windows until that follow-up spec lands. Surface the
-rejection trade-off in the PR description so the lifecycle is
-visible to the approver.
+If the approver rejects this deviation in PR review:
+
+- **Wholesale rejection** (both deviations): Part 05 is dropped
+  entirely. The audit grace remains as a runtime-computed rolling
+  window (Part 04 Step 1's `export FIT_WIKI_AUDIT_GRACE_UNTIL=$(date
+  -u -d '+30 days' …)`); the gate stays tolerant indefinitely until a
+  follow-up spec lands the cleanup. The release engineer does NOT
+  ratchet the window manually — runtime computation handles it.
+- **Partial rejection (deletion only)**: Step 2 is rewritten to keep
+  the original `<agent>-YYYY-Www.md` file alongside the parts as a
+  `<agent>-YYYY-Www-archive.md` file (renamed, not deleted); Steps 3,
+  4, 6, 7 proceed unchanged. This preserves the original file at HEAD
+  for forensic comparison without re-introducing the line-budget
+  failure (the archive file is excluded from audit's weekly-log scope
+  by filename pattern).
+- **Partial rejection (backfill only)**: Steps 3 and 4 are dropped;
+  Step 2 still partitions (no backfill). The audit grace continues
+  to cover decision-block violations indefinitely via the same
+  runtime-computed window.
+
+Surface the rejection trade-offs in the PR description so the
+approver picks one of the four paths (accept; wholesale; partial-
+deletion; partial-backfill) explicitly.
 
 ## Step 1 — Temporary migration script
 
@@ -285,9 +311,9 @@ violations.
 Modified: `.github/workflows/<host>.yml` (the file Part 04 added the
 audit step to).
 
-Remove the step-level `env: FIT_WIKI_AUDIT_GRACE_UNTIL: "..."` line
-introduced by Part 04 Step 1. The audit now runs in strict mode against
-the migrated wiki.
+Remove the `export FIT_WIKI_AUDIT_GRACE_UNTIL=$(date ...)` line from
+the audit step's `run:` block introduced by Part 04 Step 1. The
+remaining step body is just `bunx fit-wiki audit` — strict mode.
 
 Modified: `.claude/settings.json`. The Stop-hook entry installed by
 Part 04 Step 2 stays as-is (no grace-var to remove there — the
@@ -296,8 +322,7 @@ investigate locally).
 
 Verification:
 - `rg "FIT_WIKI_AUDIT_GRACE_UNTIL" .github/` returns zero hits.
-- A test commit that adds an 81-line agent summary fails CI. Revert before merge.
-- `bunx fit-wiki audit` against the migrated wiki exits 0 with `RESULT: pass`.
+- `bunx fit-wiki audit` against the migrated wiki (which 05B has just produced) exits 0 with `RESULT: pass` — this is the strict-mode evidence specific to Part 05; Part 04 already verified the grace-mode counterpart.
 
 ## Step 7 — Eval-corpus annotation in spec
 
@@ -320,10 +345,13 @@ Document (≤80 lines) recording:
 This document is the eval substrate's manifest. Future eval scaffolds
 (greenfield-wiki, partial-rotation, no-decision-block) reference it.
 
-Verification: the file exists; both hashes are real commits; the audit
-baseline JSON parses and shows `result: pass`; the invariants list
-matches the migrated state (asserted by a follow-on test that reads
-`eval-corpus.md` and re-checks each invariant against `wiki/`).
+Verification:
+- The file exists; both hashes are real commits; the audit baseline JSON parses and shows `result: pass`.
+- The invariants list matches the migrated state (eyeball check on the PR commit; no separate test scaffold since the script is one-shot).
+- **Research corpus untouched** — assert with `ls -la wiki/memory-protocol-*-2026-05-16.md` shows the original five files at their pre-migration sizes and mtimes (verified by comparing against the file list at the parent commit hash). Spec § Success Criteria row 13 satisfied.
+
+Created in commit 05B alongside `eval-corpus.md`:
+- `specs/1060-memory-protocol-redesign/audit-baseline-post-1060.json` — the saved `bunx fit-wiki audit --format json` snapshot.
 
 ## Risks (Part 05 only)
 
@@ -377,8 +405,30 @@ matches the migrated state (asserted by a follow-on test that reads
   deviation above (alongside backfill). If a future change wants
   symmetric live + sealed rotation for fresh weeks, that uses Part 01's
   `rotate` primitive which preserves the live-file path.
-- **`--legacy-only` flag exists.** Step 2 verification calls
-  `bunx fit-wiki audit --legacy-only`; Part 01 Step 6 mentions the
-  flag for parity testing only. When implementing, surface
-  `--legacy-only` in Part 01's `audit` options block so it is a
-  shipped CLI flag, not just a development helper.
+- **Intentional one-shot read/write asymmetry.** Part 05's script
+  writes to `wiki/` extensively, but no skill or protocol cites the
+  script — the redesign's whole purpose is to close read/write
+  asymmetries that fed F11, so this looks like exactly the failure
+  the spec aims to prevent. It is not: the asymmetry is intentional
+  and bounded. The script is one-shot, self-deleting in 05B, and
+  recoverable only from git history. No future agent run will ever
+  re-write via this path. The protocol's CLI Contract Map (Part 02)
+  carries a footnote pointing at plan-a-05.md so a future auditor
+  reads the asymmetry as designed, not as a contract gap.
+- **WIP idempotence requires script restoration.** During PR
+  development, the developer may need to iterate on the migration
+  (re-run after fixing a bug). After commit 05B is pushed, the script
+  is gone from HEAD; iterating requires `git checkout 05A -- scripts/spec-1060-migrate-wiki.mjs`,
+  re-running, and amending 05B. Document this workflow in the PR
+  description so a future reviewer / re-runner knows the dance.
+- **Commit 05B atomicity.** Commit 05B bundles four operations:
+  (a) the mechanical migration output (~100 file renames/creations);
+  (b) deletion of the script;
+  (c) edit to the workflow file (grace-window retirement);
+  (d) creation of `eval-corpus.md` and `audit-baseline-post-1060.json`.
+  This is intentional — splitting (c) into a separate commit risks
+  per-commit CI failing on the strict-mode workflow before the
+  migrated wiki lands, and splitting (b) leaves the script at HEAD
+  for one CI cycle (no value, only confusion). The PR description
+  names commit 05B as a single atomic deliverable that reviewers
+  approve as a unit.

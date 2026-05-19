@@ -131,6 +131,12 @@ Section content:
   | `init` | modified | Active Claims scaffold; Stop-hook installation |
   | `refresh` | extended | Sibling channel (storyboard rendering) — cross-link only |
 
+  Footnote (one line under the table): "One-shot administrative scripts
+  (e.g. `scripts/spec-NNN-*.mjs`) write to `wiki/` transiently and
+  self-delete in the same commit that runs them; they are not part of
+  the protocol's read/write contract. See plan-a-05.md for an
+  example."
+
   Followed by the reverse table:
 
   | Contract assigned to the CLI | Subcommand(s) that realize it |
@@ -268,6 +274,15 @@ The inventory is the contract Part 03 satisfies (every "edited in Part
 02 or Part 04 are checked by their owning parts). Pre-cutover weekly
 logs and the `wiki/memory-protocol-*-2026-05-16.md` research corpus are
 tagged `historical exempt`.
+
+**Inventory snapshot semantics.** The inventory is a one-time
+artifact built at Part 02's commit. The Part 05 migration script
+(`scripts/spec-1060-migrate-wiki.mjs`) does not exist at inventory-
+build time — it is added later in commit 05A and deleted in 05B, so
+it never appears in a final-state grep of the tree. If a reader
+re-derives the inventory between 05A and 05B and sees the script,
+treat it as `historical exempt (Part 05 transient)`. After 05B, the
+inventory is stable against re-derivation.
 
 Verification: every row in the inventory falls in one of the five
 states; no row reads "stale".
