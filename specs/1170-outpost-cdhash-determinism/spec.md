@@ -1,4 +1,4 @@
-# Spec 1130 — Deterministic Outpost.app bundle for brew lane
+# Spec 1170 — Deterministic Outpost.app bundle for brew lane
 
 ## Problem
 
