@@ -1,18 +1,29 @@
 /**
- * First-visit banner — orientation framing on the Pathway landing page.
+ * First-visit banner — modal overlay on the Pathway landing page.
  *
- * In-flow card (no `position: fixed`, no `z-index`). Sits as the first child
- * of `.landing-page`. Animation gated behind `prefers-reduced-motion`.
+ * Fixed backdrop dims the page; banner is centered on top.
+ * Animation gated behind `prefers-reduced-motion`.
  */
 
 @layer components {
+  .first-visit-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(0 0 0 / 0.5);
+  }
+
   .first-visit-banner {
-    margin: 0 0 var(--space-xl);
+    max-width: 40rem;
+    width: calc(100% - 2 * var(--space-xl));
     padding: var(--space-lg) var(--space-xl);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-lg);
   }
 
   .first-visit-banner > h2 {
@@ -31,8 +42,19 @@
   }
 
   @media (prefers-reduced-motion: no-preference) {
+    .first-visit-backdrop {
+      animation: first-visit-backdrop-fade-in 200ms ease-out;
+    }
     .first-visit-banner {
       animation: first-visit-banner-fade-in 200ms ease-out;
+    }
+    @keyframes first-visit-backdrop-fade-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
     }
     @keyframes first-visit-banner-fade-in {
       from {

@@ -48,15 +48,21 @@ function findAllByTag(el, tagName) {
 }
 
 describe("createFirstVisitBanner", () => {
-  test("returns a <section> with the spec-required ARIA wiring", () => {
+  test("returns a backdrop wrapping a <section> with the spec-required ARIA wiring", () => {
     const el = createFirstVisitBanner({ onDismiss: () => {} });
-    assert.strictEqual(el.tagName, "SECTION");
-    assert.strictEqual(el.getAttribute("role"), "region");
+    assert.strictEqual(el.tagName, "DIV");
+    assert.strictEqual(el.getAttribute("role"), "dialog");
+    assert.strictEqual(el.getAttribute("aria-modal"), "true");
+    const banners = findAllByTag(el, "section");
+    assert.strictEqual(banners.length, 1);
+    const banner = banners[0];
+    assert.strictEqual(banner.tagName, "SECTION");
+    assert.strictEqual(banner.getAttribute("role"), "region");
     assert.strictEqual(
-      el.getAttribute("aria-labelledby"),
+      banner.getAttribute("aria-labelledby"),
       "first-visit-heading",
     );
-    assert.strictEqual(el.getAttribute("aria-live"), "polite");
+    assert.strictEqual(banner.getAttribute("aria-live"), "polite");
     const heading = findById(el, "first-visit-heading");
     assert.ok(heading, "expected an element with id=first-visit-heading");
     assert.strictEqual(heading.tagName, "H2");
