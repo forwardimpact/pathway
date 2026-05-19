@@ -51,6 +51,7 @@ wiki/
 # Development files
 tmp/
 SCRATCHPAD*.md
+PLAN*.md
 
 # CLI output
 output/
