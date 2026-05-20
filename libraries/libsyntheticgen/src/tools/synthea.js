@@ -36,9 +36,8 @@ export class SyntheaTool {
     } catch {
       throw new Error(
         `Synthea requires Java and ${this.syntheaJar}. ` +
-          "Install Java (java.com) and download Synthea " +
-          "(github.com/synthetichealth/synthea/releases). " +
-          "Set SYNTHEA_JAR to the jar path.",
+          "Run 'just synthea-install' to download the JAR, " +
+          "or set SYNTHEA_JAR to a custom path.",
       );
     }
   }
@@ -100,6 +99,8 @@ export class SyntheaTool {
       }
     }
 
+    filterByConditions(byType, config.conditions);
+
     // Return one dataset per resource type
     const datasets = [];
     for (const [type, records] of byType) {
@@ -115,6 +116,47 @@ export class SyntheaTool {
     await this.fsFns.rm(tmpDir, { recursive: true });
 
     return datasets;
+  }
+}
+
+/**
+ * Restrict the flattened FHIR resources to patients whose Condition entries
+ * match one of the supplied clinical condition IDs. Matches on `code.coding[].code`
+ * exactly, or `code.coding[].display` normalized to lowercase-underscored form
+ * (the DSL convention).
+ *
+ * Mutates `byType` in place. No-op when conditions is empty/undefined, when
+ * there are no FHIR Condition resources, or when no patients match (so a
+ * mis-spelled condition does not silently drop the entire dataset).
+ */
+function filterByConditions(byType, conditions) {
+  if (!conditions?.length) return;
+  const patientType = byType.get("Patient");
+  const conditionType = byType.get("Condition");
+  if (!patientType || !conditionType) return;
+
+  const matchedPatientIds = new Set();
+  for (const cond of conditionType) {
+    const coding = cond.code?.coding || [];
+    const matches = coding.some(
+      (c) =>
+        conditions.includes(c.code) ||
+        conditions.includes(c.display?.toLowerCase().replace(/\s+/g, "_")),
+    );
+    if (!matches) continue;
+    const ref = cond.subject?.reference;
+    if (ref) matchedPatientIds.add(ref.replace("urn:uuid:", ""));
+  }
+  if (matchedPatientIds.size === 0) return;
+
+  for (const [type, records] of byType) {
+    byType.set(
+      type,
+      records.filter((r) => {
+        const id = r.id || r.subject?.reference?.replace("urn:uuid:", "");
+        return !id || matchedPatientIds.has(id);
+      }),
+    );
   }
 }
 

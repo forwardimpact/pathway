@@ -201,6 +201,7 @@ export function buildNodes(ctx) {
           parse.seed,
           toolFactory,
           logger,
+          parse.clinical,
         );
         await renderDatasetOutputs(parse.outputs, datasets, files, logger);
         return { files };
@@ -253,10 +254,17 @@ export function buildNodes(ctx) {
 }
 
 /** Run each dataset tool and collect results into a Map by name. */
-async function generateDatasets(definitions, seed, toolFactory, logger) {
+async function generateDatasets(
+  definitions,
+  seed,
+  toolFactory,
+  logger,
+  clinical,
+) {
   logger.info("pipeline", `Generating ${definitions.length} dataset(s)`);
   const datasets = new Map();
   for (const ds of definitions) {
+    resolveDatasetConditions(ds, clinical);
     const tool = toolFactory(ds.tool, { logger });
     try {
       await tool.checkAvailability();
@@ -277,6 +285,16 @@ async function generateDatasets(definitions, seed, toolFactory, logger) {
     }
   }
   return datasets;
+}
+
+function resolveDatasetConditions(ds, clinical) {
+  if (!ds.config.conditions || !clinical?.conditions) return;
+  ds.config.modules = ds.config.conditions
+    .map(
+      (condId) =>
+        clinical.conditions.find((c) => c.id === condId)?.synthea_module,
+    )
+    .filter(Boolean);
 }
 
 /** Render dataset outputs and merge into the files map. */
