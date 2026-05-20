@@ -197,14 +197,20 @@ jobs:
       # Microsoft Teams bridge) when one is specified via workflow_dispatch.
       # Skipped on issue/PR/discussion events where `inputs` is null. Runs on
       # both success and failure of the facilitate step so callers always get
-      # a verdict.
+      # a verdict — even when no trace was produced, we POST a failure
+      # placeholder so the caller is never stranded.
       #
       # fit-eval@v1 writes its NDJSON trace to a mktemp directory under /tmp
       # (path `trace--<case>.raw.ndjson`) and does not expose that path as a
       # composite-action output. Until the action exposes `trace-dir` or
-      # accepts an `output` input, we locate the trace via glob — the
-      # workflow runner reuses a fresh /tmp per job, so at most one trace
-      # file matches.
+      # accepts an `output` input, we locate the trace via glob and pick the
+      # newest match by mtime so a stale trace from a previous step on a
+      # self-hosted runner cannot win. Tracked as a follow-up to spec 1200.
+      #
+      # The callback subcommand is invoked from the monorepo workspace
+      # (`node libraries/libeval/bin/fit-eval.js`) rather than via `npx
+      # fit-eval` so this workflow does not depend on libeval being
+      # published before the workflow change lands.
       - name: Deliver callback
         if: github.event_name == 'workflow_dispatch' && always() && inputs.callback_url != ''
         env:
@@ -213,14 +219,20 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
-          TRACE_FILE=$(find /tmp -maxdepth 3 -name 'trace--*.raw.ndjson' 2>/dev/null | head -1)
-          if [ -z "$TRACE_FILE" ]; then
-            echo "::error::No trace file found under /tmp — fit-eval may have failed to start"
-            exit 1
+          TRACE_FILE=$(find /tmp -maxdepth 3 -name 'trace--*.raw.ndjson' -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | cut -d' ' -f2-)
+          if [ -n "$TRACE_FILE" ] && [ -f "$TRACE_FILE" ]; then
+            echo "Using trace file: $TRACE_FILE"
+            node libraries/libeval/bin/fit-eval.js callback \
+              --trace-file="$TRACE_FILE" \
+              --callback-url="$CALLBACK_URL" \
+              --correlation-id="$CORRELATION_ID" \
+              --run-url="$RUN_URL"
+          else
+            echo "::warning::No trace file found — posting failure placeholder so the caller is not stranded"
+            curl -fsS -X POST "$CALLBACK_URL" \
+              -H 'Content-Type: application/json' \
+              -d "$(jq -n \
+                --arg cid "$CORRELATION_ID" \
+                --arg run "$RUN_URL" \
+                '{correlation_id: $cid, verdict: "failure", summary: "Facilitator session did not produce a trace; see run log.", run_url: $run}')"
           fi
-          echo "Using trace file: $TRACE_FILE"
-          npx fit-eval callback \
-            --trace-file="$TRACE_FILE" \
-            --callback-url="$CALLBACK_URL" \
-            --correlation-id="$CORRELATION_ID" \
-            --run-url="$RUN_URL"

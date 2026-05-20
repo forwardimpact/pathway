@@ -51,15 +51,26 @@ export function formatReply(payload) {
 
 /**
  * Append a message to a bounded history, dropping the oldest entries when
- * the cap is exceeded.
+ * the cap is exceeded. Exported for unit testing.
  *
  * @param {Array<{role: "user"|"assistant", text: string}>} history
  * @param {{role: "user"|"assistant", text: string}} entry
  */
-function appendHistory(history, entry) {
+export function appendHistory(history, entry) {
   history.push(entry);
   const max = HISTORY_MAX_EXCHANGES * 2;
   while (history.length > max) history.shift();
+}
+
+/**
+ * Strip trailing slashes from a base URL so concatenation does not produce
+ * double-slashes that fail route matching on the callback endpoint.
+ *
+ * @param {string} url
+ * @returns {string}
+ */
+function normalizeBaseUrl(url) {
+  return (url ?? "").replace(/\/+$/, "");
 }
 
 /**
@@ -123,6 +134,7 @@ async function dispatchWorkflow({
  */
 export function createBridge(config) {
   const port = config.port ?? 3978;
+  const callbackBaseUrl = normalizeBaseUrl(config.callbackBaseUrl);
   const conversations = new Map();
   const pendingCallbacks = new Map();
 
@@ -163,7 +175,7 @@ export function createBridge(config) {
     const prompt = buildPrompt(text, state.history);
     const correlationId = randomUUID();
     const callbackToken = randomUUID();
-    const callbackUrl = `${config.callbackBaseUrl}/api/callback/${callbackToken}`;
+    const callbackUrl = `${callbackBaseUrl}/api/callback/${callbackToken}`;
 
     pendingCallbacks.set(callbackToken, { correlationId, threadId });
 
@@ -203,9 +215,18 @@ export function createBridge(config) {
       res.status(404).json({ error: "Unknown callback token" });
       return;
     }
-    pendingCallbacks.delete(token);
 
     const payload = req.body ?? {};
+    // Defense in depth: the token already gates trust (capability URL),
+    // but the workflow round-trips correlation_id specifically so the
+    // bridge can detect a mis-routed callback. Reject mismatches before
+    // emitting any Teams activity.
+    if (payload.correlation_id !== pending.correlationId) {
+      res.status(400).json({ error: "Correlation ID mismatch" });
+      return;
+    }
+    pendingCallbacks.delete(token);
+
     const state = conversations.get(pending.threadId);
     if (!state || !state.ref) {
       res.status(410).json({ error: "Conversation reference missing" });

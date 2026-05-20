@@ -25,20 +25,20 @@ that let agents consume backend functionality natively.
 
 <!-- BEGIN:jobs — Do not edit. Generated from each service's package.json. -->
 
-<job user="Teams Using Agents" goal="Reach the Agent Team from Teams">
+<job user="Platform Builders" goal="Bridge Conversation Platforms to the Agent Team">
 
-## Teams Using Agents: Reach the Agent Team from Teams
+## Platform Builders: Bridge Conversation Platforms to the Agent Team
 
-**Trigger:** Discussing work in Microsoft Teams and needing to context-switch to
-GitHub to ask the agent team anything.
+**Trigger:** Engineers discuss work in Microsoft Teams and need to
+context-switch to GitHub to invoke the agent team.
 
-**Big Hire:** Help me invoke the Kata agent team from a Teams conversation
-without leaving Teams. → **msteams**
+**Big Hire:** Help me relay messages between a chat platform and the Kata agent
+team without leaving the conversation. → **msteams**
 
-**Little Hire:** Help me send a message and get the facilitator's conclusion
-back in the same thread. → **msteams**
+**Little Hire:** Help me dispatch a facilitate session from a chat message and
+return the verdict to the same thread. → **msteams**
 
-**Competes With:** manually creating GitHub issues; copy-pasting between Teams
+**Competes With:** manually creating GitHub issues; copy-pasting between chat
 and GitHub; leaving the agent team unreachable from daily conversation.
 
 </job>

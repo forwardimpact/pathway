@@ -10,9 +10,11 @@ one.
 
 ## Prerequisites
 
-- Node.js 18 or newer (Bun also works for tests). The bridge is started
-  with `node server.js` because `botbuilder` ships CommonJS only and Bun's
-  ESM/CJS interop is unreliable for the Bot Framework SDK.
+- Node.js 18 or newer. The bridge **server** is started with `node
+  server.js` — `botbuilder` ships CommonJS only and the Bot Framework
+  adapter has historically been brittle under Bun's CJS interop. Bun is
+  fine for running the test suite (`bun test`) — the tests cover pure
+  helpers and stores, not the live adapter.
 - A Microsoft 365 developer tenant with an Azure Bot resource registered
   for the Teams channel — see
   [msteams-config.md § 1–3](../../specs/1200-teams-agent-bridge/msteams-config.md).
