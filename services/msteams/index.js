@@ -74,6 +74,94 @@ function normalizeBaseUrl(url) {
 }
 
 /**
+ * Validate a Teams activity and extract the inputs needed to dispatch a
+ * workflow. Returns null (and logs the reason) when the activity should be
+ * ignored.
+ */
+function extractMessageInputs(activity, logger) {
+  if (activity.type !== "message") {
+    logger?.debug("handleActivity", "ignoring non-message activity", {
+      type: activity.type,
+    });
+    return null;
+  }
+  const threadId = activity.conversation?.id;
+  if (!threadId) {
+    logger?.debug("handleMessage", "ignoring activity without thread ID");
+    return null;
+  }
+  const text = (activity.text ?? "").trim();
+  if (!text) {
+    logger?.debug("handleMessage", "ignoring empty message", {
+      thread_id: threadId,
+    });
+    return null;
+  }
+  const from = activity.from?.name ?? activity.from?.id ?? "unknown";
+  return { threadId, text, from };
+}
+
+/**
+ * Look up the conversation state, creating it on first contact and refreshing
+ * the conversation reference on every turn. Returns the state and emits the
+ * new-vs-continuing log line as a side effect.
+ */
+function ensureConversation(conversations, threadId, activity, logger, from) {
+  const isNew = !conversations.has(threadId);
+  let state = conversations.get(threadId);
+  if (!state) {
+    state = { ref: null, history: [] };
+    conversations.set(threadId, state);
+  }
+  state.ref = TurnContext.getConversationReference(activity);
+  if (isNew) {
+    logger?.info("handleMessage", "new conversation", {
+      thread_id: threadId,
+      from,
+      conversations_total: conversations.size,
+    });
+  } else {
+    logger?.debug("handleMessage", "continuing conversation", {
+      thread_id: threadId,
+      history_size: state.history.length,
+    });
+  }
+  return state;
+}
+
+/**
+ * Verify that the callback payload's correlation ID matches the pending
+ * registration. Returns null on success, or a problem object the caller can
+ * convert into an HTTP response.
+ */
+function validateCallbackPayload(pending, payload, logger) {
+  if (payload.correlation_id === pending.correlationId) return null;
+  logger?.error("callback", "correlation ID mismatch", {
+    expected: pending.correlationId,
+    received: payload.correlation_id,
+  });
+  return { status: 400, message: "Correlation ID mismatch" };
+}
+
+/** Span helpers — collapse `if (span)` clusters into single calls. */
+function startServerSpan(tracer, name, attributes) {
+  return tracer ? tracer.startSpan(name, { kind: "SERVER", attributes }) : null;
+}
+function spanOk(span, event, attrs) {
+  if (!span) return;
+  span.addEvent(event, attrs);
+  span.setOk();
+}
+function spanError(span, err) {
+  if (!span) return;
+  span.setError(err);
+}
+async function spanEnd(span) {
+  if (!span) return;
+  await span.end();
+}
+
+/**
  * Dispatch a workflow_dispatch event on agent-react.yml with the supplied
  * prompt and callback information.
  *
@@ -162,63 +250,27 @@ export function createBridge(config) {
   };
 
   async function handleMessageActivity(context) {
-    const activity = context.activity;
+    const inputs = extractMessageInputs(context.activity, logger);
+    if (!inputs) return;
+    const { threadId, text, from } = inputs;
 
-    if (activity.type !== "message") {
-      logger?.debug("handleActivity", "ignoring non-message activity", {
-        type: activity.type,
-      });
-      return;
-    }
-
-    const threadId = activity.conversation?.id;
-    if (!threadId) {
-      logger?.debug("handleMessage", "ignoring activity without thread ID");
-      return;
-    }
-
-    const text = (activity.text ?? "").trim();
-    if (!text) {
-      logger?.debug("handleMessage", "ignoring empty message", {
-        thread_id: threadId,
-      });
-      return;
-    }
-
-    const from = activity.from?.name ?? activity.from?.id ?? "unknown";
     logger?.debug("handleMessage", "received", {
       thread_id: threadId,
       from,
       text_length: text.length,
     });
 
-    const span = tracer
-      ? tracer.startSpan("MsTeams.HandleMessage", {
-          kind: "SERVER",
-          attributes: { thread_id: threadId },
-        })
-      : null;
+    const span = startServerSpan(tracer, "MsTeams.HandleMessage", {
+      thread_id: threadId,
+    });
 
-    const isNew = !conversations.has(threadId);
-    let state = conversations.get(threadId);
-    if (!state) {
-      state = { ref: null, history: [] };
-      conversations.set(threadId, state);
-    }
-    state.ref = TurnContext.getConversationReference(activity);
-
-    if (isNew) {
-      logger?.info("handleMessage", "new conversation", {
-        thread_id: threadId,
-        from,
-        conversations_total: conversations.size,
-      });
-    } else {
-      logger?.debug("handleMessage", "continuing conversation", {
-        thread_id: threadId,
-        history_size: state.history.length,
-      });
-    }
+    const state = ensureConversation(
+      conversations,
+      threadId,
+      context.activity,
+      logger,
+      from,
+    );
 
     const historyBefore = state.history.length;
     const prompt = buildPrompt(text, state.history);
@@ -233,7 +285,6 @@ export function createBridge(config) {
     const correlationId = randomUUID();
     const callbackToken = randomUUID();
     const callbackUrl = `${callbackBaseUrl}/api/callback/${callbackToken}`;
-
     pendingCallbacks.set(callbackToken, { correlationId, threadId });
     logger?.debug("handleMessage", "callback registered", {
       correlation_id: correlationId,
@@ -270,12 +321,7 @@ export function createBridge(config) {
         thread_id: threadId,
         history_size: state.history.length,
       });
-      if (span) {
-        span.addEvent("workflow_dispatched", {
-          correlation_id: correlationId,
-        });
-        span.setOk();
-      }
+      spanOk(span, "workflow_dispatched", { correlation_id: correlationId });
     } catch (err) {
       pendingCallbacks.delete(callbackToken);
       logger?.error("handleMessage", err, {
@@ -283,12 +329,12 @@ export function createBridge(config) {
         correlation_id: correlationId,
         pending_total: pendingCallbacks.size,
       });
-      if (span) span.setError(err);
+      spanError(span, err);
       await context.sendActivity(
         `Failed to reach the agent team: ${err.message}`,
       );
     } finally {
-      if (span) await span.end();
+      await spanEnd(span);
     }
   }
 
@@ -322,24 +368,16 @@ export function createBridge(config) {
       verdict: req.body?.verdict,
     });
 
-    const span = tracer
-      ? tracer.startSpan("MsTeams.HandleCallback", {
-          kind: "SERVER",
-          attributes: { correlation_id: pending.correlationId },
-        })
-      : null;
+    const span = startServerSpan(tracer, "MsTeams.HandleCallback", {
+      correlation_id: pending.correlationId,
+    });
 
     const payload = req.body ?? {};
-    if (payload.correlation_id !== pending.correlationId) {
-      logger?.error("callback", "correlation ID mismatch", {
-        expected: pending.correlationId,
-        received: payload.correlation_id,
-      });
-      if (span) {
-        span.setError(new Error("Correlation ID mismatch"));
-        await span.end();
-      }
-      res.status(400).json({ error: "Correlation ID mismatch" });
+    const mismatch = validateCallbackPayload(pending, payload, logger);
+    if (mismatch) {
+      spanError(span, new Error(mismatch.message));
+      await spanEnd(span);
+      res.status(mismatch.status).json({ error: mismatch.message });
       return;
     }
     pendingCallbacks.delete(token);
@@ -355,16 +393,13 @@ export function createBridge(config) {
         conversation_exists: conversations.has(pending.threadId),
         ref_exists: !!state?.ref,
       });
-      if (span) {
-        span.setError(new Error("Conversation reference missing"));
-        await span.end();
-      }
+      spanError(span, new Error("Conversation reference missing"));
+      await spanEnd(span);
       res.status(410).json({ error: "Conversation reference missing" });
       return;
     }
 
     const replyText = formatReply(payload);
-
     logger?.info("callback", "delivering reply", {
       thread_id: pending.threadId,
       correlation_id: pending.correlationId,
@@ -391,20 +426,17 @@ export function createBridge(config) {
         verdict: payload.verdict,
         history_size: state.history.length,
       });
-      if (span) {
-        span.addEvent("reply_delivered", { verdict: payload.verdict });
-        span.setOk();
-      }
+      spanOk(span, "reply_delivered", { verdict: payload.verdict });
       res.status(200).json({ ok: true });
     } catch (err) {
       logger?.error("callback", err, {
         thread_id: pending.threadId,
         correlation_id: pending.correlationId,
       });
-      if (span) span.setError(err);
+      spanError(span, err);
       res.status(500).json({ error: "Failed to deliver reply" });
     } finally {
-      if (span) await span.end();
+      await spanEnd(span);
     }
   });
 
