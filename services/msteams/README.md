@@ -12,24 +12,47 @@ agent team.
 - A Microsoft 365 developer tenant with an Azure Bot resource registered
   for the Teams channel — see
   [config-msteams.md § 1–3](../../specs/1200-teams-agent-bridge/config-msteams.md).
+- The **Microsoft Teams channel** must be enabled on the Azure Bot resource
+  (Settings → Channels → add Microsoft Teams).
 - A GitHub token with `actions:write` on `forwardimpact/monorepo`.
 - Credentials (`MICROSOFT_APP_ID`, `MICROSOFT_APP_PASSWORD`,
   `MICROSOFT_APP_TENANT_ID`, `GH_TOKEN`) and service params
-  (`SERVICE_MSTEAMS_CALLBACK_BASE_URL`, `SERVICE_MSTEAMS_GITHUB_REPO`) in
-  `.env`. All config is loaded by `libconfig` via
-  `createServiceConfig("msteams")`.
+  (`SERVICE_MSTEAMS_PORT`, `SERVICE_MSTEAMS_CALLBACK_BASE_URL`,
+  `SERVICE_MSTEAMS_GITHUB_REPO`) in `.env`. All config is loaded by
+  `libconfig` via `createServiceConfig("msteams")`.
 
 ## Running
 
-Start the tunnel and bridge in separate terminals:
+Start all services (bridge + tunnel) via `fit-rc`:
 
 ```sh
-just msteams-tunnel   # cloudflared → exposes localhost:3978
-just msteams-bridge   # starts the bridge via fit-rc
+just rc-start
 ```
 
-Set the tunnel's public URL as the Azure Bot messaging endpoint:
+The tunnel uses a quick `trycloudflare.com` hostname that changes on
+every restart. After starting, check the tunnel log for the assigned URL:
+
+```sh
+cat data/logs/msteams-tunnel/current | grep trycloudflare.com
+```
+
+Set that URL as the Azure Bot messaging endpoint in the Azure portal
+(Settings → Configuration):
 `https://<tunnel-domain>/api/messages`.
+
+Also set `SERVICE_MSTEAMS_CALLBACK_BASE_URL` in `.env` to the same
+tunnel domain (without the `/api/messages` path) so the bridge can
+receive workflow callbacks. The bridge must be restarted after changing
+`.env` — kill the bridge process and let the supervisor restart it, or
+stop and start `fit-rc`. Avoid restarting the tunnel itself, as that
+generates a new hostname.
+
+### Corporate network considerations
+
+The bridge must be able to reach `api.github.com` to dispatch workflows.
+If you are on a corporate VPN with tenant restrictions, outbound calls
+to Azure AD and GitHub may be blocked. Disconnect from the VPN before
+starting the bridge, or allowlist the required endpoints.
 
 ## Packaging the Teams App
 
@@ -37,10 +60,15 @@ Set the tunnel's public URL as the Azure Bot messaging endpoint:
 just msteams-package
 ```
 
-Reads `MICROSOFT_APP_ID` and `SERVICE_MSTEAMS_CALLBACK_BASE_URL` from `.env`
-via libconfig. Produces `dist/kata-agent-bridge.zip` (git-ignored) containing
-the manifest and placeholder icons. Override the tunnel domain with
+Reads `MICROSOFT_APP_ID` from `.env` via libconfig and the tunnel domain
+from `SERVICE_MSTEAMS_CALLBACK_BASE_URL`. Produces
+`dist/kata-agent-bridge.zip` (git-ignored) containing the manifest and
+placeholder icons. Override the tunnel domain with
 `--tunnel-domain=<host>` if needed.
+
+The manifest uses Teams schema v1.17. The package can be rebuilt and
+re-uploaded without removing the app from Teams — the Azure Bot
+messaging endpoint is what controls routing, not the package contents.
 
 ## Sideloading
 
@@ -53,6 +81,7 @@ the manifest and placeholder icons. Override the tunnel domain with
 
 ## Smoke test
 
-Send `@Kata Agent hello` in the configured team or chat. The bot replies
-`"Working on it..."`, triggers an `agent-react.yml` run, and posts the
-facilitator's verdict back in the same thread once the session completes.
+Send `@Kata Agent hello` in the configured team or chat. The bot shows
+a randomized status word ("Moonwalking...", "Crafting...", etc.) while
+the agent team works, then posts the facilitator's response back in the
+same thread once the session completes.
