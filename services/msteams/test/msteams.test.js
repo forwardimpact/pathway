@@ -1,14 +1,5 @@
-import {
-  test,
-  describe,
-  beforeEach,
-  afterEach,
-  before,
-  after,
-} from "node:test";
+import { test, describe, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
-
-import { HmacAuth } from "@forwardimpact/librpc";
 
 import {
   MsTeamsService,
@@ -19,17 +10,6 @@ import {
   validateCallbackPayload,
 } from "../index.js";
 import { createMockConfig } from "@forwardimpact/libharness";
-
-const TEST_SECRET =
-  "test-secret-that-is-definitely-at-least-32-characters-long-for-hmac";
-
-before(() => {
-  process.env.SERVICE_SECRET = TEST_SECRET;
-});
-
-after(() => {
-  delete process.env.SERVICE_SECRET;
-});
 
 function makeConfig(overrides = {}) {
   return createMockConfig("msteams", {
@@ -107,18 +87,6 @@ describe("msteams service", () => {
       assert.throws(() => new MsTeamsService(config, { logger: deps.logger }), {
         message: "tracer is required",
       });
-    });
-
-    test("throws if SERVICE_SECRET is missing", () => {
-      const saved = process.env.SERVICE_SECRET;
-      delete process.env.SERVICE_SECRET;
-      try {
-        assert.throws(() => new MsTeamsService(config, deps), {
-          message: "SERVICE_SECRET is required",
-        });
-      } finally {
-        process.env.SERVICE_SECRET = saved;
-      }
     });
 
     test("constructs empty conversations and pendingCallbacks maps", () => {
@@ -481,11 +449,9 @@ describe("msteams service", () => {
     let service;
     let server;
     let port;
-    let hmacAuth;
 
     beforeEach(async () => {
       service = new MsTeamsService(makeConfig(), makeDeps());
-      hmacAuth = new HmacAuth(TEST_SECRET);
       await new Promise((resolve) => {
         server = service.app.listen(0, () => {
           port = server.address().port;
@@ -498,45 +464,12 @@ describe("msteams service", () => {
       await new Promise((resolve) => server.close(resolve));
     });
 
-    test("rejects request without authorization header", async () => {
-      const res = await fetch(
-        `http://localhost:${port}/api/callback/some-token`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ correlation_id: "cid" }),
-        },
-      );
-      assert.strictEqual(res.status, 401);
-      const body = await res.json();
-      assert.strictEqual(body.error, "Unauthorized");
-    });
-
-    test("rejects request with invalid HMAC token", async () => {
-      const res = await fetch(
-        `http://localhost:${port}/api/callback/some-token`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: "Bearer totally-invalid-token",
-          },
-          body: JSON.stringify({ correlation_id: "cid" }),
-        },
-      );
-      assert.strictEqual(res.status, 401);
-    });
-
-    test("returns 404 for unknown callback token with valid auth", async () => {
-      const token = hmacAuth.generateToken("agent-react");
+    test("returns 404 for unknown callback token", async () => {
       const res = await fetch(
         `http://localhost:${port}/api/callback/unknown-token`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ correlation_id: "cid" }),
         },
       );
@@ -550,13 +483,9 @@ describe("msteams service", () => {
         createdAt: Date.now(),
       });
 
-      const token = hmacAuth.generateToken("agent-react");
       const res = await fetch(`http://localhost:${port}/api/callback/tok-1`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({}),
       });
       assert.strictEqual(res.status, 400);
@@ -571,13 +500,9 @@ describe("msteams service", () => {
         createdAt: Date.now(),
       });
 
-      const token = hmacAuth.generateToken("agent-react");
       const res = await fetch(`http://localhost:${port}/api/callback/tok-2`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correlation_id: "wrong-cid" }),
       });
       assert.strictEqual(res.status, 400);
