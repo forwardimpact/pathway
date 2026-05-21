@@ -44,26 +44,34 @@ function captureStderr(fn) {
 describe("Redactor — env-var allowlist (criterion 1)", () => {
   test("replaces sentinels with [REDACTED:env:NAME] across deep-walked carrier shapes", () => {
     const ANTHROPIC = "ANTHROPIC_SENTINEL_VALUE";
+    const AWS_KEY = "AWS_ACCESS_KEY_SENTINEL_VALUE";
+    const AWS_SECRET = "AWS_SECRET_KEY_SENTINEL_VALUE";
+    const DB_PASS = "DATABASE_PASSWORD_SENTINEL_VALUE";
     const GH = "GH_TOKEN_SENTINEL_VALUE";
     const GITHUB = "GITHUB_TOKEN_SENTINEL_VALUE";
     const MCP = "MCP_TOKEN_SENTINEL_VALUE";
     const MS_PASS = "MS_APP_PASSWORD_SENTINEL_VALUE";
     const LANDMARK = "LANDMARK_TOKEN_SENTINEL_VALUE";
+    const SVC = "SERVICE_SECRET_SENTINEL_VALUE";
     const SB_ANON = "SUPABASE_ANON_SENTINEL_VALUE";
     const SB_JWT = "SUPABASE_JWT_SENTINEL_VALUE";
     const SB_ROLE = "SUPABASE_ROLE_SENTINEL_VALUE";
-    for (const s of [ANTHROPIC, GH, GITHUB, MCP, MS_PASS, LANDMARK, SB_ANON, SB_JWT, SB_ROLE]) {
+    for (const s of [ANTHROPIC, AWS_KEY, AWS_SECRET, DB_PASS, GH, GITHUB, MCP, MS_PASS, LANDMARK, SVC, SB_ANON, SB_JWT, SB_ROLE]) {
       assertJsonStableSentinel(s);
     }
 
     const r = createRedactor({
       env: {
         ANTHROPIC_API_KEY: ANTHROPIC,
+        AWS_ACCESS_KEY_ID: AWS_KEY,
+        AWS_SECRET_ACCESS_KEY: AWS_SECRET,
+        DATABASE_PASSWORD: DB_PASS,
         GH_TOKEN: GH,
         GITHUB_TOKEN: GITHUB,
         MCP_TOKEN: MCP,
         MICROSOFT_APP_PASSWORD: MS_PASS,
         PRODUCT_LANDMARK_TOKEN: LANDMARK,
+        SERVICE_SECRET: SVC,
         SUPABASE_ANON_KEY: SB_ANON,
         SUPABASE_JWT_SECRET: SB_JWT,
         SUPABASE_SERVICE_ROLE_KEY: SB_ROLE,
@@ -96,9 +104,13 @@ describe("Redactor — env-var allowlist (criterion 1)", () => {
         ],
       },
       credentials: {
+        awsKey: AWS_KEY,
+        awsSecret: AWS_SECRET,
+        dbPass: DB_PASS,
         mcp: MCP,
         msPassword: MS_PASS,
         landmark: LANDMARK,
+        svc: SVC,
         sbAnon: SB_ANON,
         sbJwt: SB_JWT,
         sbRole: SB_ROLE,
@@ -108,20 +120,28 @@ describe("Redactor — env-var allowlist (criterion 1)", () => {
 
     const out = JSON.stringify(r.redactValue(fixture));
     assert.ok(!out.includes(ANTHROPIC), "ANTHROPIC sentinel leaked");
+    assert.ok(!out.includes(AWS_KEY), "AWS_ACCESS_KEY_ID sentinel leaked");
+    assert.ok(!out.includes(AWS_SECRET), "AWS_SECRET_ACCESS_KEY sentinel leaked");
+    assert.ok(!out.includes(DB_PASS), "DATABASE_PASSWORD sentinel leaked");
     assert.ok(!out.includes(GH), "GH sentinel leaked");
     assert.ok(!out.includes(GITHUB), "GITHUB sentinel leaked");
     assert.ok(!out.includes(MCP), "MCP_TOKEN sentinel leaked");
     assert.ok(!out.includes(MS_PASS), "MICROSOFT_APP_PASSWORD sentinel leaked");
     assert.ok(!out.includes(LANDMARK), "PRODUCT_LANDMARK_TOKEN sentinel leaked");
+    assert.ok(!out.includes(SVC), "SERVICE_SECRET sentinel leaked");
     assert.ok(!out.includes(SB_ANON), "SUPABASE_ANON_KEY sentinel leaked");
     assert.ok(!out.includes(SB_JWT), "SUPABASE_JWT_SECRET sentinel leaked");
     assert.ok(!out.includes(SB_ROLE), "SUPABASE_SERVICE_ROLE_KEY sentinel leaked");
     assert.ok(out.includes("[REDACTED:env:ANTHROPIC_API_KEY]"));
+    assert.ok(out.includes("[REDACTED:env:AWS_ACCESS_KEY_ID]"));
+    assert.ok(out.includes("[REDACTED:env:AWS_SECRET_ACCESS_KEY]"));
+    assert.ok(out.includes("[REDACTED:env:DATABASE_PASSWORD]"));
     assert.ok(out.includes("[REDACTED:env:GH_TOKEN]"));
     assert.ok(out.includes("[REDACTED:env:GITHUB_TOKEN]"));
     assert.ok(out.includes("[REDACTED:env:MCP_TOKEN]"));
     assert.ok(out.includes("[REDACTED:env:MICROSOFT_APP_PASSWORD]"));
     assert.ok(out.includes("[REDACTED:env:PRODUCT_LANDMARK_TOKEN]"));
+    assert.ok(out.includes("[REDACTED:env:SERVICE_SECRET]"));
     assert.ok(out.includes("[REDACTED:env:SUPABASE_ANON_KEY]"));
     assert.ok(out.includes("[REDACTED:env:SUPABASE_JWT_SECRET]"));
     assert.ok(out.includes("[REDACTED:env:SUPABASE_SERVICE_ROLE_KEY]"));
@@ -392,11 +412,15 @@ describe("Redactor — exports and defaults", () => {
       [...DEFAULT_ENV_ALLOWLIST],
       [
         "ANTHROPIC_API_KEY",
+        "AWS_ACCESS_KEY_ID",
+        "AWS_SECRET_ACCESS_KEY",
+        "DATABASE_PASSWORD",
         "GH_TOKEN",
         "GITHUB_TOKEN",
         "MCP_TOKEN",
         "MICROSOFT_APP_PASSWORD",
         "PRODUCT_LANDMARK_TOKEN",
+        "SERVICE_SECRET",
         "SUPABASE_ANON_KEY",
         "SUPABASE_JWT_SECRET",
         "SUPABASE_SERVICE_ROLE_KEY",
