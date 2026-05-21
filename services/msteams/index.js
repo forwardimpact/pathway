@@ -16,6 +16,16 @@ const SWEEP_INTERVAL_MS = 60 * 1000;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 5;
 const MAX_FIELD_LENGTH = 2000;
+const TYPING_INTERVAL_MS = 9_000;
+const TYPING_VERBS = [
+  "Moonwalking",
+  "Unravelling",
+  "Tempering",
+  "Crafting",
+  "Simmering",
+  "Percolating",
+  "Decoding",
+];
 
 /**
  * Build a facilitator prompt from the current message text and a rolling
@@ -62,13 +72,7 @@ export function isValidRunUrl(url) {
  * @returns {string}
  */
 export function formatReply(payload) {
-  const verdict = payload.verdict ?? "unknown";
-  const summary = payload.summary ?? "";
-  const runUrl = payload.run_url;
-  const head = `**${verdict}** — ${summary}`;
-  return runUrl && isValidRunUrl(runUrl)
-    ? `${head}\n\n[run log](${runUrl})`
-    : head;
+  return payload.summary ?? "";
 }
 
 /**
@@ -340,7 +344,8 @@ export class MsTeamsService {
         pending_total: this.#pendingCallbacks.size,
       });
 
-      await context.sendActivity("Working on it...");
+      const verb = TYPING_VERBS[Math.floor(Math.random() * TYPING_VERBS.length)];
+      await context.sendActivity(`${verb}...`);
       this.#logger.debug("handleMessage", "acknowledgement sent", {
         thread_id: threadId,
       });
@@ -359,6 +364,7 @@ export class MsTeamsService {
           thread_id: threadId,
           correlation_id: correlationId,
         });
+        this.#startTypingTicker(callbackToken, state);
         appendHistory(state.history, { role: "user", text });
         state.dispatches.push(Date.now());
         this.#logger.debug("handleMessage", "history updated", {
@@ -425,6 +431,7 @@ export class MsTeamsService {
         res.status(400).json({ error: "Correlation ID mismatch" });
         return;
       }
+      this.#stopTypingTicker(token);
       this.#pendingCallbacks.delete(token);
       this.#logger.debug("callback", "token consumed", {
         correlation_id: pending.correlationId,
@@ -486,6 +493,35 @@ export class MsTeamsService {
     }
   }
 
+  #startTypingTicker(callbackToken, state) {
+    const pending = this.#pendingCallbacks.get(callbackToken);
+    if (!pending || !state.ref) return;
+    pending.typingTimer = setInterval(async () => {
+      try {
+        const verb =
+          TYPING_VERBS[Math.floor(Math.random() * TYPING_VERBS.length)];
+        await this.#adapter.continueConversationAsync(
+          this.config.msAppId(),
+          state.ref,
+          async (context) => {
+            await context.sendActivity(`${verb}...`);
+          },
+        );
+      } catch {
+        this.#stopTypingTicker(callbackToken);
+      }
+    }, TYPING_INTERVAL_MS);
+    pending.typingTimer.unref();
+  }
+
+  #stopTypingTicker(callbackToken) {
+    const pending = this.#pendingCallbacks.get(callbackToken);
+    if (pending?.typingTimer) {
+      clearInterval(pending.typingTimer);
+      pending.typingTimer = null;
+    }
+  }
+
   #isRateLimited(state) {
     const now = Date.now();
     state.dispatches = state.dispatches.filter(
@@ -508,6 +544,7 @@ export class MsTeamsService {
 
     for (const [token, pending] of this.#pendingCallbacks) {
       if (now - pending.createdAt > PENDING_CALLBACK_TTL_MS) {
+        this.#stopTypingTicker(token);
         this.#pendingCallbacks.delete(token);
         callbacksEvicted++;
       }

@@ -392,47 +392,15 @@ describe("msteams service", () => {
   });
 
   describe("formatReply", () => {
-    test("formats verdict and summary in bold + dash form", () => {
+    test("returns the summary text", () => {
       assert.strictEqual(
         formatReply({ verdict: "success", summary: "done" }),
-        "**success** — done",
+        "done",
       );
     });
 
-    test("appends a run-log link when run_url is a valid GitHub URL", () => {
-      const out = formatReply({
-        verdict: "failure",
-        summary: "diagnosed root cause",
-        run_url: "https://github.com/foo/bar/actions/runs/9",
-      });
-      assert.match(out, /\*\*failure\*\* — diagnosed root cause/);
-      assert.match(
-        out,
-        /\[run log\]\(https:\/\/github\.com\/foo\/bar\/actions\/runs\/9\)/,
-      );
-    });
-
-    test("falls back to 'unknown' when verdict is missing", () => {
-      const out = formatReply({ summary: "no verdict" });
-      assert.match(out, /\*\*unknown\*\*/);
-    });
-
-    test("omits run_url link when URL is not a valid GitHub URL", () => {
-      const out = formatReply({
-        verdict: "success",
-        summary: "done",
-        run_url: "https://evil.com/phish",
-      });
-      assert.strictEqual(out, "**success** — done");
-    });
-
-    test("omits run_url link when URL is javascript:", () => {
-      const out = formatReply({
-        verdict: "success",
-        summary: "done",
-        run_url: "javascript:alert(1)",
-      });
-      assert.strictEqual(out, "**success** — done");
+    test("returns empty string when summary is missing", () => {
+      assert.strictEqual(formatReply({}), "");
     });
   });
 
