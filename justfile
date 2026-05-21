@@ -146,7 +146,7 @@ msteams-tunnel:
 
 # Start the MS Teams bridge service
 msteams-bridge:
-    node services/msteams/server.js
+    bunx fit-rc start msteams
 
 # ── CLI ───────────────────────────────────────────────────────────
 
