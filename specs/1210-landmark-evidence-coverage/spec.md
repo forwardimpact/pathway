@@ -167,11 +167,11 @@ position. Slicing the work is a design decision.
   also surfaced by the same persona's testing run. That gap independently
   blocks `Find Growth Areas` for non-SWE personas — even with the
   interpretation depth fix, a J080 persona reading against an SWE-only
-  pathway would still miss discipline-aligned markers. The two specs ship
-  in parallel; this spec's criteria do not require #985's resolution. Spec
-  1080 addresses #985 and is at `plan approved` per
-  `wiki/STATUS.md:125`; its implementation PR
-  [#1062](https://github.com/forwardimpact/monorepo/pull/1062) is open.
+  pathway would still miss discipline-aligned markers. This spec's
+  criteria do not require #985's resolution. Issue #985 → Spec 1080
+  (implemented in merged PR
+  [#1062](https://github.com/forwardimpact/monorepo/pull/1062),
+  2026-05-20).
 
 ## References
 
@@ -190,9 +190,9 @@ position. Slicing the work is a design decision.
   formatter, separate command surface.
 - `services/map/proto/map.proto:39` — `WriteEvidence` RPC; "1–3 sentences"
   rationale contract.
-- Spec 1080 (`plan approved` per `wiki/STATUS.md:125`) — discipline
-  coverage in starter pathway; sibling issue (#985) from the same testing
-  run; implementation PR
-  [#1062](https://github.com/forwardimpact/monorepo/pull/1062) open.
+- Issue #985 → Spec 1080 — discipline coverage in starter pathway;
+  sibling issue from the same testing run; implemented in merged PR
+  [#1062](https://github.com/forwardimpact/monorepo/pull/1062)
+  (2026-05-20).
 - [JTBD.md:141 § Empowered Engineers: Find Growth Areas](../../JTBD.md) —
   persona, Big Hire / Little Hire / Fired-When lines.
