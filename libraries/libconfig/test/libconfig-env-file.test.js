@@ -222,7 +222,6 @@ describe("libconfig - .env file loading", () => {
     writeEnvFile(
       [
         "GITHUB_TOKEN=gh-token",
-        "EMBEDDING_BASE_URL=https://embed.example.com",
         "MCP_TOKEN=mcp-tok",
         "ANTHROPIC_API_KEY=sk-ant-test",
       ].join("\n"),
@@ -238,7 +237,6 @@ describe("libconfig - .env file loading", () => {
 
     assert.strictEqual(config.ghToken(), "gh-token");
     assert.strictEqual(await config.anthropicToken(), "sk-ant-test");
-    assert.strictEqual(config.embeddingBaseUrl(), "https://embed.example.com");
     assert.strictEqual(config.mcpToken(), "mcp-tok");
   });
 

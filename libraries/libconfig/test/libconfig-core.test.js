@@ -258,13 +258,6 @@ describe("libconfig - Config methods", () => {
     );
   });
 
-  test("embeddingBaseUrl throws when not set", () => {
-    assertThrowsMessage(
-      () => config.embeddingBaseUrl(),
-      /EMBEDDING_BASE_URL not found in environment/,
-    );
-  });
-
   test("reset clears cached values", async () => {
     const mockProcess = {
       cwd: () => "/test/dir",

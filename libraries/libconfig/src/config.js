@@ -169,11 +169,6 @@ export class Config {
     }
   }
 
-  /** @returns {string} Embedding API base URL with trailing slashes removed */
-  embeddingBaseUrl() {
-    return this.#resolve(["EMBEDDING_BASE_URL"], stripTrailingSlashes);
-  }
-
   /** @returns {string} Microsoft App registration ID (MICROSOFT_APP_ID) */
   msAppId() {
     return this.#resolve(["MICROSOFT_APP_ID"]);

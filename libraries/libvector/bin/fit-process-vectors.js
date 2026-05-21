@@ -1,10 +1,12 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { createCli } from "@forwardimpact/libcli";
-import { createScriptConfig } from "@forwardimpact/libconfig";
+import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createResourceIndex } from "@forwardimpact/libresource";
 import { createStorage } from "@forwardimpact/libstorage";
 import { createLogger } from "@forwardimpact/libtelemetry";
+import { clients } from "@forwardimpact/librpc";
+import { embedding } from "@forwardimpact/libtype";
 import { VectorIndex } from "@forwardimpact/libvector/index/vector.js";
 import { VectorProcessor } from "@forwardimpact/libvector/processor/vector.js";
 
@@ -30,24 +32,6 @@ const definition = {
 const cli = createCli(definition);
 const logger = createLogger("vectors");
 
-function createEmbeddingClient(token, baseUrl) {
-  return {
-    async createEmbeddings(input) {
-      const headers = { "Content-Type": "application/json" };
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-      const res = await fetch(`${baseUrl}/v1/embeddings`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ input, model: "default" }),
-      });
-      if (!res.ok) throw new Error(`Embedding request failed: ${res.status}`);
-      return res.json();
-    },
-  };
-}
-
 /**
  * Processes resources into vector embeddings
  * @returns {Promise<void>}
@@ -56,19 +40,23 @@ async function main() {
   const parsed = cli.parse(process.argv.slice(2));
   if (!parsed) process.exit(0);
 
-  const config = await createScriptConfig("vectors");
+  const embeddingConfig = await createServiceConfig("embedding");
+  const { EmbeddingClient } = clients;
+  const embeddingClient = new EmbeddingClient(embeddingConfig);
 
   const vectorStorage = createStorage("vectors");
 
   const resourceIndex = createResourceIndex("resources");
   const vectorIndex = new VectorIndex(vectorStorage);
-  let embeddingToken = null;
-  try {
-    embeddingToken = await config.anthropicToken();
-  } catch {
-    // auth is optional for local TEI
-  }
-  const llm = createEmbeddingClient(embeddingToken, config.embeddingBaseUrl());
+  const llm = {
+    async createEmbeddings(input) {
+      const req = new embedding.EmbeddingsRequest({
+        input: Array.isArray(input) ? input : [input],
+      });
+      const res = await embeddingClient.CreateEmbeddings(req);
+      return { data: res.data.map((v) => ({ embedding: Array.from(v.values) })) };
+    },
+  };
 
   const processor = new VectorProcessor(
     vectorIndex,

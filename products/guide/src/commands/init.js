@@ -45,7 +45,7 @@ export async function runInitCommand() {
       SERVICE_PATHWAY_URL: "grpc://localhost:3004",
       SERVICE_MAP_URL: "grpc://localhost:3006",
       SERVICE_MCP_URL: "http://localhost:3005",
-      EMBEDDING_BASE_URL: "http://localhost:8090",
+      SERVICE_EMBEDDING_URL: "grpc://localhost:3007",
     },
   });
 

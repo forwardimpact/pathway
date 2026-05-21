@@ -662,6 +662,21 @@
         "@supabase/supabase-js": "^2.105.4",
       },
     },
+    "services/embedding": {
+      "name": "@forwardimpact/svcembedding",
+      "version": "0.1.0",
+      "bin": {
+        "fit-svcembedding": "./server.js",
+      },
+      "dependencies": {
+        "@forwardimpact/libconfig": "^0.1.58",
+        "@forwardimpact/librpc": "^0.1.77",
+        "@forwardimpact/libtelemetry": "^0.1.41",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.5",
+      },
+    },
     "services/graph": {
       "name": "@forwardimpact/svcgraph",
       "version": "0.1.70",
@@ -725,11 +740,14 @@
         "fit-svcmsteams": "./server.js",
       },
       "dependencies": {
-        "@forwardimpact/libconfig": "workspace:*",
-        "@forwardimpact/librpc": "workspace:*",
-        "@forwardimpact/libtelemetry": "workspace:*",
+        "@forwardimpact/libconfig": "^0.1.79",
+        "@forwardimpact/librpc": "^0.1.99",
+        "@forwardimpact/libtelemetry": "^0.1.42",
         "botbuilder": "^4.23.3",
         "express": "^4.21.0",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.5",
       },
     },
     "services/pathway": {
@@ -1073,6 +1091,8 @@
     "@forwardimpact/pathway": ["@forwardimpact/pathway@workspace:products/pathway"],
 
     "@forwardimpact/summit": ["@forwardimpact/summit@workspace:products/summit"],
+
+    "@forwardimpact/svcembedding": ["@forwardimpact/svcembedding@workspace:services/embedding"],
 
     "@forwardimpact/svcgraph": ["@forwardimpact/svcgraph@workspace:services/graph"],
 

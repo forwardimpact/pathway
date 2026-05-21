@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package embedding;
+
+service Embedding {
+  rpc CreateEmbeddings(EmbeddingsRequest) returns (EmbeddingsResponse);
+}
+
+message EmbeddingsRequest {
+  // Text strings to embed
+  repeated string input = 1;
+}
+
+message EmbeddingVector {
+  // Embedding values for a single input
+  repeated float values = 1;
+}
+
+message EmbeddingsResponse {
+  // One vector per input string, in order
+  repeated EmbeddingVector data = 1;
+}

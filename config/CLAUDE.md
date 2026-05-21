@@ -56,6 +56,13 @@ Oneshot services use `"type": "oneshot"` with `up`/`down` instead of `command`.
 }
 ```
 
+Services that wrap an external binary run as Node entry points — the gRPC
+server proxies to the binary which runs as a managed child process:
+
+```json
+{ "name": "embedding", "command": "node services/embedding/server.js" }
+```
+
 ### `service` — service configuration
 
 Read by `createServiceConfig(name)`. Keyed by service name. Values are merged

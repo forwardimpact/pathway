@@ -18,13 +18,13 @@ data/resources/*.json  ──>  TEI (BAAI/bge-small-en-v1.5)  ──>  data/vect
 
 Two separate concerns use TEI:
 
-| Concern             | When                  | Who calls TEI                         |
-| ------------------- | --------------------- | ------------------------------------- |
-| **Batch indexing**  | `fit-process-vectors` | CLI → TEI `/v1/embeddings`            |
-| **Query embedding** | Runtime search        | vector service → TEI `/v1/embeddings` |
+| Concern             | When                  | Who calls TEI                                  |
+| ------------------- | --------------------- | ---------------------------------------------- |
+| **Batch indexing**  | `fit-process-vectors` | CLI → embedding service (gRPC) → TEI           |
+| **Query embedding** | Runtime search        | vector service → embedding service (gRPC) → TEI |
 
-Both read `EMBEDDING_BASE_URL` from `.env` (default `http://localhost:8090`).
-Authentication is not required for local TEI.
+Both go through the embedding service (`SERVICE_EMBEDDING_URL`), which proxies
+to TEI internally. Authentication is handled by the gRPC framework.
 
 ---
 
@@ -51,47 +51,34 @@ cargo install --git https://github.com/huggingface/text-embeddings-inference \
 The first startup downloads the `BAAI/bge-small-en-v1.5` model (~130 MB) to
 `~/.cache/huggingface/`.
 
-### Running Natively
-
-Run TEI in the foreground — useful for one-off batch processing or when you want
-direct control:
-
-```sh
-just tei-start
-```
-
-This runs `text-embeddings-router` on port 8090 and blocks the terminal. Stop
-with Ctrl-C. Equivalent to:
-
-```sh
-text-embeddings-router --model-id BAAI/bge-small-en-v1.5 --port 8090 --json-output
-```
-
 ### Running Under fit-rc
 
-For supervised operation, add a TEI entry to `config/config.json` under
-`init.services`. The base config created by `fit-guide --init` does not include
-TEI — add the entry manually:
+The embedding service wraps TEI — it starts a gRPC server and spawns
+`text-embeddings-router` as a managed child process. Add the service entry to
+`config/config.json` under `init.services`:
 
 ```json
 {
-  "name": "tei",
-  "command": "text-embeddings-router --model-id BAAI/bge-small-en-v1.5 --port 8090 --json-output",
+  "name": "embedding",
+  "command": "node services/embedding/server.js",
   "optional": true
 }
 ```
 
-Once registered, fit-rc keeps TEI alive alongside the other services:
+Then start it with fit-rc:
 
 ```sh
-bunx fit-rc start              # Starts all services including TEI
-bunx fit-rc start tei          # Start TEI only
-bunx fit-rc status tei         # Check TEI status
-bunx fit-rc stop tei           # Stop TEI
+just tei-start                     # or: bunx fit-rc start embedding
+bunx fit-rc status embedding       # Check status
+bunx fit-rc stop embedding         # Stop
 ```
 
 Because the service is marked `optional`, fit-rc skips it with a warning if
 `text-embeddings-router` is not installed.
+
+The gRPC server listens on `SERVICE_EMBEDDING_URL` (default
+`grpc://localhost:3007`). TEI runs on an internal backend port (default 8090,
+configurable via `SERVICE_EMBEDDING_BACKEND_PORT`).
 
 ### Docker
 
@@ -179,8 +166,8 @@ Each line in `data/vectors/index.jsonl` is a self-contained JSON record:
 
 ## Troubleshooting
 
-**TEI not reachable** — Check `curl http://localhost:8090/health`. Verify
-`EMBEDDING_BASE_URL` in `.env` matches the port TEI is running on.
+**TEI not reachable** — Check `curl http://localhost:8090/health`. Verify the
+embedding service is running (`bunx fit-rc status embedding`).
 
 **No resources to process** — Run `just process-resources` first. The vector
 processor reads from `data/resources/`.

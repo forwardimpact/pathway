@@ -1,0 +1,59 @@
+{
+  "name": "@forwardimpact/svcembedding",
+  "version": "0.1.0",
+  "description": "Text embeddings over gRPC — semantic representation without each product running its own inference.",
+  "keywords": [
+    "embedding",
+    "vector",
+    "inference",
+    "grpc",
+    "agent"
+  ],
+  "homepage": "https://www.forwardimpact.team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "services/embedding"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Embed Text for Retrieval",
+      "trigger": "Building a search feature and realizing every product is copy-pasting the same HTTP embedding call with its own error handling.",
+      "bigHire": "get embeddings from a shared service without managing inference infrastructure.",
+      "littleHire": "call one gRPC method instead of wiring HTTP, auth, and retries per product.",
+      "competesWith": "inline fetch calls; per-product embedding wrappers; skipping semantic search entirely"
+    }
+  ],
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "fit-svcembedding": "./server.js"
+  },
+  "files": [
+    "proto/",
+    "server.js"
+  ],
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "bun server.js",
+    "test": "bun test test/*.test.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libconfig": "^0.1.58",
+    "@forwardimpact/librpc": "^0.1.77",
+    "@forwardimpact/libtelemetry": "^0.1.41"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.5"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

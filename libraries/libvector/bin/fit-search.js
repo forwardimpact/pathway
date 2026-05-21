@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import { readFileSync } from "node:fs";
 import { createCli } from "@forwardimpact/libcli";
+import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
-import { createScriptConfig } from "@forwardimpact/libconfig";
+import { clients } from "@forwardimpact/librpc";
+import { embedding } from "@forwardimpact/libtype";
 import { createStorage } from "@forwardimpact/libstorage";
 import { VectorIndex } from "@forwardimpact/libvector/index/vector.js";
 
@@ -30,23 +32,6 @@ const definition = {
 const cli = createCli(definition);
 const logger = createLogger("search");
 
-function createEmbeddingClient(token, baseUrl) {
-  return {
-    async createEmbeddings(input) {
-      const res = await fetch(`${baseUrl}/v1/embeddings`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ input, model: "default" }),
-      });
-      if (!res.ok) throw new Error(`Embedding request failed: ${res.status}`);
-      return res.json();
-    },
-  };
-}
-
 /**
  * Searches vector index by embedding a query string
  * @returns {Promise<void>}
@@ -61,17 +46,16 @@ async function main() {
     process.exit(2);
   }
 
-  const config = await createScriptConfig("vectors");
+  const embeddingConfig = await createServiceConfig("embedding");
+  const { EmbeddingClient } = clients;
+  const embeddingClient = new EmbeddingClient(embeddingConfig);
+
   const storage = createStorage("vectors");
   const vectorIndex = new VectorIndex(storage);
 
-  const llm = createEmbeddingClient(
-    await config.anthropicToken(),
-    config.embeddingBaseUrl(),
-  );
-
-  const embeddings = await llm.createEmbeddings([query]);
-  const vectors = embeddings.data.map((d) => d.embedding);
+  const req = new embedding.EmbeddingsRequest({ input: [query] });
+  const res = await embeddingClient.CreateEmbeddings(req);
+  const vectors = res.data.map((d) => Array.from(d.values));
   const results = await vectorIndex.queryItems(vectors, { limit: 10 });
 
   for (const identifier of results) {

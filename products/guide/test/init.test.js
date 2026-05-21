@@ -54,7 +54,7 @@ describe("fit-guide init", () => {
       "SERVICE_PATHWAY_URL",
       "SERVICE_MAP_URL",
       "SERVICE_MCP_URL",
-      "EMBEDDING_BASE_URL",
+      "SERVICE_EMBEDDING_URL",
     ]) {
       assert.ok(env.includes(`${key}=`), `.env missing ${key}`);
     }

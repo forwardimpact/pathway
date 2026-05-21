@@ -196,22 +196,6 @@ describe("libconfig - Config getters", () => {
     assert.strictEqual(mockExecSync.mock.callCount(), 1);
   });
 
-  test("embeddingBaseUrl returns custom URL from environment", async () => {
-    const mockProcess = {
-      cwd: spy(() => "/test/dir"),
-      env: { EMBEDDING_BASE_URL: "https://custom.api.com" },
-    };
-
-    const config = await createConfig(
-      "test",
-      "myservice",
-      {},
-      mockProcess,
-      mockStorageFn,
-    );
-    assert.strictEqual(config.embeddingBaseUrl(), "https://custom.api.com");
-  });
-
   test("supabaseUrl() returns env value with trailing slashes stripped", async () => {
     const mockProcess = {
       cwd: spy(() => "/test/dir"),

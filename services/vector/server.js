@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import { Server } from "@forwardimpact/librpc";
 import { createServiceConfig } from "@forwardimpact/libconfig";
+import { clients } from "@forwardimpact/librpc";
+import { embedding } from "@forwardimpact/libtype";
 import { VectorIndex } from "@forwardimpact/libvector/index/vector.js";
 import { createStorage } from "@forwardimpact/libstorage";
 import { createTracer } from "@forwardimpact/librpc";
@@ -14,18 +16,20 @@ const config = await createServiceConfig("vector");
 const logger = createLogger("vector");
 const tracer = await createTracer("vector");
 
-// Direct HTTP embedding client (replaces gRPC llm service)
-const embeddingBaseUrl =
-  process.env.EMBEDDING_BASE_URL || "http://localhost:8080";
+// gRPC embedding client
+const { EmbeddingClient } = clients;
+const embeddingClient = new EmbeddingClient(
+  await createServiceConfig("embedding"),
+  logger,
+  tracer,
+);
 
 async function createEmbeddings(input) {
-  const res = await fetch(`${embeddingBaseUrl}/v1/embeddings`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ input, model: "default" }),
+  const req = new embedding.EmbeddingsRequest({
+    input: Array.isArray(input) ? input : [input],
   });
-  if (!res.ok) throw new Error(`Embedding request failed: ${res.status}`);
-  return res.json();
+  const res = await embeddingClient.CreateEmbeddings(req);
+  return { data: res.data.map((v) => ({ embedding: Array.from(v.values) })) };
 }
 
 // Initialize vector index
