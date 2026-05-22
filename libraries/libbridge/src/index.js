@@ -27,6 +27,8 @@ export {
   CallbackHandlerError,
   createCallbackHandler,
 } from "./callback-handler.js";
+export { ElapsedScheduler } from "./elapsed-scheduler.js";
+export { ResumeScheduler } from "./resume-scheduler.js";
 export {
   MAX_FIELD_LENGTH,
   newDiscussionContext,

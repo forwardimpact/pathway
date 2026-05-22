@@ -47,6 +47,9 @@ To add a new bridge `xbridge`, implement four things:
    applies the verdict (`adjourned` / `failed` / `recessed`). Throw
    `new CallbackHandlerError(status, message)` to short-circuit with a
    specific HTTP status (e.g. 410 if the conversation reference is gone).
+   If the bridge supports `recessed`, plug in `ResumeScheduler` (below)
+   and call `enterRecess` / `cancelRecess` from the verdict branches —
+   no hand-rolled timer code.
 
 Once those four pieces exist, the rest is composition:
 
@@ -108,6 +111,46 @@ Every bridge consumes the canonical `BridgeConfig` JSDoc typedef from
 `src/index.js`. Channel-specific fields extend it — see each bridge's
 README for the channel-specific surface.
 
+## Suspend/resume
+
+When a workflow returns `verdict: "recessed"` with a `trigger`, the
+conversation waits — either for N more responses, an elapsed duration,
+or "either". `ResumeScheduler` owns that lifecycle for both bridges:
+
+```js
+const resume = new ResumeScheduler({
+  dispatcher,
+  store,
+  logger,
+  buildCallbackMeta: (ctx) => ({ discussionId: ctx.discussion_id }),
+  buildResumeInputs: (ctx) => ({ discussionId: ctx.discussion_id }),
+});
+
+// service start:
+await resume.rearm();
+// service stop:
+resume.clear();
+
+// in the "new message in existing thread" handler:
+const { freshDispatchAllowed } = await resume.processInbound(ctx);
+if (freshDispatchAllowed) { /* rate-check + dispatcher.dispatch(...) */ }
+
+// in handleReply:
+switch (payload.verdict) {
+  case "recessed":
+    resume.enterRecess(ctx, meta.correlationId, payload.trigger);
+    break;
+  case "adjourned":
+  case "failed":
+    resume.cancelRecess(ctx, meta.correlationId);
+    break;
+}
+```
+
+The two `build*` callbacks are the only per-channel inputs. msbridge
+overrides `buildCallbackMeta` to `{ threadId: ctx.discussion_id }` to
+match its `loadDiscussionId` lens; everything else is shared.
+
 ## What lives where
 
 - `Acknowledgement` — reaction + optional typing-verb lifecycle.
@@ -116,6 +159,8 @@ README for the channel-specific surface.
 - `Dispatcher` — the dispatch dance.
 - `createCallbackHandler` — the inbound-callback skeleton.
 - `RateLimiter` — per-thread dispatch rate cap.
+- `ResumeScheduler` — suspend/resume lifecycle (channel-agnostic).
+- `ElapsedScheduler` — chunked-setTimeout primitive used by `ResumeScheduler`.
 - `createBridgeServer` — Hono + `@hono/node-server` wiring.
 - `validateCallbackPayload` — lenient kata-dispatch payload validator.
 - `newDiscussionContext` — canonical record-shape factory.

@@ -4,18 +4,16 @@ import {
   DiscussionContextStore,
   Dispatcher,
   RateLimiter,
+  ResumeScheduler,
   appendHistory,
   buildPrompt,
   createBridgeServer,
   createCallbackHandler,
-  evaluateTrigger,
   newDiscussionContext,
   normalizeBaseUrl,
-  parseIsoDuration,
   validateCallbackPayload,
 } from "@forwardimpact/libbridge";
 
-import { ElapsedScheduler } from "./src/elapsed-scheduler.js";
 import {
   ADD_REACTION_MUTATION,
   REMOVE_REACTION_MUTATION,
@@ -49,12 +47,11 @@ function buildReactionAdapter(graphqlClient) {
 }
 
 /**
- * GitHub Discussions bridge service. Receives webhooks from the Kata GitHub
- * App for `discussion` and `discussion_comment` events, drives the libbridge
- * dispatch dance, and posts the lead's structured replies back to the thread
- * via the `addDiscussionComment` GraphQL mutation. Suspend/resume semantics:
- * a `recessed` verdict persists a trigger, then re-dispatches with
- * `resume_context` when the trigger fires.
+ * GitHub Discussions bridge service. Receives webhooks from the Kata
+ * GitHub App for `discussion` and `discussion_comment` events, drives
+ * the libbridge dispatch dance, posts the lead's structured replies back
+ * via the `addDiscussionComment` GraphQL mutation, and tracks the
+ * suspend/resume lifecycle through the shared `ResumeScheduler`.
  */
 export class GhBridgeService {
   #logger;
@@ -68,8 +65,8 @@ export class GhBridgeService {
   #rateLimiter;
   #ack;
   #dispatcher;
+  #resume;
   #bridge;
-  #elapsedScheduler;
   #onCallback;
 
   /**
@@ -122,10 +119,12 @@ export class GhBridgeService {
       githubRepo: config.github_repo,
       getGithubToken: () => this.#getInstallationToken(),
     });
-    this.#elapsedScheduler = new ElapsedScheduler({
-      onFire: (cid) => this.#fireElapsed(cid),
-      onError: (err, cid) =>
-        this.#logger.error("elapsed", err, { correlation_id: cid }),
+    this.#resume = new ResumeScheduler({
+      dispatcher: this.#dispatcher,
+      store: this.#store,
+      logger,
+      buildCallbackMeta: (ctx) => ({ discussionId: ctx.discussion_id }),
+      buildResumeInputs: (ctx) => ({ discussionId: ctx.discussion_id }),
     });
 
     this.#onCallback = createCallbackHandler({
@@ -175,12 +174,12 @@ export class GhBridgeService {
   /** @returns {Promise<void>} */
   async start() {
     await this.#bridge.start();
-    await this.#rearmElapsedTriggers();
+    await this.#resume.rearm();
   }
 
   /** @returns {Promise<void>} */
   async stop() {
-    this.#elapsedScheduler.clear();
+    this.#resume.clear();
     await this.#bridge.stop();
     await this.#store.shutdown();
   }
@@ -287,23 +286,9 @@ export class GhBridgeService {
       appendHistory(ctx.history, { role: "user", text });
       ctx.last_active_at = Date.now();
 
-      const fired = this.#evaluateResponseTriggers(ctx);
-      const hasOpenRfc = Object.keys(ctx.open_rfcs ?? {}).length > 0;
+      const { freshDispatchAllowed } = await this.#resume.processInbound(ctx);
 
-      if (fired.length > 0) {
-        for (const { correlationId, rfc } of fired) {
-          const historySince = ctx.history.slice(rfc.history_index_at_open);
-          await this.#redispatchForResume(ctx, correlationId, historySince);
-          delete ctx.open_rfcs[correlationId];
-          this.#elapsedScheduler.cancel(correlationId);
-        }
-      } else if (hasOpenRfc) {
-        // RFC open, trigger not yet fired — accumulate this response into
-        // history; do not spawn a parallel fresh lead session on the same
-        // thread. Responses accrue toward the trigger; the eventual
-        // re-dispatch carries the full `history_since`.
-        span.setOk();
-      } else {
+      if (freshDispatchAllowed) {
         const limit = this.#rateLimiter.check(discussionId, ctx.dispatches);
         if (!limit.allowed) {
           this.#logger.info("webhook", "rate limited", {
@@ -337,37 +322,6 @@ export class GhBridgeService {
     }
   }
 
-  #evaluateResponseTriggers(ctx) {
-    const fired = [];
-    for (const [correlationId, rfc] of Object.entries(ctx.open_rfcs ?? {})) {
-      const trigger = rfc.trigger;
-      if (!trigger) continue;
-      const observed = {
-        responses: ctx.history.length - rfc.history_index_at_open,
-        opened_at: rfc.opened_at,
-      };
-      const result = evaluateTrigger(trigger, observed, Date.now());
-      if (result.fired) fired.push({ correlationId, rfc });
-    }
-    return fired;
-  }
-
-  async #redispatchForResume(ctx, correlationId, historySince) {
-    const resumeContext = JSON.stringify({
-      correlation_id: correlationId,
-      history_since: historySince,
-    });
-    await this.#dispatcher.dispatch({
-      ctx,
-      prompt: "Resume requested.",
-      callbackMeta: { discussionId: ctx.discussion_id },
-      workflowInputs: {
-        discussionId: ctx.discussion_id,
-        resumeContext,
-      },
-    });
-  }
-
   async #handleReply(ctx, payload, meta) {
     await postDiscussionReplies(this.#graphqlClient, ctx, payload.replies);
     for (const reply of payload.replies) {
@@ -379,15 +333,13 @@ export class GhBridgeService {
 
     switch (payload.verdict) {
       case "recessed":
-        this.#enterRecess(ctx, meta.correlationId, payload.trigger);
+        this.#resume.enterRecess(ctx, meta.correlationId, payload.trigger);
         break;
       case "adjourned":
-        delete ctx.open_rfcs[meta.correlationId];
-        this.#elapsedScheduler.cancel(meta.correlationId);
+        this.#resume.cancelRecess(ctx, meta.correlationId);
         break;
       case "failed":
-        delete ctx.open_rfcs[meta.correlationId];
-        this.#elapsedScheduler.cancel(meta.correlationId);
+        this.#resume.cancelRecess(ctx, meta.correlationId);
         if (payload.summary) {
           await postSingleDiscussionReply(
             this.#graphqlClient,
@@ -398,58 +350,6 @@ export class GhBridgeService {
         break;
       default:
         break;
-    }
-  }
-
-  #enterRecess(ctx, correlationId, trigger) {
-    if (!trigger) return;
-    const openedAt = Date.now();
-    ctx.open_rfcs[correlationId] = {
-      trigger,
-      opened_at: openedAt,
-      history_index_at_open: ctx.history.length,
-    };
-    if (trigger.kind === "elapsed" || trigger.kind === "either") {
-      if (typeof trigger.elapsed === "string") {
-        const dueAt = openedAt + parseIsoDuration(trigger.elapsed);
-        ctx.open_rfcs[correlationId].due_at = dueAt;
-        this.#elapsedScheduler.schedule(correlationId, dueAt);
-      }
-    }
-  }
-
-  async #fireElapsed(correlationId) {
-    const records = await this.#findContextWithRfc(correlationId);
-    if (!records) return;
-    const { ctx, rfc } = records;
-    const historySince = ctx.history.slice(rfc.history_index_at_open);
-    await this.#redispatchForResume(ctx, correlationId, historySince);
-    delete ctx.open_rfcs[correlationId];
-    ctx.last_active_at = Date.now();
-    await this.#store.add(ctx);
-    await this.#store.flush();
-  }
-
-  async #findContextWithRfc(correlationId) {
-    if (!this.#store.loaded) await this.#store.loadData();
-    for (const record of this.#store.index.values()) {
-      if (record?.open_rfcs?.[correlationId]) {
-        return { ctx: record, rfc: record.open_rfcs[correlationId] };
-      }
-    }
-    return null;
-  }
-
-  async #rearmElapsedTriggers() {
-    if (!this.#store.loaded) await this.#store.loadData();
-    for (const record of this.#store.index.values()) {
-      const open = record?.open_rfcs;
-      if (!open) continue;
-      for (const [correlationId, rfc] of Object.entries(open)) {
-        if (typeof rfc.due_at === "number") {
-          this.#elapsedScheduler.schedule(correlationId, rfc.due_at);
-        }
-      }
     }
   }
 
