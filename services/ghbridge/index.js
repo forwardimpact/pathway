@@ -1,31 +1,50 @@
 import { randomUUID } from "node:crypto";
 
 import {
+  Acknowledgement,
   CallbackRegistry,
   DiscussionContextStore,
-  ProgressTicker,
   RateLimiter,
   appendHistory,
   buildPrompt,
   createBridgeServer,
   dispatchWorkflow,
   evaluateTrigger,
-  parseIsoDuration,
-} from "@forwardimpact/libbridge";
-
-import {
   newDiscussionContext,
   normalizeBaseUrl,
+  parseIsoDuration,
   validateCallbackPayload,
-} from "./src/callback-payload.js";
+} from "@forwardimpact/libbridge";
+
 import { ElapsedScheduler } from "./src/elapsed-scheduler.js";
 import {
   ADD_REACTION_MUTATION,
+  REMOVE_REACTION_MUTATION,
   postDiscussionReplies,
   postSingleDiscussionReply,
 } from "./src/graphql.js";
 
 export { validateCallbackPayload };
+
+const REACTION_CONTENT = "EYES";
+
+function buildReactionAdapter(graphqlClient) {
+  return {
+    add: async (target) => {
+      if (!target?.subjectId) return null;
+      await graphqlClient(ADD_REACTION_MUTATION, {
+        i: { subjectId: target.subjectId, content: REACTION_CONTENT },
+      });
+      return target.subjectId;
+    },
+    remove: async (_reactionId, target) => {
+      if (!target?.subjectId) return;
+      await graphqlClient(REMOVE_REACTION_MUTATION, {
+        i: { subjectId: target.subjectId, content: REACTION_CONTENT },
+      });
+    },
+  };
+}
 
 const CHANNEL = "github-discussions";
 const WEBHOOK_PATH = "/api/webhook";
@@ -50,7 +69,7 @@ export class GhBridgeService {
   #store;
   #callbacks;
   #rateLimiter;
-  #progressTicker;
+  #ack;
   #bridge;
   #elapsedScheduler;
 
@@ -87,7 +106,12 @@ export class GhBridgeService {
     this.#store = new DiscussionContextStore(storage);
     this.#callbacks = new CallbackRegistry();
     this.#rateLimiter = new RateLimiter();
-    this.#progressTicker = deps.progressTicker ?? new ProgressTicker();
+    this.#ack =
+      deps.acknowledgement ??
+      new Acknowledgement({
+        reactionAdapter: buildReactionAdapter(this.#graphqlClient),
+        logger,
+      });
     this.#elapsedScheduler = new ElapsedScheduler({
       onFire: (cid) => this.#fireElapsed(cid),
       onError: (err, cid) =>
@@ -202,7 +226,9 @@ export class GhBridgeService {
       const token = this.#callbacks.register(correlationId, { discussionId });
       ctx.pending_callbacks[token] = correlationId;
       const callbackUrl = `${this.#callbackBaseUrl}/api/callback/${token}`;
+      const ackTarget = { subjectId: discussion?.node_id };
 
+      await this.#ack.start(token, ackTarget);
       try {
         const ghToken = await this.#getInstallationToken();
         await dispatchWorkflow({
@@ -219,13 +245,13 @@ export class GhBridgeService {
         ctx.last_active_at = Date.now();
         await this.#store.add(ctx);
         await this.#store.flush();
-        this.#startProgressIndicator(token, discussion?.node_id, ghToken);
         span.addEvent("workflow_dispatched", {
           correlation_id: correlationId,
         });
         span.setOk();
         return c.body(null, 200);
       } catch (err) {
+        await this.#ack.finish(token, ackTarget);
         this.#callbacks.consume(token);
         delete ctx.pending_callbacks[token];
         this.#logger.error("webhook", err, {
@@ -325,7 +351,9 @@ export class GhBridgeService {
     });
     ctx.pending_callbacks[token] = correlationId;
     const callbackUrl = `${this.#callbackBaseUrl}/api/callback/${token}`;
+    const ackTarget = { subjectId: comment?.node_id };
 
+    await this.#ack.start(token, ackTarget);
     try {
       const ghToken = await this.#getInstallationToken();
       await dispatchWorkflow({
@@ -338,8 +366,8 @@ export class GhBridgeService {
         discussionId: ctx.discussion_id,
       });
       ctx.dispatches.push(Date.now());
-      this.#startProgressIndicator(token, comment?.node_id, ghToken);
     } catch (err) {
+      await this.#ack.finish(token, ackTarget);
       this.#callbacks.consume(token);
       delete ctx.pending_callbacks[token];
       throw err;
@@ -385,7 +413,7 @@ export class GhBridgeService {
       this.#logger.debug("callback", "unknown token");
       return c.json({ error: "Unknown callback token" }, 404);
     }
-    this.#progressTicker.stop(token);
+    await this.#ack.finish(token, { subjectId: meta.meta?.discussionId });
 
     let body;
     try {
@@ -513,18 +541,18 @@ export class GhBridgeService {
     }
   }
 
-  #startProgressIndicator(token, commentNodeId, _ghToken) {
-    if (!commentNodeId) return;
-    this.#progressTicker.start(token, async () => {
-      await this.#graphqlClient(ADD_REACTION_MUTATION, {
-        i: { subjectId: commentNodeId, content: "EYES" },
-      });
-    });
-  }
-
   async #loadOrCreateContext(discussionId, discussion) {
     const existing = await this.#store.loadByChannel(CHANNEL, discussionId);
     if (existing) return existing;
-    return newDiscussionContext(discussionId, discussion);
+    return newDiscussionContext({
+      channel: CHANNEL,
+      discussionId,
+      participant: {
+        name: discussion?.user?.login ?? "github-user",
+        kind: "human",
+        external_id: discussion?.user?.id?.toString(),
+        metadata: { node_id: discussion?.node_id },
+      },
+    });
   }
 }

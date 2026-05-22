@@ -1,100 +1,39 @@
 import { randomUUID } from "node:crypto";
 
-import botbuilder from "botbuilder";
-
 import {
+  Acknowledgement,
   CallbackRegistry,
   DiscussionContextStore,
-  ProgressTicker,
   RateLimiter,
   appendHistory,
   buildPrompt,
   createBridgeServer,
   dispatchWorkflow,
+  newDiscussionContext,
+  normalizeBaseUrl,
+  validateCallbackPayload,
 } from "@forwardimpact/libbridge";
 
-const { CloudAdapter, ConfigurationBotFrameworkAuthentication, TurnContext } =
-  botbuilder;
+import {
+  TurnContext,
+  buildReactionAdapter,
+  buildTickerAdapter,
+  createDefaultAdapter,
+  sendReply,
+} from "./src/teams.js";
 
 const CHANNEL = "msteams";
 const WEBHOOK_PATH = "/api/messages";
 const WORKFLOW_FILE = "kata-dispatch.yml";
-const MAX_FIELD_LENGTH = 2000;
-const TYPING_VERBS = [
-  "Moonwalking",
-  "Unravelling",
-  "Tempering",
-  "Crafting",
-  "Simmering",
-  "Percolating",
-  "Decoding",
-];
 
-export { buildPrompt, appendHistory } from "@forwardimpact/libbridge";
-
-/**
- * @param {string} url
- * @returns {boolean}
- */
-export function isValidRunUrl(url) {
-  if (typeof url !== "string") return false;
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === "https:" && parsed.hostname === "github.com";
-  } catch {
-    return false;
-  }
-}
-
-/**
- * Format the verdict and summary as a Teams reply.
- *
- * @param {{verdict: string, summary: string, run_url?: string}} payload
- * @returns {string}
- */
-export function formatReply(payload) {
-  return payload.summary ?? "";
-}
-
-/**
- * Validate and sanitize the callback payload. Returns a clean object or null.
- * Accepts (and silently ignores) the channel-agnostic optional fields
- * `replies`, `trigger`, `discussion_id` that the kata-dispatch callback
- * sometimes carries — Teams does not render those surfaces.
- *
- * @param {unknown} body
- * @returns {{correlation_id: string, verdict: string, summary: string, run_url?: string} | null}
- */
-export function validateCallbackPayload(body) {
-  if (!body || typeof body !== "object") return null;
-
-  const cid = body.correlation_id;
-  if (typeof cid !== "string" || !cid) return null;
-  if (typeof body.verdict !== "string" || !body.verdict) return null;
-  if (typeof body.summary !== "string") return null;
-  if (typeof body.run_url !== "string" || !isValidRunUrl(body.run_url)) {
-    return null;
-  }
-
-  return {
-    correlation_id: cid,
-    verdict: body.verdict.slice(0, MAX_FIELD_LENGTH),
-    summary: body.summary.slice(0, MAX_FIELD_LENGTH),
-    run_url: body.run_url,
-  };
-}
-
-function normalizeBaseUrl(url) {
-  return (url ?? "").replace(/\/+$/, "");
-}
+export { appendHistory, buildPrompt, validateCallbackPayload };
 
 /**
  * Microsoft Teams bridge service. Receives messages from Teams via the Bot
  * Framework, dispatches the channel-agnostic Kata dispatch workflow on
  * GitHub, and delivers the callback reply back into the Teams
- * conversation. Refactored onto `@forwardimpact/libbridge` so msbridge and
- * ghbridge share the same intake skeleton, callback registry, rate
- * limiter, history bound, and durable thread state.
+ * conversation. Mirrors the shape of `services/ghbridge`: shared libbridge
+ * primitives plus a small `src/teams.js` for botbuilder-bound rendering.
  */
 export class MsBridgeService {
   #logger;
@@ -105,7 +44,7 @@ export class MsBridgeService {
   #store;
   #callbacks;
   #rateLimiter;
-  #progressTicker;
+  #ack;
   #bridge;
 
   /**
@@ -114,9 +53,10 @@ export class MsBridgeService {
    * @param {import("@forwardimpact/libtelemetry").Logger} deps.logger
    * @param {import("@forwardimpact/libtelemetry").Tracer} deps.tracer
    * @param {import("@forwardimpact/libstorage").StorageInterface} deps.storage
-   * @param {object} [deps.adapter] - Override for tests
+   * @param {object} [deps.adapter] - Bot Framework adapter override (tests)
+   * @param {Acknowledgement} [deps.acknowledgement] - Override (tests)
    */
-  constructor(config, { logger, tracer, storage, adapter }) {
+  constructor(config, { logger, tracer, storage, adapter, acknowledgement }) {
     if (!logger) throw new Error("logger is required");
     if (!tracer) throw new Error("tracer is required");
     if (!storage) throw new Error("storage is required");
@@ -126,7 +66,7 @@ export class MsBridgeService {
     this.#tracer = tracer;
     this.#callbackBaseUrl = normalizeBaseUrl(config.callback_base_url);
 
-    this.#adapter = adapter ?? this.#defaultAdapter(config);
+    this.#adapter = adapter ?? createDefaultAdapter(config);
     this.#adapter.onTurnError = async (context, error) => {
       this.#logger.error("onTurnError", error);
       try {
@@ -142,26 +82,26 @@ export class MsBridgeService {
     this.#store = new DiscussionContextStore(storage);
     this.#callbacks = new CallbackRegistry();
     this.#rateLimiter = new RateLimiter();
-    this.#progressTicker = new ProgressTicker();
+    this.#ack =
+      acknowledgement ??
+      new Acknowledgement({
+        reactionAdapter: buildReactionAdapter(this.#adapter, () =>
+          this.#config.msAppId(),
+        ),
+        tickerAdapter: buildTickerAdapter(this.#adapter, () =>
+          this.#config.msAppId(),
+        ),
+        logger,
+      });
 
     this.#bridge = createBridgeServer({
       config,
       logger,
       tracer,
       webhookPath: WEBHOOK_PATH,
-      onWebhook: (c) => this.#handleMessages(c),
+      onWebhook: (c) => this.#handleWebhook(c),
       onCallback: (c) => this.#handleCallback(c),
     });
-  }
-
-  #defaultAdapter(config) {
-    const auth = new ConfigurationBotFrameworkAuthentication({
-      MicrosoftAppId: config.msAppId(),
-      MicrosoftAppPassword: config.msAppPassword(),
-      MicrosoftAppTenantId: config.msAppTenantId(),
-      MicrosoftAppType: "SingleTenant",
-    });
-    return new CloudAdapter(auth);
   }
 
   /** @returns {import("@forwardimpact/libbridge").DiscussionContextStore} */
@@ -195,7 +135,7 @@ export class MsBridgeService {
     await this.#store.shutdown();
   }
 
-  async #handleMessages(c) {
+  async #handleWebhook(c) {
     const req = c.req.raw;
     const rawBody = c.get("rawBody");
     const expressLikeReq = {
@@ -234,7 +174,7 @@ export class MsBridgeService {
     };
     try {
       await this.#adapter.process(expressLikeReq, resLike, (context) =>
-        this.#handleMessage(context),
+        this.#handleNewMessage(context),
       );
       return new Response(resLike._body ?? null, {
         status: resLike._status,
@@ -246,7 +186,7 @@ export class MsBridgeService {
     }
   }
 
-  async #handleMessage(context) {
+  async #handleNewMessage(context) {
     const activity = context.activity;
     if (activity.type !== "message") return;
 
@@ -254,7 +194,7 @@ export class MsBridgeService {
     const text = (activity.text ?? "").trim();
     if (!threadId || !text) return;
 
-    const span = this.#tracer.startSpan("MsBridge.HandleMessage", {
+    const span = this.#tracer.startSpan("MsBridge.HandleNewMessage", {
       kind: "SERVER",
       attributes: { thread_id: threadId },
     });
@@ -285,11 +225,9 @@ export class MsBridgeService {
       });
       ctx.pending_callbacks[callbackToken] = correlationId;
       const callbackUrl = `${this.#callbackBaseUrl}/api/callback/${callbackToken}`;
+      const ackTarget = { ref, activityId: activity.id };
 
-      const verb =
-        TYPING_VERBS[Math.floor(Math.random() * TYPING_VERBS.length)];
-      await context.sendActivity(`${verb}...`);
-
+      await this.#ack.start(callbackToken, ackTarget);
       try {
         await dispatchWorkflow({
           workflowFile: WORKFLOW_FILE,
@@ -303,15 +241,15 @@ export class MsBridgeService {
         ctx.dispatches.push(Date.now());
         await this.#store.add(ctx);
         await this.#store.flush();
-        this.#startTypingTicker(callbackToken, ref);
         span.addEvent("workflow_dispatched", {
           correlation_id: correlationId,
         });
         span.setOk();
       } catch (err) {
+        await this.#ack.finish(callbackToken, ackTarget);
         this.#callbacks.consume(callbackToken);
         delete ctx.pending_callbacks[callbackToken];
-        this.#logger.error("handleMessage", err, {
+        this.#logger.error("handleNewMessage", err, {
           thread_id: threadId,
           correlation_id: correlationId,
         });
@@ -331,7 +269,7 @@ export class MsBridgeService {
     if (!meta) {
       return c.json({ error: "Unknown callback token" }, 404);
     }
-    this.#progressTicker.stop(token);
+    await this.#ack.finish(token);
 
     let body;
     try {
@@ -358,15 +296,9 @@ export class MsBridgeService {
     });
     try {
       const ref = ctx.participants[0].metadata;
-      const replyText = formatReply(payload);
-      await this.#adapter.continueConversationAsync(
-        this.#config.msAppId(),
-        ref,
-        async (turnContext) => {
-          await turnContext.sendActivity(replyText);
-        },
-      );
-      appendHistory(ctx.history, { role: "assistant", text: payload.summary });
+      await this.#postReplies(ref, payload.replies, ctx);
+      await this.#applyVerdict(ref, payload, threadId, meta.correlationId);
+
       ctx.last_active_at = Date.now();
       await this.#store.add(ctx);
       await this.#store.flush();
@@ -385,41 +317,49 @@ export class MsBridgeService {
     }
   }
 
+  async #postReplies(ref, replies, ctx) {
+    const list = Array.isArray(replies) ? replies : [];
+    const msAppIdFn = () => this.#config.msAppId();
+    for (const reply of list) {
+      if (!reply || typeof reply.body !== "string" || !reply.body) continue;
+      await sendReply(this.#adapter, msAppIdFn, ref, reply.body);
+    }
+    for (const reply of list) {
+      if (!reply || typeof reply.body !== "string") continue;
+      appendHistory(ctx.history, { role: "assistant", text: reply.body });
+    }
+  }
+
+  async #applyVerdict(ref, payload, threadId, correlationId) {
+    if (payload.verdict === "recessed") {
+      this.#logger.info("callback", "resume not yet supported on msteams", {
+        thread_id: threadId,
+        correlation_id: correlationId,
+      });
+      return;
+    }
+    if (payload.verdict === "failed" && payload.summary) {
+      await sendReply(
+        this.#adapter,
+        () => this.#config.msAppId(),
+        ref,
+        payload.summary,
+      );
+    }
+  }
+
   async #loadOrCreateContext(threadId, ref) {
     const existing = await this.#store.loadByChannel(CHANNEL, threadId);
     if (existing) return existing;
-    return {
-      id: DiscussionContextStore.keyOf(CHANNEL, threadId),
+    return newDiscussionContext({
       channel: CHANNEL,
-      discussion_id: threadId,
-      history: [],
-      participants: [
-        {
-          name: "teams-user",
-          kind: "human",
-          external_id: ref?.user?.id,
-          metadata: ref,
-        },
-      ],
-      open_rfcs: {},
-      lead: "release-engineer",
-      pending_callbacks: {},
-      dispatches: [],
-      last_active_at: Date.now(),
-    };
-  }
-
-  #startTypingTicker(callbackToken, ref) {
-    this.#progressTicker.start(callbackToken, async () => {
-      const verb =
-        TYPING_VERBS[Math.floor(Math.random() * TYPING_VERBS.length)];
-      await this.#adapter.continueConversationAsync(
-        this.#config.msAppId(),
-        ref,
-        async (context) => {
-          await context.sendActivity(`${verb}...`);
-        },
-      );
+      discussionId: threadId,
+      participant: {
+        name: "teams-user",
+        kind: "human",
+        external_id: ref?.user?.id,
+        metadata: ref,
+      },
     });
   }
 }
