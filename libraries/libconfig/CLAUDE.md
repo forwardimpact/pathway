@@ -16,9 +16,10 @@ services and products is in their respective CLAUDE.md files.
 | `createExtensionConfig(name)` | `extension` | `extension.<name>` | `EXTENSION_{NAME}_*` |
 | `createScriptConfig(name)` | `script` | `script.<name>` | `SCRIPT_{NAME}_*` |
 
-Merge order: constructor defaults → `config.json` block → `.env` → shell env.
-Credential keys (API keys, tokens) are loaded into a private map and never
-set on `process.env`.
+Merge order: constructor defaults → `config.json` block → `.env`.
+Non-credential keys are set on `process.env` unconditionally from `.env` —
+the file is the persistent source of truth. Credential keys (API keys, tokens)
+are loaded into a private map; shell env wins at read time for credentials.
 
 ## `librc`
 

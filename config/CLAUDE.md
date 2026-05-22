@@ -100,10 +100,13 @@ with `PRODUCT_{NAME}_{KEY}` environment variables.
 ## `.env`
 
 Environment variables that configure services and products at runtime. Merge
-order: constructor defaults → `config.json` → `.env` → shell environment.
+order: constructor defaults → `config.json` → `.env`.
 
 Credentials (API keys, tokens) are loaded into a private map and never set on
-`process.env`. All other keys are set on `process.env` when not already present.
+`process.env`; shell env wins at read time for credentials. All other keys are
+set on `process.env` unconditionally from `.env` — the file is the persistent
+source of truth, so editing `.env` and restarting the service always takes
+effect.
 
 See [services/CLAUDE.md](../services/CLAUDE.md) and
 [products/CLAUDE.md](../products/CLAUDE.md) for conventions on each side.
