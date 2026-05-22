@@ -2,8 +2,8 @@
 
 <!-- BEGIN:description — Do not edit. Generated from package.json. -->
 
-Microsoft Teams bridge — relay messages between Teams conversations and the Kata
-agent team.
+Microsoft Teams bridge onto libbridge — relay messages between Teams
+conversations and the Kata agent team.
 
 <!-- END:description -->
 
@@ -15,15 +15,23 @@ agent team.
 - The **Microsoft Teams channel** must be enabled on the Azure Bot resource
   (Settings → Channels → add Microsoft Teams).
 - A GitHub token with `actions:write` on `forwardimpact/monorepo`.
+  `libconfig` falls back to `gh auth token` when `GH_TOKEN` is not set in
+  `.env`, so `gh auth login` is sufficient.
 - Credentials (`MICROSOFT_APP_ID`, `MICROSOFT_APP_PASSWORD`,
-  `MICROSOFT_APP_TENANT_ID`, `GH_TOKEN`) and service params
-  (`SERVICE_MSTEAMS_PORT`, `SERVICE_MSTEAMS_CALLBACK_BASE_URL`,
-  `SERVICE_MSTEAMS_GITHUB_REPO`) in `.env`. All config is loaded by
-  `libconfig` via `createServiceConfig("msteams")`.
+  `MICROSOFT_APP_TENANT_ID`) and service params
+  (`SERVICE_MSBRIDGE_GITHUB_REPO`, `SERVICE_MSBRIDGE_CALLBACK_BASE_URL`)
+  in `.env`. All config is loaded by `libconfig` via
+  `createServiceConfig("msbridge")`.
 
 ## Running
 
-Start all services (bridge + tunnel) via `fit-rc`:
+Add `mstunnel` and `msbridge` to `config/config.json` under
+`init.services` — see [`config/CLAUDE.md`](../../config/CLAUDE.md) for the
+entry format. List the tunnel before the bridge so that restarting the
+bridge does not cycle the tunnel (declaration order determines restart
+scope).
+
+Start both services:
 
 ```sh
 just rc-start
@@ -33,19 +41,27 @@ The tunnel uses a quick `trycloudflare.com` hostname that changes on
 every restart. After starting, check the tunnel log for the assigned URL:
 
 ```sh
-cat data/logs/msteams-tunnel/current | grep trycloudflare.com
+cat data/logs/mstunnel/current | grep trycloudflare.com
 ```
 
 Set that URL as the Azure Bot messaging endpoint in the Azure portal
 (Settings → Configuration):
 `https://<tunnel-domain>/api/messages`.
 
-Also set `SERVICE_MSTEAMS_CALLBACK_BASE_URL` in `.env` to the same
+Also set `SERVICE_MSBRIDGE_CALLBACK_BASE_URL` in `.env` to the same
 tunnel domain (without the `/api/messages` path) so the bridge can
-receive workflow callbacks. The bridge must be restarted after changing
-`.env` — kill the bridge process and let the supervisor restart it, or
-stop and start `fit-rc`. Avoid restarting the tunnel itself, as that
-generates a new hostname.
+receive workflow callbacks. Then restart only the bridge to pick up the
+new value:
+
+```sh
+bunx fit-rc restart msbridge
+```
+
+The tunnel keeps its hostname across bridge restarts.
+
+Discussion context is persisted as JSONL under `data/bridges/msbridge/`
+via `libstorage` (the standard `createStorage` path — no extra env var
+needed).
 
 ### Corporate network considerations
 
@@ -57,11 +73,11 @@ starting the bridge, or allowlist the required endpoints.
 ## Packaging the Teams App
 
 ```sh
-just msteams-package
+just msbridge-package
 ```
 
 Reads `MICROSOFT_APP_ID` from `.env` via libconfig and the tunnel domain
-from `SERVICE_MSTEAMS_CALLBACK_BASE_URL`. Produces
+from `SERVICE_MSBRIDGE_CALLBACK_BASE_URL`. Produces
 `dist/kata-agent-bridge.zip` (git-ignored) containing the manifest and
 placeholder icons. Override the tunnel domain with
 `--tunnel-domain=<host>` if needed.

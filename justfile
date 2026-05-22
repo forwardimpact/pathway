@@ -141,16 +141,16 @@ rc-status:
 # ── MS Teams Bridge ──────────────────────────────────────────────
 
 # Start the cloudflared tunnel for the MS Teams bridge
-msteams-tunnel:
-    bunx fit-rc start msteams-tunnel
+msbridge-tunnel:
+    bunx fit-rc start msbridge-tunnel
 
 # Package the Teams App for sideloading (reads tunnel domain from .env)
-msteams-package *ARGS:
+msbridge-package *ARGS:
     bun scripts/msteams-package.js {{ARGS}}
 
 # Start the MS Teams bridge service
-msteams-bridge:
-    bunx fit-rc start msteams-bridge
+msbridge:
+    bunx fit-rc start msbridge
 
 # ── CLI ───────────────────────────────────────────────────────────
 
@@ -373,16 +373,8 @@ env-setup:
     bun scripts/env-setup.js
 
 # Reset environment config from examples (wipes .env)
-env-reset PROFILE="local": config-reset
+env-reset PROFILE="local":
     cp -f .env.{{PROFILE}}.example .env
-
-
-# Reset config files from examples
-# config/config.example.json was removed in spec 580 (commit a353a4ab); cp removed accordingly.
-# Agent example loop is guarded and safe if config/agents/ is absent.
-config-reset:
-    #!/usr/bin/env bash
-    for file in config/agents/*.agent.example.md; do [ -f "$file" ] && cp -f "$file" "${file%.example.md}.md" || true; done
 
 # Download generated code bundle from S3
 download-bundle:

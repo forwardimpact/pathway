@@ -25,8 +25,10 @@ This rule lives next to the other invariants in
 
 Most services expose a gRPC interface defined in `proto/`. Exceptions: `mcp`
 exposes an HTTP/SSE interface using `@modelcontextprotocol/sdk` and delegates to
-the gRPC services as a client; `msteams` exposes an HTTP interface using
-`express` and `botbuilder`.
+the gRPC services as a client; `msbridge` and `ghbridge` expose HTTP
+interfaces using `libbridge` (Hono + `@hono/node-server`) — `msbridge`
+adds `botbuilder` for the Bot Framework, `ghbridge` adds `@octokit/*`
+for App auth, webhook verification, and GraphQL.
 
 Each service follows the same structure:
 
@@ -60,13 +62,14 @@ and merge order.
 
 Services are managed by `fit-rc`. The service list lives in `config/config.json`
 under `init.services` — see [`config/CLAUDE.md`](../config/CLAUDE.md) for the
-entry format and standard/optional service lists.
+entry format, declaration order semantics, and optional service entries.
 
 ```sh
-just rc-start              # start all services in config.json
-just rc-stop               # stop all services
-just rc-status             # show service status
-bunx fit-rc start <name>   # start a single service
+just rc-start                # start all services in config.json
+just rc-stop                 # stop all services
+just rc-status               # show service status
+bunx fit-rc start <name>     # start <name> and everything after it
+bunx fit-rc restart <name>   # restart <name> and everything after it
 ```
 
 For a single service during development without `fit-rc`:

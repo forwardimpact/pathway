@@ -221,7 +221,7 @@ export class ServiceManager {
   }
 
   /**
-   * Gets services to start: from first up to and including target.
+   * Gets services to start: from target to last, in declaration order.
    * @param {string} [serviceName] - Target service (all if omitted)
    * @returns {ServiceConfig[]} Services in start order
    */
@@ -229,7 +229,7 @@ export class ServiceManager {
     const services = this.#config.init.services;
     if (!serviceName) return services;
     const index = this.#findServiceIndex(serviceName);
-    return services.slice(0, index + 1);
+    return services.slice(index);
   }
 
   /**
@@ -311,7 +311,7 @@ export class ServiceManager {
 
   /**
    * Starts configured services.
-   * @param {string} [serviceName] - Target service (starts first through target)
+   * @param {string} [serviceName] - Target service (starts target through last)
    * @returns {Promise<void>}
    */
   async start(serviceName) {
@@ -324,11 +324,16 @@ export class ServiceManager {
     });
 
     if (this.isSvscanRunning()) {
-      this.#logger.debug("svscan", "Restarting daemon (fresh environment)");
-      await this.#shutdownSvscan(paths.socketPath);
+      if (!serviceName) {
+        this.#logger.debug("svscan", "Restarting daemon (fresh environment)");
+        await this.#shutdownSvscan(paths.socketPath);
+        this.#logger.debug("svscan", "Starting daemon");
+        await this.spawnSvscan();
+      }
+    } else {
+      this.#logger.debug("svscan", "Starting daemon");
+      await this.spawnSvscan();
     }
-    this.#logger.debug("svscan", "Starting daemon");
-    await this.spawnSvscan();
 
     for (const svc of services) {
       if (svc.type === "oneshot") {
