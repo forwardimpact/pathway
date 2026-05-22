@@ -96,13 +96,16 @@ describe("libconfig - .env file loading", () => {
     );
   });
 
-  test("process.env takes precedence for non-allowed keys", async () => {
+  test(".env file overwrites inherited process.env for non-credential keys", async () => {
     writeEnvFile("SERVICE_SECRET=from-file\n");
 
     const mockProcess = createProcess({ SERVICE_SECRET: "from-env" });
     await createConfig("test", "svc", {}, mockProcess, mockStorageFn);
 
-    assert.strictEqual(mockProcess.env.SERVICE_SECRET, "from-env");
+    // .env is the persistent source of truth. Supervised child processes
+    // inherit stale values from svscan — always applying the .env value
+    // ensures edits take effect on restart.
+    assert.strictEqual(mockProcess.env.SERVICE_SECRET, "from-file");
   });
 
   test("skips comments and blank lines", async () => {

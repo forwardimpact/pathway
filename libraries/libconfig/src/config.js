@@ -463,10 +463,14 @@ export class Config {
       // exposing them on process.env. Shell env still wins at
       // read time because #env() checks process.env first.
       this.#envOverrides[key] = value;
-    } else if (this.#process.env[key] === undefined) {
-      // Non-credentials → process.env so that service URL
-      // resolution and child processes can see them.
-      // Shell env takes precedence (only set if undefined).
+    } else {
+      // Non-credentials → process.env unconditionally. The .env file
+      // is the persistent source of truth for SERVICE_* URLs and other
+      // runtime config. Supervised processes (svscan children) inherit
+      // their parent's process.env, so a stale inherited value is
+      // indistinguishable from an explicit shell export — always
+      // applying the .env value ensures that editing .env and
+      // restarting the service picks up the change.
       this.#process.env[key] = value;
     }
   }
