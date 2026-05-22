@@ -9,49 +9,107 @@ the Kata agent team.
 
 ## Prerequisites
 
-- A GitHub App with `discussions: write` permission and webhook subscription
-  for `discussion` and `discussion_comment` events (this is the Kata App used
-  elsewhere in the repo — see the kata-setup skill).
+- The Kata Agent Team GitHub App with `discussions: write` permission and
+  webhook subscriptions for `discussion` and `discussion_comment` events
+  (see the kata-setup skill for initial App creation).
 - An installation of that App on the target repository.
-- A reachable public URL for the webhook endpoint (in development, a tunnel
-  such as `cloudflared` produces a temporary hostname).
+- A GitHub token with `actions:write` on the target repository.
+  `libconfig` falls back to `gh auth token` when `GH_TOKEN` is not set in
+  `.env`, so `gh auth login` is sufficient.
 
 Configuration (loaded via `createServiceConfig("ghbridge")`):
 
 | Env var | Purpose |
 | --- | --- |
-| `SERVICE_GHBRIDGE_PORT` | HTTP port (default `8080`) |
+| `SERVICE_GHBRIDGE_URL` | Listen URL (default `http://localhost:8080`) |
 | `SERVICE_GHBRIDGE_GITHUB_REPO` | `owner/repo` target |
 | `SERVICE_GHBRIDGE_CALLBACK_BASE_URL` | Public URL the workflow POSTs callbacks to |
 | `SERVICE_GHBRIDGE_APP_ID` | Kata App numeric id |
-| `SERVICE_GHBRIDGE_APP_PRIVATE_KEY` | PEM contents (multi-line) |
+| `SERVICE_GHBRIDGE_APP_PRIVATE_KEY` | PEM contents (see § Private key format) |
 | `SERVICE_GHBRIDGE_APP_INSTALLATION_ID` | Installation id for the target repo |
-| `SERVICE_GHBRIDGE_APP_WEBHOOK_SECRET` | Used to verify `X-Hub-Signature-256` |
+| `SERVICE_GHBRIDGE_APP_WEBHOOK_SECRET` | Shared secret for `X-Hub-Signature-256` verification |
 | `STATE_DIR` | Local directory for JSONL state (default `/var/lib/ghbridge`) |
+
+### Private key format
+
+The PEM file must be entered as a single line with literal `\n` replacing
+each line break, wrapped in double quotes:
+
+```
+SERVICE_GHBRIDGE_APP_PRIVATE_KEY="-----BEGIN RSA PRIVATE KEY-----\nMIIE...\n...\n-----END RSA PRIVATE KEY-----"
+```
+
+Convert a `.pem` file to this format:
+
+```sh
+awk 'NR>1{printf "\\n"}{printf "%s",$0}' path/to/your-key.pem
+```
+
+Paste the output between double quotes after the `=`.
+
+### `STATE_DIR`
+
+The bridge persists discussion context as JSONL via `libstorage`. Set
+`STATE_DIR` in `.env` to a writable local directory (e.g.
+`data/state/ghbridge`). The default `/var/lib/ghbridge` requires root on
+most systems.
 
 ## Running
 
+Add `ghtunnel` and `ghbridge` to `config/config.json` under
+`init.services` — see [`config/CLAUDE.md`](../../config/CLAUDE.md) for the
+entry format. List the tunnel before the bridge so that restarting the
+bridge does not cycle the tunnel (declaration order determines restart
+scope).
+
+Start both services:
+
 ```sh
-node services/ghbridge/server.js
+just rc-start
 ```
 
-In development, expose the port via a tunnel:
+The tunnel uses a quick `trycloudflare.com` hostname that changes on
+every restart. After starting, check the tunnel log for the assigned URL:
 
 ```sh
-cloudflared tunnel --url http://localhost:8080 --protocol http2
+cat data/logs/ghtunnel/current | grep trycloudflare.com
 ```
 
-Set the resulting hostname as the GitHub App's webhook URL
-(`https://<tunnel-domain>/api/webhook`) and as `SERVICE_GHBRIDGE_CALLBACK_BASE_URL`.
+### GitHub App webhook configuration
+
+In the App settings (`github.com/organizations/<org>/settings/apps/<app>`):
+
+1. Under **Webhook**, check **Active**.
+2. Set **Webhook URL** to `https://<tunnel-domain>/api/webhook`.
+3. Set **Secret** to a shared value and save the same value as
+   `SERVICE_GHBRIDGE_APP_WEBHOOK_SECRET` in `.env`.
+4. Under **Permissions & events → Subscribe to events**, check
+   **Discussions** and **Discussion comments**.
+5. Save changes.
+
+Set `SERVICE_GHBRIDGE_CALLBACK_BASE_URL` in `.env` to the tunnel domain
+(without any path), then restart only the bridge:
+
+```sh
+bunx fit-rc restart ghbridge
+```
+
+The tunnel keeps its hostname across bridge restarts.
+
+### Corporate network considerations
+
+The bridge must be able to reach `api.github.com` to dispatch workflows
+and post GraphQL replies. If you are on a corporate VPN with tenant
+restrictions, disconnect before starting.
 
 ## Smoke test
 
 Open a new GitHub Discussion in the configured repository. The bridge:
 
-1. Verifies the `X-Hub-Signature-256` against `app_webhook_secret`.
+1. Verifies the `X-Hub-Signature-256` against the webhook secret.
 2. Persists a `DiscussionContext` record keyed by the discussion's `node_id`.
 3. Dispatches `kata-dispatch.yml` via `workflow_dispatch`.
-4. Adds an "EYES" reaction to the latest comment as a progress indicator.
+4. Adds an "EYES" reaction to the discussion as a progress indicator.
 
 The bridge then waits for the workflow's callback. When it arrives:
 

@@ -228,7 +228,7 @@ export class MsBridgeService {
         this.headersSent = true;
         return this;
       },
-      setHeader(k, v) {
+      header(k, v) {
         this._headers[k.toLowerCase()] = v;
       },
     };

@@ -62,13 +62,14 @@ and merge order.
 
 Services are managed by `fit-rc`. The service list lives in `config/config.json`
 under `init.services` — see [`config/CLAUDE.md`](../config/CLAUDE.md) for the
-entry format and standard/optional service lists.
+entry format, declaration order semantics, and optional service entries.
 
 ```sh
-just rc-start              # start all services in config.json
-just rc-stop               # stop all services
-just rc-status             # show service status
-bunx fit-rc start <name>   # start a single service
+just rc-start                # start all services in config.json
+just rc-stop                 # stop all services
+just rc-status               # show service status
+bunx fit-rc start <name>     # start <name> and everything after it
+bunx fit-rc restart <name>   # restart <name> and everything after it
 ```
 
 For a single service during development without `fit-rc`:

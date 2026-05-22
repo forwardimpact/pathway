@@ -15,18 +15,23 @@ conversations and the Kata agent team.
 - The **Microsoft Teams channel** must be enabled on the Azure Bot resource
   (Settings → Channels → add Microsoft Teams).
 - A GitHub token with `actions:write` on `forwardimpact/monorepo`.
+  `libconfig` falls back to `gh auth token` when `GH_TOKEN` is not set in
+  `.env`, so `gh auth login` is sufficient.
 - Credentials (`MICROSOFT_APP_ID`, `MICROSOFT_APP_PASSWORD`,
-  `MICROSOFT_APP_TENANT_ID`, `GH_TOKEN`) and service params
-  (`SERVICE_MSBRIDGE_PORT`, `SERVICE_MSBRIDGE_CALLBACK_BASE_URL`,
-  `SERVICE_MSBRIDGE_GITHUB_REPO`) in `.env`. All config is loaded by
-  `libconfig` via `createServiceConfig("msbridge")`.
-- `STATE_DIR` env var (default `/var/lib/msbridge`) — directory for the
-  JSONL discussion-context store. The directory must be writable by the
-  service process.
+  `MICROSOFT_APP_TENANT_ID`) and service params
+  (`SERVICE_MSBRIDGE_GITHUB_REPO`, `SERVICE_MSBRIDGE_CALLBACK_BASE_URL`)
+  in `.env`. All config is loaded by `libconfig` via
+  `createServiceConfig("msbridge")`.
 
 ## Running
 
-Start all services (bridge + tunnel) via `fit-rc`:
+Add `mstunnel` and `msbridge` to `config/config.json` under
+`init.services` — see [`config/CLAUDE.md`](../../config/CLAUDE.md) for the
+entry format. List the tunnel before the bridge so that restarting the
+bridge does not cycle the tunnel (declaration order determines restart
+scope).
+
+Start both services:
 
 ```sh
 just rc-start
@@ -36,7 +41,7 @@ The tunnel uses a quick `trycloudflare.com` hostname that changes on
 every restart. After starting, check the tunnel log for the assigned URL:
 
 ```sh
-cat data/logs/msbridge-tunnel/current | grep trycloudflare.com
+cat data/logs/mstunnel/current | grep trycloudflare.com
 ```
 
 Set that URL as the Azure Bot messaging endpoint in the Azure portal
@@ -45,10 +50,21 @@ Set that URL as the Azure Bot messaging endpoint in the Azure portal
 
 Also set `SERVICE_MSBRIDGE_CALLBACK_BASE_URL` in `.env` to the same
 tunnel domain (without the `/api/messages` path) so the bridge can
-receive workflow callbacks. The bridge must be restarted after changing
-`.env` — kill the bridge process and let the supervisor restart it, or
-stop and start `fit-rc`. Avoid restarting the tunnel itself, as that
-generates a new hostname.
+receive workflow callbacks. Then restart only the bridge to pick up the
+new value:
+
+```sh
+bunx fit-rc restart msbridge
+```
+
+The tunnel keeps its hostname across bridge restarts.
+
+### `STATE_DIR`
+
+The bridge persists discussion context as JSONL via `libstorage`. Set
+`STATE_DIR` in `.env` to a writable local directory (e.g.
+`data/state/msbridge`). The default `/var/lib/msbridge` requires root on
+most systems.
 
 ### Corporate network considerations
 

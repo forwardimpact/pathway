@@ -38,11 +38,19 @@ Each entry has a `name` and a `command` (the shell command `fit-rc` spawns).
 Non-Node commands that need `.env` variables must source them explicitly (the
 supervisor does not load `.env` — Node services use `libconfig` internally).
 
+**Declaration order matters.** `fit-rc start <name>` starts from the named
+service to the end of the list; `fit-rc stop <name>` stops from the named
+service to the end (in reverse). `restart <name>` combines both — only the
+named service and those declared after it are affected. Services declared
+before the target are left untouched. List infrastructure (tunnels, databases)
+before the services that depend on them so a service restart does not cycle
+the tunnel.
+
 Optional entries — add when working on those features:
 
 ```json
+{ "name": "mstunnel", "command": "sh -c '. ./.env && exec cloudflared tunnel --url ${SERVICE_MSBRIDGE_URL} --protocol http2'" }
 { "name": "msbridge", "command": "node -e \"import('@forwardimpact/svcmsbridge/server.js')\"" }
-{ "name": "msbridge-tunnel", "command": "sh -c '. ./.env && exec cloudflared tunnel --url http://localhost:${SERVICE_MSBRIDGE_PORT:-3978} --protocol http2'" }
 ```
 
 Oneshot services use `"type": "oneshot"` with `up`/`down` instead of `command`.

@@ -373,16 +373,8 @@ env-setup:
     bun scripts/env-setup.js
 
 # Reset environment config from examples (wipes .env)
-env-reset PROFILE="local": config-reset
+env-reset PROFILE="local":
     cp -f .env.{{PROFILE}}.example .env
-
-
-# Reset config files from examples
-# config/config.example.json was removed in spec 580 (commit a353a4ab); cp removed accordingly.
-# Agent example loop is guarded and safe if config/agents/ is absent.
-config-reset:
-    #!/usr/bin/env bash
-    for file in config/agents/*.agent.example.md; do [ -f "$file" ] && cp -f "$file" "${file%.example.md}.md" || true; done
 
 # Download generated code bundle from S3
 download-bundle:
