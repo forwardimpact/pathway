@@ -59,12 +59,9 @@ bunx fit-rc restart msbridge
 
 The tunnel keeps its hostname across bridge restarts.
 
-### `STATE_DIR`
-
-The bridge persists discussion context as JSONL via `libstorage`. Set
-`STATE_DIR` in `.env` to a writable local directory (e.g.
-`data/state/msbridge`). The default `/var/lib/msbridge` requires root on
-most systems.
+Discussion context is persisted as JSONL under `data/bridges/msbridge/`
+via `libstorage` (the standard `createStorage` path — no extra env var
+needed).
 
 ### Corporate network considerations
 

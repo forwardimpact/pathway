@@ -28,7 +28,6 @@ Configuration (loaded via `createServiceConfig("ghbridge")`):
 | `SERVICE_GHBRIDGE_APP_PRIVATE_KEY` | PEM contents (see § Private key format) |
 | `SERVICE_GHBRIDGE_APP_INSTALLATION_ID` | Installation id for the target repo |
 | `SERVICE_GHBRIDGE_APP_WEBHOOK_SECRET` | Shared secret for `X-Hub-Signature-256` verification |
-| `STATE_DIR` | Local directory for JSONL state (default `/var/lib/ghbridge`) |
 
 ### Private key format
 
@@ -47,12 +46,9 @@ awk 'NR>1{printf "\\n"}{printf "%s",$0}' path/to/your-key.pem
 
 Paste the output between double quotes after the `=`.
 
-### `STATE_DIR`
-
-The bridge persists discussion context as JSONL via `libstorage`. Set
-`STATE_DIR` in `.env` to a writable local directory (e.g.
-`data/state/ghbridge`). The default `/var/lib/ghbridge` requires root on
-most systems.
+Discussion context is persisted as JSONL under `data/bridges/ghbridge/`
+via `libstorage` (the standard `createStorage` path — no extra env var
+needed).
 
 ## Running
 

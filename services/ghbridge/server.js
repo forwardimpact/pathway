@@ -4,7 +4,7 @@ import { graphql } from "@octokit/graphql";
 import { verify } from "@octokit/webhooks-methods";
 
 import { createServiceConfig } from "@forwardimpact/libconfig";
-import { LocalStorage } from "@forwardimpact/libstorage";
+import { createStorage } from "@forwardimpact/libstorage";
 import { createTracer } from "@forwardimpact/librpc";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
@@ -23,8 +23,7 @@ const config = await createServiceConfig("ghbridge", {
 const logger = createLogger("ghbridge");
 const tracer = await createTracer("ghbridge");
 
-const stateRoot = process.env.STATE_DIR ?? "/var/lib/ghbridge";
-const storage = new LocalStorage(stateRoot, await import("node:fs/promises"));
+const storage = createStorage("bridges/ghbridge");
 
 const appAuth = createAppAuth({
   appId: config.app_id,
