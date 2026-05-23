@@ -5,18 +5,21 @@ actions (`actions/`) they consume.
 
 ## Third-party actions
 
-Three composite actions are published as standalone repos under
+Four composite actions are published as standalone repos under
 `forwardimpact/` and referenced by tag — sibling repos this monorepo
 maintains, not external dependencies:
 
 | Action | Repo | Purpose |
 |---|---|---|
+| `forwardimpact/fit-bootstrap@v1` | [fit-bootstrap](https://github.com/forwardimpact/fit-bootstrap) | Single source of truth for the FIT CI environment (Bun + cached deps + cached workspace + wiki sync + `./scripts/bootstrap.sh`) |
 | `forwardimpact/fit-benchmark@v1` | [fit-benchmark](https://github.com/forwardimpact/fit-benchmark) | Coding-agent benchmarks via `fit-benchmark` CLI |
 | `forwardimpact/fit-eval@v1` | [fit-eval](https://github.com/forwardimpact/fit-eval) | Agent task execution via `fit-eval` CLI |
-| `forwardimpact/kata-agent@v1` | [kata-agent](https://github.com/forwardimpact/kata-agent) | Full Kata workflow (auth, checkout, bootstrap, eval) |
+| `forwardimpact/kata-agent@v1` | [kata-agent](https://github.com/forwardimpact/kata-agent) | Full Kata workflow (auth + checkout + `fit-bootstrap` + `fit-eval`) |
 
-`kata-agent` delegates to `fit-eval@v1` internally. When changing the
-`fit-eval` interface, update and tag `fit-eval` first.
+`kata-agent` delegates to `fit-bootstrap@v1` and `fit-eval@v1`
+internally; the local `bootstrap` action below delegates to
+`fit-bootstrap@v1` as well. When changing either interface, update and
+tag the sibling first.
 
 ### Editing a published action
 
@@ -41,8 +44,7 @@ Live under `actions/`. Workflows reference them via the full workspace path
 
 | Action | Purpose |
 |---|---|
-| `bootstrap` | Bun + git identity + wiki checkout + cached deps/workspace + `scripts/bootstrap.sh` + post-run wiki push |
-| `post-run` | Defer a shell command to job cleanup (node20 `post:` step) |
+| `bootstrap` | Thin wrapper around `forwardimpact/fit-bootstrap@v1` — kept as a workspace-relative entry point so the 13+ workflows that call it don't all have to switch references at once |
 | `audit` | Dependency `npm audit` + gitleaks secret scanning |
 | `coaligned-check` | Run `bunx coaligned` checks (instructions, jtbd) |
 
@@ -57,7 +59,7 @@ action's own directory. Two consequences:
 - **A published composite action** cannot reach into its own subdirectory
   with `./sub` (the caller does not have it). Use the full repo form
   `{owner}/{repo}/{path}@{ref}` instead — e.g.
-  `forwardimpact/kata-agent/post-run@v1` references the action's own
+  `forwardimpact/fit-bootstrap/post-run@v1` references the action's own
   `post-run/` subdirectory at the same tag.
 
 ## Matrix workflows and trace artifacts
