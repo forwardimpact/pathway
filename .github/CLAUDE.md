@@ -17,9 +17,9 @@ maintains, not external dependencies:
 | `forwardimpact/kata-agent@v1` | [kata-agent](https://github.com/forwardimpact/kata-agent) | Full Kata workflow (auth + checkout + `fit-bootstrap` + `fit-eval`) |
 
 `kata-agent` delegates to `fit-bootstrap@v1` and `fit-eval@v1`
-internally; the local `bootstrap` action below delegates to
-`fit-bootstrap@v1` as well. When changing either interface, update and
-tag the sibling first.
+internally; every workflow in this repo calls
+`forwardimpact/fit-bootstrap@v1` directly for the CI environment.
+When changing either interface, update and tag the sibling first.
 
 ### Editing a published action
 
@@ -44,9 +44,12 @@ Live under `actions/`. Workflows reference them via the full workspace path
 
 | Action | Purpose |
 |---|---|
-| `bootstrap` | Thin wrapper around `forwardimpact/fit-bootstrap@v1` — kept as a workspace-relative entry point so the 13+ workflows that call it don't all have to switch references at once |
 | `audit` | Dependency `npm audit` + gitleaks secret scanning |
 | `coaligned-check` | Run `bunx coaligned` checks (instructions, jtbd) |
+
+The environment-bootstrap action lives in
+`forwardimpact/fit-bootstrap@v1` and is called directly by every
+workflow that needs it; there is no local wrapper.
 
 ### Composite-action path resolution
 
