@@ -252,6 +252,13 @@ export class OrchestrationLoop {
     cancelPendingAsks(this.ctx, `${name} did not answer after reminder`, name);
   }
 
+  /**
+   * Emit one NDJSON line tagged with its source (participant name) and a
+   * monotonic seq, wrapped in the universal `{source, seq, event}` envelope.
+   * Called from each runner's `onLine` callback.
+   * @param {string} source
+   * @param {string} line - Raw NDJSON line from the SDK iterator.
+   */
   emitLine(source, line) {
     const event = JSON.parse(line);
     this.output.write(
@@ -265,6 +272,12 @@ export class OrchestrationLoop {
     );
   }
 
+  /**
+   * Emit one orchestrator-source event (`session_start`, `agent_start`,
+   * `protocol_violation`, `lead_turn_limit`) wrapped in the universal
+   * envelope.
+   * @param {object} event
+   */
   emitOrchestratorEvent(event) {
     this.output.write(
       JSON.stringify(
@@ -277,6 +290,12 @@ export class OrchestrationLoop {
     );
   }
 
+  /**
+   * Emit the terminal summary line. `Discusser` emits its own discuss-
+   * augmented summary after this one; trace consumers keep the last
+   * summary they see.
+   * @param {{success: boolean, verdict?: string|null, turns: number, summary?: string|null}} result
+   */
   emitSummary(result) {
     this.output.write(
       JSON.stringify(

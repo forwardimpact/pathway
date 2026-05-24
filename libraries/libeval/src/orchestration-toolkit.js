@@ -302,6 +302,7 @@ const orchestrationServer = (tools) =>
 
 // --- Per-role MCP server factories ---
 
+/** Supervisor tools: Ask + Answer + Announce + RollCall + Conclude. */
 export function createSupervisorToolServer(ctx) {
   return orchestrationServer([
     ...baseTools(ctx, {
@@ -313,6 +314,7 @@ export function createSupervisorToolServer(ctx) {
   ]);
 }
 
+/** Supervised agent tools: Ask + Answer + Announce + RollCall. */
 export function createSupervisedAgentToolServer(ctx) {
   return orchestrationServer(
     baseTools(ctx, {
@@ -323,6 +325,7 @@ export function createSupervisedAgentToolServer(ctx) {
   );
 }
 
+/** Facilitator tools: Ask + Answer + Announce + RollCall + Conclude. */
 export function createFacilitatorToolServer(ctx) {
   return orchestrationServer([
     ...baseTools(ctx, {
@@ -334,6 +337,7 @@ export function createFacilitatorToolServer(ctx) {
   ]);
 }
 
+/** Facilitated agent tools: Ask + Answer + Announce + RollCall. */
 export function createFacilitatedAgentToolServer(ctx, { from }) {
   return orchestrationServer(
     baseTools(ctx, { from, defaultTo: "facilitator", broadcast: true }),

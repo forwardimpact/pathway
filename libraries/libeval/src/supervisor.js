@@ -86,10 +86,12 @@ export class Supervisor extends OrchestrationLoop {
   }
 
   /** Readability shims for tests that read the runners by their domain names. */
+  /** Readability shim — exposes the lead runner under its mode-specific name. */
   get supervisorRunner() {
     return this.leadRunner;
   }
 
+  /** Readability shim — exposes the single agent runner directly. */
   get agentRunner() {
     return this.agents[0].runner;
   }

@@ -29,9 +29,8 @@ contexts — team storyboard meetings (`kata-storyboard.yml` workflow) and 1-on-
 coaching sessions (`kata-coaching.yml` workflow).
 
 **Participant**: Answer each `Ask` with `Answer`, quoting the `askId` from the
-`[ask#N]` header on the question so the reply routes back to the right
-question. The coach's session-open briefing is sufficient for most runs; load
-this skill only if you need the full Participant Protocol below.
+`[ask#N]` header. The coach's session-open briefing is sufficient for most
+runs; load this skill only if you need the full Participant Protocol below.
 
 ## Checklists
 

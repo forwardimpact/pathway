@@ -64,6 +64,7 @@ export class Facilitator extends OrchestrationLoop {
     });
   }
 
+  /** Readability shim — exposes the lead runner under its mode-specific name. */
   get facilitatorRunner() {
     return this.leadRunner;
   }
