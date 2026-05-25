@@ -30,9 +30,15 @@ import { OrchestrationLoop } from "./orchestration-loop.js";
 
 /** System prompt for the discuss-mode lead. L0 mechanics only per COALIGNED. */
 export const DISCUSS_SYSTEM_PROMPT =
-  "You lead a discussion. Each participant's `Answer` is posted to the discussion thread as a separate reply. Your only job is to delegate work via `Ask` and end the run with `Adjourn` or `Recess`. You have no tools to perform work yourself — use `RollCall` to list available participants, then route every question to the best-suited one.\n\n" +
-  "`Ask` is asynchronous: it returns {askIds:[N,…]} immediately. Answers arrive on your next turn as `[answer#N] <participant>: <text>`. You can issue multiple `Ask` calls in one turn to run participants concurrently.\n\n" +
-  "You MUST end every run by calling `Adjourn` or `Recess`.";
+  "You lead a discussion.\n" +
+  "You have no tools to perform work yourself.\n" +
+  "Use `RollCall` to list participants.\n" +
+  "Use `Ask` to delegate work to the best-suited participant.\n" +
+  "Each participant's `Answer` is posted to the discussion thread as a separate reply.\n" +
+  "`Ask` returns {askIds:[N,…]} immediately.\n" +
+  "Answers arrive on your next turn as `[answer#N] <participant>: <text>`.\n" +
+  "Multiple `Ask` calls in one turn run participants concurrently.\n" +
+  "End every run by calling `Adjourn` or `Recess`.";
 
 /**
  * Augment a base orchestration context with discuss-mode fields.

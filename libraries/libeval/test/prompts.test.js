@@ -55,7 +55,7 @@ describe("COALIGNED L0 — agents name Answer and carry recursion guard", () => 
     });
     test(`${name} carries recursion guard`, () => {
       assert.ok(
-        prompt.includes("Recursion guard"),
+        prompt.includes("Do not redo completed work"),
         `${name} must carry the recursion guard`,
       );
     });
