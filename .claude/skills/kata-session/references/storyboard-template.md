@@ -37,8 +37,6 @@ threshold crossed, classification flip). Empty if nothing changed — write
 #### {metric_name}
 
 <!-- xmr:{metric_name}:wiki/metrics/{skill}/{YYYY}.csv Do not edit. Auto-generated. -->
-**Latest:** {value} · **Status:** {status from `bunx fit-xmr analyze`}
-
 ```
 {14-line Wheeler/Vacanti X+mR chart. The chart labels μ, UPL, LPL, ±1.5σ
 zones, URL, R, and the run index — do not restate any of those numbers outside

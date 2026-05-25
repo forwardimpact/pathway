@@ -13,19 +13,19 @@ import { renderChart } from "../src/chart.js";
 // NOTE: trailing spaces in zone rows are intentional — they preserve
 // fixed-width column alignment.
 const GOLDEN_SECTION_10 = [
-  " UPL 12.5                               ●               ",
+  " UPL 12.5 ┬                             ●               ",
   "          │                                             ",
   "+1.5σ 9.4 │        ·           ·  ·              ·      ",
-  "    μ 6.4                                               ",
+  "    μ 6.4 ┼                                             ",
   "-1.5σ 3.4 │  ·  ·     ·  ·  ·        ·     ·  ·     ·  ·",
   "          │                                             ",
-  "  LPL 0.3                                               ",
+  "  LPL 0.3 ┴                                             ",
   "",
-  "  URL 7.5                                  ●            ",
+  "  URL 7.5 ┬                                ●            ",
   "          │                    ·        ·               ",
-  "    R 2.3                                               ",
+  "    R 2.3 ┼                                             ",
   "          │     ·  ·  ·  ·  ·     ·  ·        ·  ·  ·  ·",
-  "      0.0                                               ",
+  "      0.0 ┴                                             ",
   "             1  2  3  4  5  6  7  8  9 10 11 12 13 14 15",
 ].join("\n");
 

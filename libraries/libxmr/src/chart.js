@@ -11,6 +11,9 @@ import { fmt1 } from "./format.js";
 
 const UNICODE = {
   vertical: "│",
+  upperEnd: "┬",
+  cross: "┼",
+  lowerEnd: "┴",
   point: "·",
   signal: "●",
   sigma: "σ",
@@ -19,6 +22,9 @@ const UNICODE = {
 
 const ASCII = {
   vertical: "|",
+  upperEnd: "+",
+  cross: "+",
+  lowerEnd: "+",
   point: "o",
   signal: "*",
   sigma: "s",
@@ -147,6 +153,7 @@ function renderXChart({
       buckets.breachUpper,
       plotWidth,
       slotWidth,
+      glyphs.upperEnd,
       glyphs,
     ),
     zoneRow(
@@ -200,6 +207,7 @@ function renderXChart({
       buckets.breachLower,
       plotWidth,
       slotWidth,
+      glyphs.lowerEnd,
       glyphs,
     ),
   ];
@@ -238,6 +246,7 @@ function renderMRChart({
       buckets.breach,
       plotWidth,
       slotWidth,
+      glyphs.upperEnd,
       glyphs,
     ),
     zoneRow(
@@ -280,16 +289,15 @@ function renderMRChart({
   ];
 }
 
-// A limit row — label + blank plot, breach slots marked with `●`. No
-// horizontal fill line; the label in the left ruler tells the reader
-// where the level sits.
-function limitRow(label, labelWidth, slots, plotWidth, slotWidth, glyphs) {
+// A limit row — label + ruler-edge glyph + blank plot, breach slots marked
+// with `●`. The edge glyph caps the vertical ruler (upper or lower).
+function limitRow(label, labelWidth, slots, plotWidth, slotWidth, edge, glyphs) {
   const plot = Array(plotWidth).fill(" ");
   for (const slot of slots) {
     const col = slotWidth * slot - 1;
     plot[col] = glyphs.signal;
   }
-  return `${rightAlign(label, labelWidth)}  ${plot.join("")}`;
+  return `${rightAlign(label, labelWidth)} ${edge}${plot.join("")}`;
 }
 
 // A zone row — vertical edge, spaces in plot, `·` (or `●` for signals) at
@@ -303,8 +311,8 @@ function zoneRow(label, labelWidth, slots, mask, plotWidth, slotWidth, glyphs) {
   return `${rightAlign(label, labelWidth)} ${glyphs.vertical}${plot.join("")}`;
 }
 
-// A centerline row — label + blank plot, on-centerline slots marked with
-// the point (or signal) glyph. No horizontal fill line.
+// A centerline row — `┼` edge (vertical ruler with centre cross), blank
+// plot, on-centerline slots marked with the point (or signal) glyph.
 function centerlineRow(
   label,
   labelWidth,
@@ -319,11 +327,11 @@ function centerlineRow(
     const col = slotWidth * slot - 1;
     plot[col] = mask[slot] ? glyphs.signal : glyphs.point;
   }
-  return `${rightAlign(label, labelWidth)}  ${plot.join("")}`;
+  return `${rightAlign(label, labelWidth)} ${glyphs.cross}${plot.join("")}`;
 }
 
-// The mR zero baseline — label + blank plot, zero-mR slots marked with
-// the point (or signal) glyph. No horizontal fill line.
+// The mR zero baseline — `┴` lower-end edge, blank plot, zero-mR slots
+// marked with the point (or signal) glyph.
 function baselineRow(
   label,
   labelWidth,
@@ -338,7 +346,7 @@ function baselineRow(
     const col = slotWidth * slot - 1;
     plot[col] = mask[slot] ? glyphs.signal : glyphs.point;
   }
-  return `${rightAlign(label, labelWidth)}  ${plot.join("")}`;
+  return `${rightAlign(label, labelWidth)} ${glyphs.lowerEnd}${plot.join("")}`;
 }
 
 // Shared time axis — slot numbers right-aligned in each slot. Edge is a
@@ -388,7 +396,7 @@ function renderSinglePoint(value, glyphs, slotWidth) {
   plot[slotWidth - 1] = glyphs.point;
   const labelWidth = label.length;
   const lines = [
-    `${rightAlign(label, labelWidth)}  ${plot.join("")}`,
+    `${rightAlign(label, labelWidth)} ${glyphs.cross}${plot.join("")}`,
     "",
     `${" ".repeat(labelWidth)}  ${"1".padStart(slotWidth, " ")}`,
     "",
@@ -415,9 +423,9 @@ function renderFlat(values, stats, glyphs, slotWidth, ascii) {
   for (let i = 1; i < n; i++) mrPlot[slotWidth * (i + 1) - 1] = glyphs.point;
 
   const lines = [
-    `${rightAlign(labels[0], labelWidth)}  ${xPlot.join("")}`,
+    `${rightAlign(labels[0], labelWidth)} ${glyphs.cross}${xPlot.join("")}`,
     "",
-    `${rightAlign(labels[1], labelWidth)}  ${mrPlot.join("")}`,
+    `${rightAlign(labels[1], labelWidth)} ${glyphs.lowerEnd}${mrPlot.join("")}`,
     axisRow(labelWidth, n, slotWidth),
     "",
     "Note: zero observed variation — control limits coincide with",
