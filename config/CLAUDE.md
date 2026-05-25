@@ -53,9 +53,11 @@ Defines which processes `fit-rc` manages.
 Each entry has a `name` and a `command` (the shell command `fit-rc` spawns).
 Non-Node commands needing `.env` variables must source them explicitly.
 
-**Declaration order matters.** `start <name>`, `stop <name>`, and
-`restart <name>` operate on the target and everything after it. List
-infrastructure (tunnels, databases) before services that depend on them.
+**Declaration order matters.** `start <name>` starts the target and
+everything before it (bringing up dependencies). `stop <name>` and
+`restart <name>` operate on the target and everything after it (tearing
+down dependents). List infrastructure (tunnels, databases) before
+services that depend on them.
 
 Optional entries — add when working on those features:
 

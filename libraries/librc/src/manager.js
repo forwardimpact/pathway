@@ -221,7 +221,7 @@ export class ServiceManager {
   }
 
   /**
-   * Gets services to start: from target to last, in declaration order.
+   * Gets services to start: from first through target, in declaration order.
    * @param {string} [serviceName] - Target service (all if omitted)
    * @returns {ServiceConfig[]} Services in start order
    */
@@ -229,7 +229,7 @@ export class ServiceManager {
     const services = this.#config.init.services;
     if (!serviceName) return services;
     const index = this.#findServiceIndex(serviceName);
-    return services.slice(index);
+    return services.slice(0, index + 1);
   }
 
   /**
@@ -311,7 +311,7 @@ export class ServiceManager {
 
   /**
    * Starts configured services.
-   * @param {string} [serviceName] - Target service (starts target through last)
+   * @param {string} [serviceName] - Target service (starts first through target)
    * @returns {Promise<void>}
    */
   async start(serviceName) {

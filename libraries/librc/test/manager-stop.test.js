@@ -227,7 +227,7 @@ describe("ServiceManager - stop, status, filtering", () => {
   });
 
   describe("service filtering", () => {
-    test("start with service name starts from that service to the end", async () => {
+    test("start with first service name starts only that service", async () => {
       let startedServices = [];
       const deps = {
         ...mockDeps,
@@ -241,11 +241,10 @@ describe("ServiceManager - stop, status, filtering", () => {
       const manager = new ServiceManager(mockConfig, mockLogger, deps);
       await manager.start("trace");
 
-      // longrun services added via svscan; oneshot (setup) runs directly
-      assert.deepStrictEqual(startedServices, ["trace", "vector"]);
+      assert.deepStrictEqual(startedServices, ["trace"]);
     });
 
-    test("start with middle service name starts from that service to the end", async () => {
+    test("start with middle service name starts from first through that service", async () => {
       let startedServices = [];
       const deps = {
         ...mockDeps,
@@ -259,8 +258,7 @@ describe("ServiceManager - stop, status, filtering", () => {
       const manager = new ServiceManager(mockConfig, mockLogger, deps);
       await manager.start("vector");
 
-      // only vector (longrun) appears; setup (oneshot) runs directly
-      assert.deepStrictEqual(startedServices, ["vector"]);
+      assert.deepStrictEqual(startedServices, ["trace", "vector"]);
     });
 
     test("start throws for unknown service name", async () => {

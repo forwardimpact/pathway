@@ -76,7 +76,7 @@ Services are managed by `fit-rc`. The service list lives in
 just rc-start                # start all services
 just rc-stop                 # stop all services
 just rc-status               # show service status
-bunx fit-rc start <name>     # start <name> and everything after it
+bunx fit-rc start <name>     # start everything up through <name>
 bunx fit-rc restart <name>   # restart <name> and everything after it
 node --watch services/<name>/server.js   # single service without fit-rc
 ```
