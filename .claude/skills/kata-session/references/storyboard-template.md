@@ -37,6 +37,7 @@ threshold crossed, classification flip). Empty if nothing changed — write
 #### {metric_name}
 
 <!-- xmr:{metric_name}:wiki/metrics/{skill}/{YYYY}.csv -->
+<!-- Do not edit. Generated from fit-wiki refresh. -->
 **Latest:** {value} · **Status:** {status from `bunx fit-xmr analyze`}
 
 ```
