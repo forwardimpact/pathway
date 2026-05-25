@@ -20,15 +20,6 @@ import {
 } from "@forwardimpact/libcli";
 
 /**
- * Format behaviour list item for --list output
- * @param {Object} behaviour - Behaviour entity
- * @returns {string} Formatted list line
- */
-function formatListItem(behaviour) {
-  return `${behaviour.id}, ${behaviour.name}`;
-}
-
-/**
  * Format behaviour summary output
  * @param {Array} behaviours - Raw behaviour entities
  * @param {Object} data - Full data context
@@ -51,8 +42,7 @@ function formatSummary(behaviours, data) {
     "\n" + formatSubheader(`Total: ${behaviours.length} behaviours`) + "\n\n",
   );
   process.stdout.write(
-    formatBullet("Run 'npx fit-pathway behaviour --list' for IDs and names") +
-      "\n",
+    formatBullet("Run 'npx fit-pathway behaviour --list' for IDs") + "\n",
   );
   process.stdout.write(
     formatBullet("Run 'npx fit-pathway behaviour <id>' for details") + "\n\n",
@@ -78,6 +68,5 @@ export const runBehaviourCommand = createEntityCommand({
   }),
   formatSummary,
   formatDetail,
-  formatListItem,
   emojiIcon: "🧠",
 });

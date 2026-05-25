@@ -22,15 +22,6 @@ import {
 import { getConceptEmoji } from "@forwardimpact/map/levels";
 
 /**
- * Format track list item for --list output
- * @param {Object} track - Track entity
- * @returns {string} Formatted list line
- */
-function formatListItem(track) {
-  return `${track.id}, ${track.name}`;
-}
-
-/**
  * Format track summary output
  * @param {Array} tracks - Raw track entities
  * @param {Object} data - Full data context
@@ -59,7 +50,7 @@ function formatSummary(tracks, data) {
     "\n" + formatSubheader(`Total: ${tracks.length} tracks`) + "\n\n",
   );
   process.stdout.write(
-    formatBullet("Run 'npx fit-pathway track --list' for IDs and names") + "\n",
+    formatBullet("Run 'npx fit-pathway track --list' for IDs") + "\n",
   );
   process.stdout.write(
     formatBullet("Run 'npx fit-pathway track <id>' for details") + "\n\n",
@@ -92,6 +83,5 @@ export const runTrackCommand = createEntityCommand({
   sortItems: sortTracksByName,
   formatSummary,
   formatDetail,
-  formatListItem,
   emojiIcon: "🛤️",
 });

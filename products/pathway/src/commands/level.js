@@ -22,15 +22,6 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
 import { capitalize } from "../formatters/shared.js";
 
 /**
- * Format level list item for --list output
- * @param {Object} level - Level entity
- * @returns {string} Formatted list line
- */
-function formatListItem(level) {
-  return `${level.id}, ${level.professionalTitle || level.id}, ${level.managementTitle || level.id}`;
-}
-
-/**
  * Format level summary output
  * @param {Array} levels - Raw level entities
  * @param {Object} data - Full data context
@@ -65,8 +56,7 @@ function formatSummary(levels, data) {
     "\n" + formatSubheader(`Total: ${levels.length} levels`) + "\n\n",
   );
   process.stdout.write(
-    formatBullet("Run 'npx fit-pathway level --list' for IDs and titles") +
-      "\n",
+    formatBullet("Run 'npx fit-pathway level --list' for IDs") + "\n",
   );
   process.stdout.write(
     formatBullet("Run 'npx fit-pathway level <id>' for details") + "\n\n",
@@ -89,6 +79,5 @@ export const runLevelCommand = createEntityCommand({
   presentDetail: (entity) => entity,
   formatSummary,
   formatDetail,
-  formatListItem,
   emojiIcon: "📊",
 });
