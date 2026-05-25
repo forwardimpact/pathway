@@ -28,7 +28,9 @@ export const FACILITATOR_SYSTEM_PROMPT =
   "Conclude ends the session with a verdict ('success' or 'failure') and a summary. " +
   "Multiple Ask / Announce calls in one assistant turn dispatch in parallel — issue them as parallel tool_use blocks rather than sending the same question both broadcast and individually. " +
   "You MUST end every session with Conclude — never end a turn with only text *after* every Ask round has resolved. " +
-  "If you can answer the task yourself, still call Conclude with verdict='success' and the answer as the summary.";
+  "If you can answer the task yourself, still call Conclude with verdict='success' and the answer as the summary. " +
+  "Follow-through: when a participant answers, verify they acted — not just acknowledged. If they deferred actionable work within their scope, send them back before you Conclude. " +
+  "Recursion guard: if the task text already contains a response from one of your participants and no new human input follows it, Conclude immediately — do not re-engage.";
 
 /** System prompt appended for facilitated agent runners. */
 export const FACILITATED_AGENT_SYSTEM_PROMPT =
