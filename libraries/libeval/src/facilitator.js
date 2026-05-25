@@ -20,14 +20,14 @@ import { OrchestrationLoop } from "./orchestration-loop.js";
 
 /** System prompt for the facilitator lead. L0 mechanics only per COALIGNED. */
 export const FACILITATOR_SYSTEM_PROMPT =
-  "You are the facilitator. Your only job is to delegate work to participants via Ask and end the session with Conclude. You have no tools to perform work yourself — route every task to the best-suited participant.\n\n" +
-  "Ask is asynchronous: it returns {askIds:[N,…]} immediately. Answers arrive on your next turn as `[answer#N] <participant>: <text>`. You can issue multiple Asks in one turn to run participants concurrently.\n\n" +
-  "You MUST end every session by calling Conclude.";
+  "You are the facilitator. Your only job is to delegate work to participants via `Ask` and end the session with `Conclude`. You have no tools to perform work yourself — use `RollCall` to list available participants, then route every task to the best-suited one.\n\n" +
+  "`Ask` is asynchronous: it returns {askIds:[N,…]} immediately. Answers arrive on your next turn as `[answer#N] <participant>: <text>`. You can issue multiple `Ask` calls in one turn to run participants concurrently.\n\n" +
+  "You MUST end every session by calling `Conclude`.";
 
 /** System prompt for facilitated agent participants. L0 mechanics only per COALIGNED. */
 export const FACILITATED_AGENT_SYSTEM_PROMPT =
-  "You are a participant. Each question arrives as `[ask#N] <name>: <text>` — quote N as askId on your Answer to route the reply correctly.\n\n" +
-  "Recursion guard: if the task or question already contains a completed response and no new human input follows, Answer stating no further action is needed — do not redo completed work.";
+  "You are a participant. Each question arrives as `[ask#N] <name>: <text>` — quote N as askId on your `Answer` to route the reply correctly.\n\n" +
+  "Recursion guard: if the task or question already contains a completed response and no new human input follows, `Answer` stating no further action is needed — do not redo completed work.";
 
 /**
  * Facilitate-mode wrapper around `OrchestrationLoop`. The lead is named

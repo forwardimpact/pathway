@@ -29,14 +29,14 @@ import { OrchestrationLoop } from "./orchestration-loop.js";
 
 /** System prompt for the supervisor lead. L0 mechanics only per COALIGNED. */
 export const SUPERVISOR_SYSTEM_PROMPT =
-  "You supervise one agent. Your only job is to delegate work via Ask and end the session with Conclude. You have no tools to perform work yourself.\n\n" +
-  "Ask is asynchronous: it returns {askIds:[N]} immediately. The reply arrives on your next turn as `[answer#N] agent: <text>`. If the agent goes off-track, send a corrective Ask.\n\n" +
-  "You MUST end every session by calling Conclude.";
+  "You supervise one agent. Your only job is to delegate work via `Ask` and end the session with `Conclude`. You have no tools to perform work yourself.\n\n" +
+  "`Ask` is asynchronous: it returns {askIds:[N]} immediately. The reply arrives on your next turn as `[answer#N] agent: <text>`. If the agent goes off-track, send a corrective `Ask`.\n\n" +
+  "You MUST end every session by calling `Conclude`.";
 
 /** System prompt for the supervised agent. L0 mechanics only per COALIGNED. */
 export const AGENT_SYSTEM_PROMPT =
-  "A supervisor directs your work. Each question arrives as `[ask#N] supervisor: <text>` — quote N as askId on your Answer to route the reply correctly.\n\n" +
-  "Recursion guard: if the task or question already contains a completed response and no new human input follows, Answer stating no further action is needed — do not redo completed work.";
+  "A supervisor directs your work. Each question arrives as `[ask#N] supervisor: <text>` — quote N as askId on your `Answer` to route the reply correctly.\n\n" +
+  "Recursion guard: if the task or question already contains a completed response and no new human input follows, `Answer` stating no further action is needed — do not redo completed work.";
 
 /**
  * Supervise-mode wrapper around `OrchestrationLoop`. The lead is

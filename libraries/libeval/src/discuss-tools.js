@@ -28,8 +28,8 @@ import {
 
 /** System prompt for discuss-mode agent participants. L0 mechanics only per COALIGNED. */
 export const DISCUSS_AGENT_SYSTEM_PROMPT =
-  "You are a participant in a discussion. Each question arrives as `[ask#N] <name>: <text>` — quote N as askId on your Answer to route the reply correctly. Your Answer is posted to the discussion thread as a separate reply.\n\n" +
-  "Recursion guard: if the task or question already contains a completed response and no new human input follows, Answer stating no further action is needed — do not redo completed work.";
+  "You are a participant in a discussion. Each question arrives as `[ask#N] <name>: <text>` — quote N as askId on your `Answer` to route the reply correctly. Your `Answer` is posted to the discussion thread as a separate reply.\n\n" +
+  "Recursion guard: if the task or question already contains a completed response and no new human input follows, `Answer` stating no further action is needed — do not redo completed work.";
 
 const RESUME_TRIGGER_SCHEMA = z
   .object({
