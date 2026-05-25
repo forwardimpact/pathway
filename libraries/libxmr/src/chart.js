@@ -291,7 +291,15 @@ function renderMRChart({
 
 // A limit row — label + ruler-edge glyph + blank plot, breach slots marked
 // with `●`. The edge glyph caps the vertical ruler (upper or lower).
-function limitRow(label, labelWidth, slots, plotWidth, slotWidth, edge, glyphs) {
+function limitRow(
+  label,
+  labelWidth,
+  slots,
+  plotWidth,
+  slotWidth,
+  edge,
+  glyphs,
+) {
   const plot = Array(plotWidth).fill(" ");
   for (const slot of slots) {
     const col = slotWidth * slot - 1;

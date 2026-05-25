@@ -1,9 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import {
-  renderIssueList,
-  parseRepoSlug,
-} from "../src/issue-list-renderer.js";
+import { renderIssueList, parseRepoSlug } from "../src/issue-list-renderer.js";
 
 function mockGh(stdout, status = 0) {
   return () => ({ status, stdout, stderr: "" });

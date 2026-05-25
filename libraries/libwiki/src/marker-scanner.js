@@ -5,7 +5,8 @@ const XMR_OPEN_RE = /^<!--\s*xmr:([^:\s]+):(\S+)(?:\s+[^>]*?)?\s*-->\s*$/;
 const ISSUE_OPEN_RE =
   /^<!--\s*(obstacles|experiments):(open|closed)(?::(\d+d))?(?:\s+[^>]*?)?\s*-->\s*$/;
 const XMR_CLOSE_RE = /^<!--\s*\/xmr(?:\s+[^>]*?)?\s*-->\s*$/;
-const ISSUE_CLOSE_RE = /^<!--\s*\/(obstacles|experiments)(?:\s+[^>]*?)?\s*-->\s*$/;
+const ISSUE_CLOSE_RE =
+  /^<!--\s*\/(obstacles|experiments)(?:\s+[^>]*?)?\s*-->\s*$/;
 
 function openLabel(open) {
   return open.kind === "xmr" ? open.metric : open.topic;
