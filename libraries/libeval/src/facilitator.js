@@ -27,7 +27,7 @@ export const FACILITATOR_SYSTEM_PROMPT =
   "`Ask` returns {askIds:[N,…]} immediately.\n" +
   "Answers arrive on your next turn as `[answer#N] <participant>: <text>`.\n" +
   "Multiple `Ask` calls in one turn run participants concurrently.\n" +
-  "End every session by calling `Conclude`.";
+  "Wait for all participants to `Answer` before calling `Conclude`.";
 
 /** System prompt for facilitated agent participants. L0 mechanics only per COALIGNED. */
 export const FACILITATED_AGENT_SYSTEM_PROMPT =

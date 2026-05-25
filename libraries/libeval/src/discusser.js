@@ -38,7 +38,7 @@ export const DISCUSS_SYSTEM_PROMPT =
   "`Ask` returns {askIds:[N,…]} immediately.\n" +
   "Answers arrive on your next turn as `[answer#N] <participant>: <text>`.\n" +
   "Multiple `Ask` calls in one turn run participants concurrently.\n" +
-  "End every run by calling `Adjourn` or `Recess`.";
+  "Wait for all participants to `Answer` before calling `Adjourn` or `Recess`.";
 
 /**
  * Augment a base orchestration context with discuss-mode fields.
