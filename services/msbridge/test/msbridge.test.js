@@ -75,9 +75,9 @@ function makeAdapter(overrides = {}) {
   };
 }
 
-function newService({ adapter, config: configOverrides } = {}) {
+function newService({ adapter, config: configOverrides, logger } = {}) {
   return new MsBridgeService(makeConfig(configOverrides), {
-    logger: createMockLogger(),
+    logger: logger ?? createMockLogger(),
     tracer: makeTracer(),
     storage: createMockStorage(),
     adapter: adapter ?? makeAdapter(),
@@ -173,6 +173,7 @@ describe("msbridge service", () => {
     let service;
     let adapter;
     let baseUrl;
+    let logger;
 
     async function seedCtx(token, threadId, correlationId) {
       const ref = {
@@ -201,7 +202,8 @@ describe("msbridge service", () => {
 
     beforeEach(async () => {
       adapter = makeAdapter();
-      service = newService({ adapter });
+      logger = createMockLogger();
+      service = newService({ adapter, logger });
       await service.start();
       baseUrl = `http://127.0.0.1:${service.address().port}`;
     });
@@ -304,6 +306,15 @@ describe("msbridge service", () => {
         kind: "responses",
         responses: 2,
       });
+      const infoMessages = logger.info.mock.calls.map((call) =>
+        String(call.arguments[1] ?? ""),
+      );
+      expect(
+        infoMessages.some((msg) => msg.includes("resume not supported")),
+      ).toBe(false);
+      expect(
+        infoMessages.some((msg) => msg.includes("resume not yet supported")),
+      ).toBe(false);
     });
   });
 
