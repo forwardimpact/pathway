@@ -1,5 +1,11 @@
 import path from "node:path";
 
+// Shared ESLint-style emitter for structured Finding objects. A Finding is
+// `{ id, level, path?, lineNo?, message, hint? }` where `level` is "fail" or
+// "warn"; everything else is optional. Both libwiki's audit and libcoaligned's
+// instruction/JTBD checks emit Finding objects and render through these
+// functions for consistency.
+
 function partition(findings) {
   const failures = [];
   const warnings = [];
@@ -73,8 +79,11 @@ function renderTrailer(findings) {
 }
 
 /** Render findings as ESLint-style grouped output with rule IDs and hints. */
-export function emitText(findings, options = {}) {
-  if (findings.length === 0) return "✓ wiki audit passed\n";
+export function emitFindingsText(findings, options = {}) {
+  if (findings.length === 0) {
+    const label = options.passMessage ?? "all checks passed";
+    return `✓ ${label}\n`;
+  }
   const cwd = options.cwd ?? null;
   const blocks = [];
   for (const [filePath, group] of groupByPath(findings)) {
@@ -85,7 +94,7 @@ export function emitText(findings, options = {}) {
 }
 
 /** Render findings as a JSON document. */
-export function emitJson(findings) {
+export function emitFindingsJson(findings) {
   const { failures, warnings } = partition(findings);
   return (
     JSON.stringify(

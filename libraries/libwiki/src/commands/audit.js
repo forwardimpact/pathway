@@ -1,10 +1,13 @@
 import fsAsync from "node:fs/promises";
 import path from "node:path";
-import { Finder } from "@forwardimpact/libutil";
+import {
+  Finder,
+  emitFindingsJson,
+  emitFindingsText,
+} from "@forwardimpact/libutil";
 import { runAudit } from "../audit/engine.js";
 import { RULES } from "../audit/rules.js";
 import { buildContext } from "../audit/scopes.js";
-import { emitJson, emitText } from "../audit/format.js";
 
 /** Run the wiki audit and emit findings. JSON via --format json. */
 export function runAuditCommand(values, _args, _cli) {
@@ -18,8 +21,11 @@ export function runAuditCommand(values, _args, _cli) {
 
   process.stdout.write(
     values.format === "json"
-      ? emitJson(findings)
-      : emitText(findings, { cwd: projectRoot }),
+      ? emitFindingsJson(findings)
+      : emitFindingsText(findings, {
+          cwd: projectRoot,
+          passMessage: "wiki audit passed",
+        }),
   );
 
   if (findings.some((f) => f.level === "fail")) process.exit(1);

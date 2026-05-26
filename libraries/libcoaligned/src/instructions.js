@@ -162,46 +162,77 @@ async function buildLayers(root) {
   };
 }
 
-async function checkLayer(root, layer, errors) {
-  for (const path of layer.files) {
-    const text = await readText(root, path);
+function offsetToLine(text, offset) {
+  let line = 1;
+  for (let i = 0; i < offset && i < text.length; i++) {
+    if (text.charCodeAt(i) === 10) line++;
+  }
+  return line;
+}
+
+async function checkLayer(root, layer, findings) {
+  for (const relPath of layer.files) {
+    const text = await readText(root, relPath);
     if (text == null) continue;
+    const absPath = resolve(root, relPath);
     const lines = lineCount(text);
     const words = wordCount(text);
     if (lines > layer.maxLines) {
-      errors.push(
-        `${path} has ${lines} lines (max ${layer.maxLines}, ${layer.id} ${layer.name})`,
-      );
+      findings.push({
+        id: `${layer.id}.line-budget`,
+        level: "fail",
+        path: absPath,
+        message: `${lines} lines (max ${layer.maxLines}, ${layer.name})`,
+        hint: "trim prose to fit the layer cap — see COALIGNED.md for the layered-instruction model",
+      });
     }
     if (words > layer.maxWords) {
-      errors.push(
-        `${path} has ${words} words (max ${layer.maxWords}, ${layer.id} ${layer.name})`,
-      );
+      findings.push({
+        id: `${layer.id}.word-budget`,
+        level: "fail",
+        path: absPath,
+        message: `${words} words (max ${layer.maxWords}, ${layer.name})`,
+        hint: "trim prose to fit the layer cap — see COALIGNED.md for the layered-instruction model",
+      });
     }
   }
 }
 
-async function checkChecklists(root, sources, errors) {
-  for (const path of sources) {
-    const text = await readText(root, path);
+async function checkChecklists(root, sources, findings) {
+  for (const relPath of sources) {
+    const text = await readText(root, relPath);
     if (text == null) continue;
+    const absPath = resolve(root, relPath);
+    // Reset stateful regex before each file.
+    CHECKLIST_RE.lastIndex = 0;
     let m;
     let index = 0;
     while ((m = CHECKLIST_RE.exec(text))) {
       index += 1;
       const type = m[1];
+      const blockLine = offsetToLine(text, m.index);
       const items = m[2].split(ITEM_SPLIT_RE).slice(1);
       if (items.length > L6_MAX_ITEMS) {
-        errors.push(
-          `${path} checklist #${index} (${type}) has ${items.length} items (max ${L6_MAX_ITEMS}, L6 checklist)`,
-        );
+        findings.push({
+          id: "L6.too-many-items",
+          level: "fail",
+          path: absPath,
+          lineNo: blockLine,
+          message: `checklist #${index} (${type}) has ${items.length} items (max ${L6_MAX_ITEMS})`,
+          hint: "split the checklist into multiple sections, or remove items not load-bearing for the goal",
+        });
       }
       items.forEach((raw, i) => {
         const w = wordCount(raw.trim());
         if (w > L6_MAX_WORDS_PER_ITEM) {
-          errors.push(
-            `${path} checklist #${index} (${type}) item ${i + 1} has ${w} words (max ${L6_MAX_WORDS_PER_ITEM}, L6 checklist item)`,
-          );
+          findings.push({
+            id: "L6.item-too-many-words",
+            level: "fail",
+            path: absPath,
+            lineNo: blockLine,
+            message: `checklist #${index} (${type}) item ${i + 1} has ${w} words (max ${L6_MAX_WORDS_PER_ITEM})`,
+            hint: "rewrite the item more concisely — checklist items are pointers, not explanations",
+          });
         }
       });
     }
@@ -213,19 +244,21 @@ async function checkChecklists(root, sources, errors) {
  * Each layer is gated by a line cap AND a word cap; either breach fails.
  *
  * @param {{ root: string }} options
- * @returns {Promise<string[]>} List of human-readable error messages; empty when the repo is conformant.
+ * @returns {Promise<Finding[]>} Structured findings; empty when conformant.
+ *   Each Finding is `{ id, level, path, lineNo?, message, hint? }` for use
+ *   with `emitFindingsText` / `emitFindingsJson` from libutil.
  */
 export async function checkInstructions({ root }) {
-  const errors = [];
+  const findings = [];
   const { layers, skillDirs } = await buildLayers(root);
 
-  for (const layer of layers) await checkLayer(root, layer, errors);
+  for (const layer of layers) await checkLayer(root, layer, findings);
 
   const checklistSources = [
     "CONTRIBUTING.md",
     ...skillDirs.map((d) => `${d}/SKILL.md`),
   ];
-  await checkChecklists(root, checklistSources, errors);
+  await checkChecklists(root, checklistSources, findings);
 
-  return errors;
+  return findings;
 }
