@@ -27,6 +27,12 @@ fi
 # Each pattern targets one shape of temporal reference. Patterns are anchored
 # with word boundaries (`\b`) and case-insensitive (`-i`) so we catch
 # variations like "Spec 1070", "spec-1060", "SPEC 640".
+#
+# Format: "regex" or "regex:::extra rg flags" or
+# "regex:::extra rg flags|||post-filter". The ::: delimiter lets narrow
+# patterns restrict which files they search (e.g. --glob '*.js'); the
+# ||| delimiter pipes rg output through a post-filter command to drop
+# false-positive lines (e.g. grep -vi version).
 PATTERNS=(
     # "spec NNN" or "spec-NNN" — a directory under specs/ called out by number.
     '\bspec[- ][0-9]{2,5}\b'
@@ -51,6 +57,11 @@ PATTERNS=(
     '\bas of (spec|design|plan|PR|issue) [0-9]+\b'
     '\bpre-migration\b'
     '\bduring spec [0-9]+ migration\b'
+    # ISO dates — YYYY-MM-DD anchored to 20xx. Scoped to non-test .js files
+    # to skip fixture data, docs, and templates. Synthetic data dirs are
+    # excluded (seed dates). Lines containing "version" are filtered out
+    # (API/protocol version strings).
+    "\b20[0-9]{2}-[0-1][0-9]-[0-3][0-9]\b:::--glob '*.js' --glob '!**/test/**' --glob '!**/*synthetic*/**'|||grep -vi -e version -e e\\.g\\. -e example"
 )
 
 # Globs we must search, and globs we must skip. ripgrep respects .gitignore
@@ -77,8 +88,23 @@ RG_FLAGS=(
 
 status=0
 matches=""
-for pat in "${PATTERNS[@]}"; do
-    if hits=$(rg "${RG_FLAGS[@]}" -e "$pat" . 2>/dev/null); then
+for entry in "${PATTERNS[@]}"; do
+    filter=""
+    base="$entry"
+    if [[ "$base" == *"|||"* ]]; then
+        filter="${base##*|||}"
+        base="${base%%|||*}"
+    fi
+    pat="${base%%:::*}"
+    extra=()
+    if [[ "$base" == *":::"* ]]; then
+        eval "extra=(${base#*:::})"
+    fi
+    hits=$(rg "${RG_FLAGS[@]}" ${extra[@]+"${extra[@]}"} -e "$pat" . 2>/dev/null) || true
+    if [ -n "$filter" ] && [ -n "$hits" ]; then
+        hits=$(printf '%s' "$hits" | eval "$filter") || true
+    fi
+    if [ -n "$hits" ]; then
         matches+="$hits"$'\n'
         status=1
     fi
