@@ -138,7 +138,7 @@ describe("runAudit", () => {
     );
     const finding = audit().find((f) => f.id === "summary.first-h2-inbox");
     assert.ok(finding);
-    assert.match(finding.message, /first H2 is 'Wrong Section'/);
+    assert.match(finding.message, /First H2 is 'Wrong Section'/);
   });
 
   test("summary missing memo:inbox marker fires when Message Inbox H2 present", () => {

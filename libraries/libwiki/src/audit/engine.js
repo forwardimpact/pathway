@@ -18,7 +18,9 @@ function applyRule(rule, subject, ctx) {
     id: rule.id,
     level: rule.severity,
     path: subject.path ?? null,
+    lineNo: item.lineNo ?? subject.lineNo ?? null,
     message: rule.message(subject, item, ctx),
+    hint: rule.hint ?? null,
   }));
 }
 

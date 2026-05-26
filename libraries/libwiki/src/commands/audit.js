@@ -17,7 +17,9 @@ export function runAuditCommand(values, _args, _cli) {
   const findings = runAudit(RULES, ctx);
 
   process.stdout.write(
-    values.format === "json" ? emitJson(findings) : emitText(findings),
+    values.format === "json"
+      ? emitJson(findings)
+      : emitText(findings, { cwd: projectRoot }),
   );
 
   if (findings.some((f) => f.level === "fail")) process.exit(1);
