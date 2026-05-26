@@ -68,6 +68,17 @@ describe("ProgressTicker", () => {
     expect(ticker.size).toBe(0);
   });
 
+  test("first tick fires immediately without waiting for the interval", async () => {
+    const ticker = new ProgressTicker({ intervalMs: 60_000 });
+    let count = 0;
+    ticker.start("t-immediate", () => {
+      count++;
+    });
+    await wait(10);
+    ticker.stop("t-immediate");
+    expect(count).toBe(1);
+  });
+
   test("stop on unknown token is a no-op", () => {
     const ticker = new ProgressTicker();
     expect(() => ticker.stop("unknown")).not.toThrow();

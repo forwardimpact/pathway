@@ -37,15 +37,17 @@ export class ProgressTicker {
       throw new Error("tick must be a function");
     }
     this.stop(token);
-    const timer = setInterval(async () => {
+    const safeTick = async () => {
       try {
         await tick();
       } catch {
         this.stop(token);
       }
-    }, this.#intervalMs);
+    };
+    const timer = setInterval(safeTick, this.#intervalMs);
     timer.unref?.();
     this.#timers.set(token, timer);
+    safeTick();
   }
 
   /**
