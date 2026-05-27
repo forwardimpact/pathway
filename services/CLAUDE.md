@@ -20,8 +20,10 @@ rule lives next to the other invariants in
 
 ## Configuration
 
-`createServiceConfig(name)` merges constructor defaults → `config.json`
-`service.<name>` block → `.env` `SERVICE_{NAME}_*`. See
+`createServiceConfig(name)` merges `config.json` `service.<name>` block →
+`.env` `SERVICE_{NAME}_*`. Do not pass constructor defaults to
+`createServiceConfig` — port, protocol, and service-specific keys live in
+`.env` (see `.env.*.example`), not in `server.js`. See
 [`config/CLAUDE.md`](../config/CLAUDE.md) for the file format and merge
 order, and [`libraries/libconfig/CLAUDE.md`](../libraries/libconfig/CLAUDE.md)
 for the factory.

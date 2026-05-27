@@ -9,13 +9,7 @@ import { GhauthService } from "./index.js";
 import { BindingStore, FlowStore, GrantStore } from "./src/stores.js";
 import { createGithubOAuth } from "./src/github-oauth.js";
 
-const config = await createServiceConfig("ghauth", {
-  protocol: "grpc",
-  port: 3006,
-  link_base_url: "http://localhost:3007",
-  client_id: "",
-  client_secret: "",
-});
+const config = await createServiceConfig("ghauth");
 
 const logger = createLogger("ghauth");
 const tracer = await createTracer("ghauth");

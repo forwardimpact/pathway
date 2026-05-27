@@ -6,15 +6,10 @@ import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
 import { createOauthService } from "./index.js";
 
-const config = await createServiceConfig("oauth", {
-  protocol: "http",
-  port: 3007,
-  issuer: "http://localhost:3007",
-  provider: "ghauth",
-});
+const config = await createServiceConfig("oauth");
 
 const logger = createLogger("oauth");
-const providerClient = await createClient(config.provider, logger);
+const providerClient = await createClient(config.provider || "ghauth", logger);
 
 const service = createOauthService({ config, logger, providerClient });
 await service.start();

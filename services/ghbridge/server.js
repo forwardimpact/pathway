@@ -12,16 +12,7 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 
 import { GhBridgeService } from "./index.js";
 
-const config = await createServiceConfig("ghbridge", {
-  protocol: "http",
-  port: 3009,
-  github_repo: "",
-  callback_base_url: "",
-  app_id: "",
-  app_private_key: "",
-  app_installation_id: "",
-  app_webhook_secret: "",
-});
+const config = await createServiceConfig("ghbridge");
 const logger = createLogger("ghbridge");
 const tracer = await createTracer("ghbridge");
 
