@@ -30,8 +30,9 @@ const wikiRootOpt = {
 const agentOpt = {
   agent: {
     type: "string",
-    description: "Agent name (falls back to LIBEVAL_AGENT_PROFILE env var)",
-    default: process.env.LIBEVAL_AGENT_PROFILE,
+    description:
+      "Agent name (falls back to LIBEVAL_AGENT_PROFILE, then staff-engineer)",
+    default: process.env.LIBEVAL_AGENT_PROFILE || "staff-engineer",
   },
 };
 

@@ -42,13 +42,8 @@ function renderMarkdown(digest) {
 
 /** Print the on-boot digest for the calling agent. JSON by default; --format markdown renders prose. */
 export function runBootCommand(values, _args, cli) {
-  const agent = values.agent || process.env.LIBEVAL_AGENT_PROFILE;
-  if (!agent) {
-    cli.usageError(
-      "boot requires --agent <name> or LIBEVAL_AGENT_PROFILE env var",
-    );
-    process.exit(2);
-  }
+  const agent =
+    values.agent || process.env.LIBEVAL_AGENT_PROFILE || "staff-engineer";
 
   const logger = { debug() {} };
   const finder = new Finder(fsAsync, logger, process);
