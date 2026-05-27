@@ -17,19 +17,25 @@ conversations and the Kata agent team.
 - A GitHub token with `actions:write` on `forwardimpact/monorepo`.
   `libconfig` falls back to `gh auth token` when `GH_TOKEN` is not set in
   `.env`, so `gh auth login` is sufficient.
-- Credentials (`MICROSOFT_APP_ID`, `MICROSOFT_APP_PASSWORD`,
-  `MICROSOFT_APP_TENANT_ID`) and service params
-  (`SERVICE_MSBRIDGE_GITHUB_REPO`, `SERVICE_MSBRIDGE_CALLBACK_BASE_URL`)
-  in `.env`. All config is loaded by `libconfig` via
-  `createServiceConfig("msbridge")`.
+
+Configuration (loaded via `createServiceConfig("msbridge")`):
+
+| Env var | Purpose |
+| --- | --- |
+| `SERVICE_MSBRIDGE_URL` | Listen URL (default `http://localhost:3978`) |
+| `SERVICE_MSBRIDGE_GITHUB_REPO` | `owner/repo` target |
+| `SERVICE_MSBRIDGE_CALLBACK_BASE_URL` | Public URL the workflow POSTs callbacks to |
+| `MICROSOFT_APP_ID` | Azure Bot application id |
+| `MICROSOFT_APP_PASSWORD` | Azure Bot client secret |
+| `MICROSOFT_APP_TENANT_ID` | Azure AD tenant id |
 
 ## Running
 
 Add `mstunnel` and `msbridge` to `config/config.json` under
 `init.services` — see [`config/CLAUDE.md`](../../config/CLAUDE.md) for the
-entry format. List the tunnel before the bridge so that restarting the
-bridge does not cycle the tunnel (declaration order determines restart
-scope).
+entry format. List the tunnel with the other tunnels (before services) so
+that restarting the bridge does not cycle the tunnel (declaration order
+determines restart scope).
 
 Start both services:
 
@@ -44,14 +50,13 @@ every restart. After starting, check the tunnel log for the assigned URL:
 cat data/logs/mstunnel/current | grep trycloudflare.com
 ```
 
-Set that URL as the Azure Bot messaging endpoint in the Azure portal
-(Settings → Configuration):
-`https://<tunnel-domain>/api/messages`.
+### Azure Bot messaging endpoint
 
-Also set `SERVICE_MSBRIDGE_CALLBACK_BASE_URL` in `.env` to the same
-tunnel domain (without the `/api/messages` path) so the bridge can
-receive workflow callbacks. Then restart only the bridge to pick up the
-new value:
+In the Azure portal (Settings → Configuration), set the messaging endpoint
+to `https://<tunnel-domain>/api/messages`.
+
+Set `SERVICE_MSBRIDGE_CALLBACK_BASE_URL` in `.env` to the tunnel domain
+(without any path), then restart only the bridge:
 
 ```sh
 bunx fit-rc restart msbridge
