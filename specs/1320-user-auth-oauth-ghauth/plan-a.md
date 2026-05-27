@@ -10,11 +10,12 @@ is a standard `librpc` gRPC service whose three JSONL stores reuse
 `libindex`'s `BufferedIndex` exactly as `libbridge`'s `DiscussionContextStore`
 does; the GitHub user-to-server exchange/refresh/revoke is a small
 `fetch`-based module (no new dependency, mirroring how `libconfig` already
-refreshes OAuth tokens). `oauth` is a protocol-only `node:http` adapter modeled
-on `services/mcp/index.js`: every endpoint maps to one gRPC call on a backend
-client constructed by name from config (`createClient(config.provider, …)`),
-so its source stays GitHub-free (SC#3). Credential accessors follow the
-existing `msAppId()`/`mcpToken()` precedent in `libconfig`.
+refreshes OAuth tokens). `oauth` is a protocol-only Hono adapter (the repo's
+HTTP standard, used by both bridges via `libbridge`'s `createBridgeServer`):
+every endpoint maps to one gRPC call on a backend client constructed by name
+from config (`createClient(config.provider, …)`), so its source stays
+GitHub-free (SC#3). Credential accessors follow the existing
+`msAppId()`/`mcpToken()` precedent in `libconfig`.
 
 ## Step 1 — ghauth proto + codegen
 
@@ -250,24 +251,32 @@ etc.) injected via the constructor. Verify: `bun test services/ghauth/test/*.tes
 
 ## Step 9 — oauth service implementation
 
-Protocol-only HTTP adapter delegating to the configured provider client.
+Protocol-only Hono adapter delegating to the configured provider client.
 
 - **Created:** `services/oauth/index.js`
 
-Factory `createOauthService({ config, logger, providerClient })` returning
-`{ start }`, modeled on `services/mcp/index.js` (`node:http` `createServer`,
-route table, `/health`). Routes:
+Factory `createOauthService({ config, logger, providerClient })` building a
+`new Hono()` app and returning `{ app, address, start, stop }` (the exact shape
+`createBridgeServer` returns). Replicate the bridge server's inline
+security-headers middleware (`X-Content-Type-Options: nosniff`,
+`X-Frame-Options: DENY`, `Cache-Control: no-store`) — it is a closure inside
+`createBridgeServer`, not an exported unit, so copy the three `app.use("*", …)`
+header lines rather than importing them. Routes registered on the Hono app:
 
-| Route | Action |
+| Route | Handler |
 | --- | --- |
-| `GET /.well-known/oauth-authorization-server` | JSON metadata from `config.issuer` |
-| `GET /authorize` | `providerClient.Begin(query)` → 302 `upstream_authorize_url` |
-| `GET /callback` | `providerClient.Complete({code,state})` → 302 client `redirect_uri` w/ `downstream_code`, else render "linked" page |
-| `POST /token` | `providerClient.Redeem({code,code_verifier})` → JSON token response |
-| `GET /health` | `{status:"ok"}` |
+| `GET /.well-known/oauth-authorization-server` | `c.json(metadata)` from `config.issuer` |
+| `GET /authorize` | `providerClient.Begin(query)` → `c.redirect(upstream_authorize_url, 302)` |
+| `GET /callback` | `providerClient.Complete({code,state})` → `c.redirect(redirect_uri w/ downstream_code, 302)`, else render "linked" page via `c.html` |
+| `POST /token` | `providerClient.Redeem({code,code_verifier})` → `c.json(tokenResponse)` |
+| `GET /health` | `c.json({status:"ok"})` |
 
-No `github`/`octokit` identifiers anywhere in this file (SC#3).
-Verify: SC#3 `rg` check in Step 12.
+`start()` calls `serve({ fetch: app.fetch, port: config.port, hostname: config.host })`
+from `@hono/node-server` (the `createBridgeServer` pattern — it maps config
+`host` onto `hostname`; libconfig defaults `host` to `0.0.0.0`), retaining the
+returned handle; `stop()` wraps `handle.close()` in a promise; `address()`
+returns `{ port }` from the handle. No `github`/`octokit` identifiers anywhere
+in this file (SC#3). Verify: SC#3 `rg` check in Step 12.
 
 ## Step 10 — oauth server.js
 
@@ -282,7 +291,9 @@ const config = await createServiceConfig("oauth", {
 const logger = createLogger("oauth");
 const tracer = await createTracer("oauth");
 const providerClient = await createClient(config.provider, logger, tracer);  // "ghauth" → GhauthClient
-await createOauthService({ config, logger, providerClient }).start();
+const service = createOauthService({ config, logger, providerClient });
+await service.start();
+for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => service.stop());
 ```
 
 `createClient("ghauth", …)` resolves `GhauthClient` and dials the `service.ghauth`
@@ -297,9 +308,14 @@ Service metadata + docs per `services/CLAUDE.md`.
 - **Created:** `services/oauth/package.json`, `services/oauth/README.md`
 
 `@forwardimpact/svcoauth`, `bin.fit-svcoauth: ./server.js`, deps `librpc`,
-`libconfig`, `libtelemetry`, `libpreflight`, `libtype` (no octokit). README
-documents `service.oauth` config (`issuer`, `provider`, `port`) +
-`init.services` ordering (`ghauth` before `oauth`).
+`libconfig`, `libtelemetry`, `libpreflight`, `libtype`, `hono`,
+`@hono/node-server` (no octokit). Declare the `hono`/`@hono/node-server`
+ranges compatible with the **root `package.json` `overrides` block**
+(`hono ^4.12.18`, `@hono/node-server ^2.0.2`) — that block governs hono
+resolution repo-wide, so Bun resolves to the override regardless of the
+workspace range; declare `^4.12.18`/`^2.0.2` to match what actually ships, not
+a higher pin. README documents `service.oauth` config (`issuer`, `provider`,
+`port`) + `init.services` ordering (`ghauth` before `oauth`).
 
 Verify: `bun run context:fix`.
 
@@ -309,10 +325,13 @@ Cover SC#2 and SC#3.
 
 - **Created:** `services/oauth/test/{metadata,authorize,no-github}.test.js`
 
-- `metadata` — `GET /.well-known/oauth-authorization-server` returns valid
-  AS metadata derived from `config.issuer` (SC#2).
-- `authorize` — `GET /authorize` calls a stub `providerClient.Begin` and
-  returns 302 to the returned `upstream_authorize_url` (SC#2).
+Drive routes through the returned Hono `app` via `app.request(path)` (no live
+socket needed).
+
+- `metadata` — `app.request("/.well-known/oauth-authorization-server")` returns
+  valid AS metadata derived from `config.issuer` (SC#2).
+- `authorize` — `app.request("/authorize?…")` with a stub `providerClient.Begin`
+  returns a 302 `Location` of the returned `upstream_authorize_url` (SC#2).
 - `no-github` — asserts `rg -i 'github|octokit' services/oauth/ -g '!test/'
   -g '!*.md'` yields no matches (SC#3), via a `child_process` exec.
 
@@ -331,7 +350,7 @@ committed `config.json` to edit.
 
 Verify: `bun run context` passes (catalog + workspace-imports guards green).
 
-Libraries used: librpc (Server, createClient, services), libconfig (createServiceConfig), libstorage (createStorage), libindex (BufferedIndex), libtelemetry (createLogger), libtype (generated message types), libpreflight; libharness (dev). No new third-party dependency — GitHub OAuth uses built-in `fetch`.
+Libraries used: librpc (Server, createClient, services), libconfig (createServiceConfig), libstorage (createStorage), libindex (BufferedIndex), libtelemetry (createLogger), libtype (generated message types), libpreflight, hono (Hono — oauth web server, used directly not via libbridge since oauth's routes are not bridge-shaped), @hono/node-server (serve); libharness (dev). GitHub OAuth uses built-in `fetch` (no octokit added).
 
 ## Risks
 

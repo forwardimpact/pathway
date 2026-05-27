@@ -57,7 +57,13 @@ as `libbridge` `Dispatcher`'s `getGithubToken` result (whose contract is
 | `GET /authorize` | `Begin` → 302 to `upstream_authorize_url` |
 | `GET /callback` | `Complete` → 302 to client `redirect_uri` (or a "linked" page when no client awaits) |
 | `POST /token` | `Redeem` → JSON token response |
-| `GET /health` | liveness (mirrors `services/mcp`) |
+| `GET /health` | liveness |
+
+`oauth` serves these routes with **Hono + `@hono/node-server`** — the repo's
+HTTP standard, shared by both bridges via `libbridge`'s `createBridgeServer`.
+`oauth` uses Hono directly (its routes are OAuth-server-shaped, not
+bridge-shaped) with the same security-headers middleware the bridge server
+applies.
 
 PKCE `code_challenge`/`code_verifier` pass through `oauth` untouched into
 `Begin`/`Redeem`; `ghauth` verifies the verifier at `Redeem` against the
@@ -130,6 +136,7 @@ Dispatch read path: `bridge → GetToken(surface,user_id) → {token|LinkRequire
 | Binding key `(surface, surface_user_id)` | Unify on `github_user_id` | Spec excludes cross-surface unification; independent bindings are simpler and map 1:1 to the bridges' `(channel, external_id)`. |
 | User-to-server token (Kata Agent User App) | Installation token | GitHub enforces the requester's own repo permissions at dispatch; user-to-server tokens are refreshable, so `ghauth` owns refresh. |
 | `ghauth` composes the `LinkRequired` URL from `link_base_url` | Each consumer composes it | Keeps the consumer dumb and the URL shape in one place; the spec requires the typed result to carry the URL. |
+| `oauth` HTTP via Hono + `@hono/node-server` | Raw `node:http` (as `services/mcp` uses) | Hono is the repo's established HTTP framework — both bridges use it through `libbridge`; `mcp` uses raw `node:http` only because the MCP SDK's `StreamableHTTPServerTransport` requires it, which `oauth` does not. |
 
 ## Configuration
 
