@@ -23,7 +23,14 @@ conversations and the Kata agent team.
 
 | Service | Why |
 | --- | --- |
+| `bridge` | Canonical discussion and origin store (gRPC) |
 | `ghauth` | Per-user GitHub token for `workflow_dispatch` |
+
+Discussion state is owned by `services/bridge`; the bridge talks to it
+over gRPC and keeps no on-disk discussion state of its own. Operators
+upgrading from a bridge that predates this service can safely delete
+legacy `data/bridges/msbridge/` files; they expire under their existing
+24-hour TTL regardless.
 
 ### Configuration
 
@@ -74,9 +81,10 @@ bunx fit-rc restart msbridge
 
 The tunnel keeps its hostname across bridge restarts.
 
-Discussion context is persisted as JSONL under `data/bridges/msbridge/`
-via `libstorage` (the standard `createStorage` path — no extra env var
-needed).
+## Service supervision
+
+If you supervise `msbridge` via `fit-rc`, list `bridge` ahead of the bridge
+entries in `init.services` so `createClient('bridge', …)` resolves at startup.
 
 ### Corporate network considerations
 

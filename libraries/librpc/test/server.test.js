@@ -107,6 +107,51 @@ describe("Server", () => {
     assert.strictEqual(getHandlersSpy.mock.callCount(), 1);
   });
 
+  test("should propagate handler-thrown .code to the callback", async () => {
+    let capturedHandlers;
+    const customGrpcFn = createMockGrpcFn({
+      server: {
+        addService: spy((_def, handlers) => {
+          if (!capturedHandlers) capturedHandlers = handlers;
+        }),
+      },
+    });
+
+    const throwingService = {
+      getHandlers: () => ({
+        FailingMethod: async () => {
+          throw Object.assign(new Error("nope"), {
+            code: customGrpcFn().grpc.status.NOT_FOUND,
+          });
+        },
+      }),
+    };
+
+    const customObserverFn = () => ({
+      observeServerUnaryCall: async (_method, _call, fn) => await fn(_call),
+      logger: () => mockLogFn,
+    });
+
+    const server = new Server(
+      throwingService,
+      mockConfig,
+      mockLogFn,
+      null,
+      customObserverFn,
+      customGrpcFn,
+      mockAuthFn,
+    );
+
+    await server.start();
+
+    const result = await new Promise((resolve) => {
+      capturedHandlers.FailingMethod({ request: {} }, resolve);
+    });
+
+    assert.strictEqual(result.code, customGrpcFn().grpc.status.NOT_FOUND);
+    assert.strictEqual(result.message, "nope");
+  });
+
   test("should accept tracer parameter", () => {
     const mockTracer = createMockTracer();
 
