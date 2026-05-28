@@ -170,10 +170,11 @@ export class Server extends Rpc {
         );
         callback(null, response);
       } catch (error) {
-        callback({
-          code: this.grpc().status.INTERNAL,
-          message: error?.message || String(error),
-        });
+        const code =
+          typeof error?.code === "number"
+            ? error.code
+            : this.grpc().status.INTERNAL;
+        callback({ code, message: error?.message || String(error) });
       }
     };
   }
