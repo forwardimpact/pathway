@@ -8,7 +8,10 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 
 import { createMcpService } from "./index.js";
 
-const config = await createServiceConfig("mcp");
+const config = await createServiceConfig("mcp", {
+  systemPrompt: "",
+  tools: "",
+});
 const logger = createLogger("mcp");
 const tracer = await createTracer("mcp");
 

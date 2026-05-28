@@ -9,13 +9,16 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 
 import { EmbeddingService } from "./index.js";
 
-const config = await createServiceConfig("embedding");
+const config = await createServiceConfig("embedding", {
+  backendPort: 8090,
+  model: "BAAI/bge-small-en-v1.5",
+});
 
 const logger = createLogger("embedding");
 const tracer = await createTracer("embedding");
 
-const backendPort = config.backendPort || 8090;
-const model = config.model || "BAAI/bge-small-en-v1.5";
+const backendPort = config.backendPort;
+const model = config.model;
 const backendUrl = `http://127.0.0.1:${backendPort}`;
 
 const tei = spawn(

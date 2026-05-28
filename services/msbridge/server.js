@@ -8,7 +8,10 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 
 import { MsBridgeService } from "./index.js";
 
-const config = await createServiceConfig("msbridge");
+const config = await createServiceConfig("msbridge", {
+  github_repo: "",
+  callback_base_url: "",
+});
 const logger = createLogger("msbridge");
 const tracer = await createTracer("msbridge");
 

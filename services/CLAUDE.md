@@ -20,13 +20,51 @@ rule lives next to the other invariants in
 
 ## Configuration
 
-`createServiceConfig(name)` merges `config.json` `service.<name>` block →
-`.env` `SERVICE_{NAME}_*`. Do not pass constructor defaults to
-`createServiceConfig` — port, protocol, and service-specific keys live in
-`.env` (see `.env.*.example`), not in `server.js`. See
-[`config/CLAUDE.md`](../config/CLAUDE.md) for the file format and merge
-order, and [`libraries/libconfig/CLAUDE.md`](../libraries/libconfig/CLAUDE.md)
-for the factory.
+`createServiceConfig(name, defaults)` produces the merged config object
+each service uses at runtime. The merge chain is:
+
+```
+server.js defaults → config.json service.<name> block → .env SERVICE_{NAME}_*
+```
+
+`libconfig` resolves `SERVICE_{NAME}_{KEY}` env vars **only for keys that
+already exist** in the merged defaults + config.json object. A key that
+appears in `.env` but has no default and no `config.json` entry is silently
+ignored. This means every service-specific key the service reads must be
+declared somewhere in the merge chain before env resolution runs.
+
+### Where to declare keys
+
+**`server.js` defaults (required).** Every config key the service accesses
+must appear in the `defaults` object passed to `createServiceConfig`. Use
+empty strings for keys whose values come entirely from `.env`:
+
+```js
+const config = await createServiceConfig("ghbridge", {
+  github_repo: "",
+  callback_base_url: "",
+  app_id: "",
+  app_private_key: "",
+  app_installation_id: "",
+  app_webhook_secret: "",
+});
+```
+
+This is the authoritative list of what the service expects. A reader of
+`server.js` can see every config key without consulting `.env` or
+`config.json`.
+
+**`.env` (values).** The `.env` file supplies the actual values via
+`SERVICE_{NAME}_{KEY}` variables. See `.env.*.example` for the full list.
+
+**`config.json` service blocks (rare).** Use only when a key needs a
+non-empty default that differs from `.env`. Most services need no
+`config.json` block — the `server.js` defaults + `.env` overrides are
+sufficient.
+
+See [`config/CLAUDE.md`](../config/CLAUDE.md) for the file format and
+[`libraries/libconfig/CLAUDE.md`](../libraries/libconfig/CLAUDE.md) for
+the factory API.
 
 ## Architecture
 
@@ -39,9 +77,9 @@ App auth, webhook verification, and GraphQL.
 
 Each service follows the same structure:
 
-- **`server.js`** — entry point. Creates config, logger, tracer, service
-  instance, and server, then calls `server.start()`. Shebang is
-  `#!/usr/bin/env node`; the `bin` entry is `fit-svc<name>`.
+- **`server.js`** — entry point. Declares config defaults, creates config,
+  logger, tracer, service instance, and server, then calls `start()`.
+  Shebang is `#!/usr/bin/env node`; the `bin` entry is `fit-svc<name>`.
 - **`index.js`** — service implementation. Exports the service class
   (gRPC) or factory function (MCP).
 - **`proto/*.proto`** — gRPC service definition (all services except `mcp`).
@@ -49,7 +87,7 @@ Each service follows the same structure:
 
 ### `server.js` sequence
 
-1. `createServiceConfig(name)` — load config.
+1. `createServiceConfig(name, defaults)` — declare expected keys and load.
 2. `createLogger(name)` and `createTracer(name)` — observability.
 3. Initialize domain dependencies (indexes, clients, data loaders).
 4. Construct service instance, wrap in `Server`, call `start()`.
@@ -102,6 +140,7 @@ a proto file, regenerate bindings with `just codegen`.
 - `package.json` — `@forwardimpact/svc<name>`, ESM, with `description`,
   `keywords`, `jobs`.
 - `server.js` — entry point following the bootstrap sequence above.
+  Declare every service-specific config key in the `defaults` argument.
 - `index.js` — service implementation.
 - `proto/<name>.proto` — gRPC service definition (unless MCP-only).
 - `test/` — `*.test.js` files.

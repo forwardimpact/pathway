@@ -12,7 +12,9 @@ import fs from "fs/promises";
 
 import { PathwayService } from "./index.js";
 
-const config = await createServiceConfig("pathway");
+const config = await createServiceConfig("pathway", {
+  dataDir: "",
+});
 
 // Initialize observability
 const logger = createLogger("pathway");
