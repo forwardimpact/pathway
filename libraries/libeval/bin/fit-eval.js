@@ -34,6 +34,29 @@ const LEAD_OPTIONS = {
   },
 };
 
+// Shared task-input flags: --task-file (path), --task-text (inline), and
+// --task-event (path to native GitHub event JSON composed into a task via
+// libeval/src/events/github.js). Exactly one of the three is required.
+const TASK_INPUT_OPTIONS = {
+  "task-file": {
+    type: "string",
+    description: "Path to a markdown task file",
+  },
+  "task-text": {
+    type: "string",
+    description: "Inline task text (alternative to --task-file)",
+  },
+  "task-event": {
+    type: "string",
+    description:
+      "Path to a native GitHub event payload JSON, composed into the task via libeval/src/events/github.js (reads $GITHUB_EVENT_NAME)",
+  },
+  "task-amend": {
+    type: "string",
+    description: "Additional text appended to the task",
+  },
+};
+
 const definition = {
   name: "fit-eval",
   version: VERSION,
@@ -45,18 +68,7 @@ const definition = {
       args: "",
       description: "Run a single agent autonomously on a defined task",
       options: {
-        "task-file": {
-          type: "string",
-          description: "Path to a markdown task file",
-        },
-        "task-text": {
-          type: "string",
-          description: "Inline task text (alternative to --task-file)",
-        },
-        "task-amend": {
-          type: "string",
-          description: "Additional text appended to the task",
-        },
+        ...TASK_INPUT_OPTIONS,
         "agent-model": {
           type: "string",
           description:
@@ -92,18 +104,7 @@ const definition = {
       description:
         "Run a supervisor–agent relay — typical shape for agent-as-judge evaluations",
       options: {
-        "task-file": {
-          type: "string",
-          description: "Path to a markdown task file",
-        },
-        "task-text": {
-          type: "string",
-          description: "Inline task text (alternative to --task-file)",
-        },
-        "task-amend": {
-          type: "string",
-          description: "Additional text appended to the task",
-        },
+        ...TASK_INPUT_OPTIONS,
         "agent-model": {
           type: "string",
           description:
@@ -146,18 +147,7 @@ const definition = {
       description:
         "Run a facilitator with N participants — typical shape for multi-agent collaboration",
       options: {
-        "task-file": {
-          type: "string",
-          description: "Path to a markdown task file",
-        },
-        "task-text": {
-          type: "string",
-          description: "Inline task text (alternative to --task-file)",
-        },
-        "task-amend": {
-          type: "string",
-          description: "Additional text appended to the task",
-        },
+        ...TASK_INPUT_OPTIONS,
         "agent-model": {
           type: "string",
           description: "Claude model for agents (default: claude-opus-4-7[1m])",
@@ -192,18 +182,7 @@ const definition = {
       description:
         "Run an async, suspendable discussion — Chair + N participants + bridge callback",
       options: {
-        "task-file": {
-          type: "string",
-          description: "Path to a markdown task file",
-        },
-        "task-text": {
-          type: "string",
-          description: "Inline task text (alternative to --task-file)",
-        },
-        "task-amend": {
-          type: "string",
-          description: "Additional text appended to the task",
-        },
+        ...TASK_INPUT_OPTIONS,
         "agent-model": {
           type: "string",
           description: "Claude model for agents (default: claude-opus-4-7[1m])",
