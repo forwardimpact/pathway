@@ -37,8 +37,10 @@ graph LR
 |---|---|
 | `ghauth.Complete` | Verifies the authorizing GitHub account against the flow's `surface_user_id` (equality check on `github-discussions`; record-only on `msteams`); records the verified id on the binding. |
 | `PendingDispatchStore` (`services/bridge`) | Canonical, TTL'd map `link_token → replay target`; sibling to the discussion/origin stores so it survives bridge restarts. Like those stores it is reached over the bridge gRPC client, behind new RPCs (put / resolve-and-consume / sweep), not a local in-process object. |
-| `ghbridge` / `msbridge` link-prompt path | On a `link_required` decline, mints `link_token`, stashes the target, augments the authorize URL with its completion redirect + token. Each bridge posts the link through its own channel SDK (GraphQL comment / Bot Framework reply). |
-| `ghbridge` / `msbridge` `/api/link-complete` | Post-auth landing endpoint on each bridge: resolves `link_token`, re-dispatches, renders confirmation. Identical handler logic; the channel SDK is not involved (the user is on the browser). |
+| `libbridge.prepareLinkResume` | Mints an opaque `link_token` and augments the authorize URL with `redirect_uri` and `client_state`. Pure function — no channel SDK, no store access. |
+| `libbridge.createLinkCompleteHandler` | Factory returning the Hono GET handler for `/api/link-complete`. Resolves the `PendingDispatch`, loads the discussion context, finds the latest user turn by author, re-dispatches, and renders the confirmation page. Entirely channel-agnostic (parallel to `createCallbackHandler`). |
+| `libbridge.createBridgeServer` | Gains an optional `onLinkComplete` handler; when provided, mounts `GET /api/link-complete` alongside the existing webhook and callback routes. |
+| Bridge `#stashAndPostLink` | The only channel-specific resume code in each bridge: calls `prepareLinkResume` (libbridge), writes the `PendingDispatch` via the store, and posts the augmented link through its channel SDK (GraphQL comment / Bot Framework reply). |
 | `oauth /authorize` | Gains one new pass-through: forwards `client_state` (carrying `link_token`) into `Begin` (today it forwards `redirect_uri`/`code_challenge`/`scope` but not `client_state`). |
 | `libbridge.Dispatcher` | Unchanged dispatch primitive; the replay calls it exactly as intake does. |
 
@@ -62,24 +64,28 @@ expressed as a per-surface identity policy on the provider
 
 ## Resume flow (Defect 2)
 
-When `Dispatcher.dispatch` returns `link_required`, each bridge (not
-`libbridge`, keeping it channel-agnostic) mints an opaque `link_token`,
-writes a `PendingDispatch` target keyed by it, and augments the
-`authorize_url` with `redirect_uri=<callback_base>/api/link-complete` and
-`client_state=<link_token>` before posting the link through its channel SDK.
-The other declined outcomes stash nothing: `reauth_required` carries no
-`authorize_url` to augment and `transient` shows no link. Resume for
-expired bindings (`reauth_required`) is out of scope per the spec — it would
-first need `GetToken` to surface a re-link URL, which it does not today.
+When `Dispatcher.dispatch` returns `link_required`, each bridge calls
+`prepareLinkResume` (a libbridge pure function that mints an opaque
+`link_token` and augments the `authorize_url` with
+`redirect_uri=<callback_base>/api/link-complete` and
+`client_state=<link_token>`), writes the `PendingDispatch` target via the
+store, and posts the augmented link through its channel SDK — the only
+channel-specific line. The other declined outcomes stash nothing:
+`reauth_required` carries no `authorize_url` to augment and `transient`
+shows no link. Resume for expired bindings (`reauth_required`) is out of
+scope per the spec — it would first need `GetToken` to surface a re-link
+URL, which it does not today.
 
 `oauth /callback` already redirects to a downstream `redirect_uri` with the
-echoed `client_state`; `/api/link-complete` on each bridge receives
-`state=link_token`, resolves the `PendingDispatch` target, reloads the
-discussion context, and re-dispatches through `Dispatcher.dispatch`. The
-pending record is deleted on re-dispatch (idempotent against a page refresh)
-and renders a "processing your message" page in place of today's terminal
-notice. The `/api/link-complete` handler is identical across bridges — it
-uses no channel SDK since the user is on the browser, not in the channel.
+echoed `client_state`; `/api/link-complete` receives `state=link_token`,
+resolves the `PendingDispatch` target, reloads the discussion context, and
+re-dispatches through `Dispatcher.dispatch`. The pending record is deleted
+on re-dispatch (idempotent against a page refresh) and renders a "processing
+your message" page in place of today's terminal notice. The handler is
+`createLinkCompleteHandler` — a libbridge factory parallel to
+`createCallbackHandler`. It uses no channel SDK (the user is on the browser)
+and is wired into `createBridgeServer` via the new optional `onLinkComplete`
+parameter.
 
 **Safety property:** the replay re-runs the same `GetToken` gate, which returns
 a token only if a binding now exists for `target.surface_user_id` — and after
@@ -129,7 +135,8 @@ several humans have posted in the thread.
 | How resume is modeled | Dedicated pending store + completion endpoint | A new `ResumeScheduler` trigger kind — its triggers fire off inbound replies / elapsed time, not an external OAuth callback; overloading muddies the abstraction |
 | How the message is re-sent | Replay through `Dispatcher.dispatch` | A bespoke dispatch path — would duplicate rate-limiting, callback registration, and the `GetToken` safety gate |
 | Which message a multi-party thread replays | Latest history turn authored by the linking user | Latest turn regardless of author — could re-dispatch another participant's message |
-| Where link augmentation happens | Each bridge (channel-specific completion endpoint) | `libbridge` `TokenResolver` — would import a channel-specific callback path, breaking its no-channel invariant |
+| Where link augmentation lives | `libbridge.prepareLinkResume` (pure function) + `createLinkCompleteHandler` (factory) | Per-bridge duplication — identical logic in both bridges with no channel SDK dependency, violating the "push shared logic into libbridge" principle |
+| Where link posting happens | Each bridge's `#stashAndPostLink` (thin: one channel-SDK call) | `libbridge` — would import channel SDKs, breaking the no-channel invariant |
 
 ## Constraints the plan must honor
 
@@ -149,8 +156,9 @@ several humans have posted in the thread.
 - **`reauth_required` is the `libbridge` outcome name** (`TokenResolver` maps
   the `ghauth` gRPC `re_auth_required` arm onto it); the plan should grep the
   resolver-level spelling, not the wire spelling.
-- **The confirmation page is a bridge HTTP response** — no channel SDK on
-  either bridge, preserving the libbridge no-channel invariant.
+- **The confirmation page is a libbridge HTTP response** — rendered by
+  `createLinkCompleteHandler`, no channel SDK, preserving the no-channel
+  invariant. Both bridges share the same handler via `createBridgeServer`.
 - **msbridge's single intake path** simplifies the turn-persistence change:
   `#handleNewMessage` is the only entry point (no discussion-created /
   comment split), so the invariant requires one code path, not two.

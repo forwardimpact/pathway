@@ -300,21 +300,37 @@ Verify: add tests to `services/bridge/test/bridge.test.js`:
 - sweep evicts records older than TTL
 - resolve after restart still sees NOT_FOUND (delete marker survives)
 
-## Step 6 — libbridge: remove historyText from Dispatcher, add author to appendHistory
+## Step 6 — libbridge: clean break, author support, and link-resume primitives
 
 Intent: the dispatch primitive no longer mutates history (clean break);
-author attribution added to history entries.
+author attribution added to history entries; new link-resume primitives
+(`prepareLinkResume`, `createLinkCompleteHandler`) keep bridges thin.
 
 | File | Action |
 |---|---|
 | `libraries/libbridge/src/dispatcher.js` | Modified |
 | `libraries/libbridge/src/history.js` | Modified |
+| `libraries/libbridge/src/link-resume.js` | Created |
+| `libraries/libbridge/src/server.js` | Modified |
+| `libraries/libbridge/src/index.js` | Modified (new exports) |
 | `libraries/libbridge/test/dispatcher.test.js` | Modified |
-| `libraries/libbridge/CLAUDE.md` | Modified (remove stale `historyText` from dispatch example) |
+| `libraries/libbridge/test/link-resume.test.js` | Created |
+| `libraries/libbridge/CLAUDE.md` | Modified (remove stale `historyText`, add link-resume exports) |
+
+### 6a — Dispatcher clean break
 
 **dispatcher.js** — remove `historyText` from the `dispatch()` parameter
 list, the JSDoc, and the conditional `appendHistory` call (lines 97–99).
 Remove the `appendHistory` import.
+
+**dispatcher.test.js** — remove `historyText: "hello"` from the happy-path
+test; update the assertion that checks `ctx.history` — it should now be
+empty after dispatch (history is the intake's responsibility). Remove the
+`"historyText omitted: no history is appended"` test (parameter no longer
+exists). `msbridge` already appends at intake and never passes
+`historyText`, so it is unaffected.
+
+### 6b — Author support in appendHistory
 
 **history.js** — accept optional `author` on entries:
 
@@ -327,32 +343,171 @@ export function appendHistory(history, entry, { maxEntries = 10 } = {}) {
 }
 ```
 
-**dispatcher.test.js** — remove `historyText: "hello"` from the happy-path
-test; update the assertion that checks `ctx.history` — it should now be
-empty after dispatch (history is the intake's responsibility). Remove the
-`"historyText omitted: no history is appended"` test (parameter no longer
-exists). `msbridge` already appends at intake and never passes
-`historyText`, so it is unaffected.
+### 6c — Link-resume primitives (new file)
 
-Verify: `bun test libraries/libbridge/test/dispatcher.test.js` — all
-remaining tests pass.
+**link-resume.js** — two exports, both channel-agnostic:
 
-## Step 7 — ghbridge: turn persistence, link augmentation, /api/link-complete
+`prepareLinkResume(authorizeUrl, callbackBaseUrl)` — mints an opaque
+`link_token`, augments the authorize URL with `redirect_uri` and
+`client_state`, returns `{ linkToken, augmentedUrl }`:
+
+```js
+import { randomUUID } from "node:crypto";
+import { normalizeBaseUrl } from "./callback-payload.js";
+
+export function prepareLinkResume(authorizeUrl, callbackBaseUrl) {
+  const linkToken = randomUUID();
+  const url = new URL(authorizeUrl);
+  url.searchParams.set(
+    "redirect_uri",
+    `${normalizeBaseUrl(callbackBaseUrl)}/api/link-complete`,
+  );
+  url.searchParams.set("client_state", linkToken);
+  return { linkToken, augmentedUrl: url.toString() };
+}
+```
+
+`createLinkCompleteHandler({ channel, store, dispatcher,
+buildCallbackMeta })` — factory returning a Hono GET handler, parallel to
+`createCallbackHandler`. Resolves the `PendingDispatch`, loads the
+discussion context, finds the latest user turn by the linking user's
+`author` field, re-dispatches, and renders a confirmation or error page.
+No `ackTarget` — the user is on the browser, not the channel:
+
+```js
+import { buildPrompt } from "./prompt.js";
+
+export function createLinkCompleteHandler({
+  channel,
+  store,
+  dispatcher,
+  buildCallbackMeta,
+}) {
+  return async (c) => {
+    const linkToken = c.req.query("state");
+    if (!linkToken) {
+      return c.html(
+        "<!DOCTYPE html><html><body><h1>Error</h1>" +
+          "<p>Missing state parameter.</p></body></html>",
+        400,
+      );
+    }
+
+    const target = await store.resolvePendingDispatch(linkToken);
+    if (!target) {
+      return c.html(
+        "<!DOCTYPE html><html><body><h1>Already processed</h1>" +
+          "<p>This link has already been used or has expired." +
+          "</p></body></html>",
+      );
+    }
+
+    const ctx = await store.loadByChannel(channel, target.discussion_id);
+    if (!ctx) {
+      return c.html(
+        "<!DOCTYPE html><html><body><h1>Error</h1>" +
+          "<p>Discussion not found.</p></body></html>",
+        404,
+      );
+    }
+
+    const userTurn = [...ctx.history]
+      .reverse()
+      .find(
+        (e) => e.role === "user" && e.author === target.surface_user_id,
+      );
+    if (!userTurn) {
+      return c.html(
+        "<!DOCTYPE html><html><body><h1>Error</h1>" +
+          "<p>No message found to re-dispatch.</p></body></html>",
+        404,
+      );
+    }
+
+    const result = await dispatcher.dispatch({
+      ctx,
+      prompt: buildPrompt(userTurn.text, ctx.history),
+      requester: target.surface_user_id,
+      callbackMeta: buildCallbackMeta(ctx),
+      workflowInputs: { discussionId: target.discussion_id },
+    });
+
+    if (result.kind === "dispatched") {
+      return c.html(
+        "<!DOCTYPE html><html><body><h1>Processing</h1>" +
+          "<p>Your message is being processed. " +
+          "You can close this window.</p></body></html>",
+      );
+    }
+
+    return c.html(
+      "<!DOCTYPE html><html><body><h1>Unable to dispatch</h1>" +
+        "<p>Your account could not be verified. Please try " +
+        "linking again from the conversation.</p></body></html>",
+    );
+  };
+}
+```
+
+### 6d — createBridgeServer: mount link-complete route
+
+**server.js** — add optional `onLinkComplete` parameter. When provided,
+mount `GET /api/link-complete` with the same error-wrapping pattern as the
+existing webhook and callback routes:
+
+```js
+if (onLinkComplete) {
+  app.get("/api/link-complete", async (c) => {
+    try {
+      return await onLinkComplete(c);
+    } catch (err) {
+      logger.error("bridge.link-complete", err);
+      return c.json({ error: "Link completion failure" }, 500);
+    }
+  });
+}
+```
+
+### 6e — DiscussionAdapter typedef and exports
+
+**index.js** — extend the `DiscussionAdapter` typedef with two optional
+methods:
+
+```js
+ * @property {(target: object) => Promise<void>} [putPendingDispatch]
+ * @property {(linkToken: string) => Promise<object|null>} [resolvePendingDispatch]
+```
+
+Add new exports:
+
+```js
+export { prepareLinkResume, createLinkCompleteHandler } from "./link-resume.js";
+```
+
+**CLAUDE.md** — remove `historyText` from the dispatch example; add
+`prepareLinkResume` and `createLinkCompleteHandler` to the "What lives
+where" table.
+
+Verify: `bun test libraries/libbridge/test/` — all tests pass, including
+new `link-resume.test.js` covering `prepareLinkResume` (URL augmentation,
+unique token) and `createLinkCompleteHandler` (dispatched → "Processing",
+no binding → "Unable to dispatch", consumed token → "Already processed",
+multi-party → correct turn, missing state → 400).
+
+## Step 7 — ghbridge: turn persistence and thin link-resume wiring
 
 Intent: both intake paths persist the user turn (with author) before
-dispatch; `link_required` outcomes stash a `PendingDispatch` and augment
-the authorize URL; a new endpoint completes the resume. Depends on Step 4
-(oauth forwards `client_state` extracted from the augmented authorize URL),
-Step 5 (bridge stores pending dispatches), and Step 6 (Dispatcher no
-longer accepts `historyText`).
+dispatch; `link_required` outcomes delegate to `prepareLinkResume`
+(libbridge) and a thin channel-specific post. The `/api/link-complete`
+endpoint is wired via `createLinkCompleteHandler` + `createBridgeServer`.
+Depends on Steps 4, 5, and 6.
 
 | File | Action |
 |---|---|
 | `services/ghbridge/index.js` | Modified |
 | `services/ghbridge/src/discussion-adapter.js` | Modified |
-| `services/ghbridge/test/helpers.js` | Modified (add `PutPendingDispatch`/`ResolvePendingDispatch` stubs to `createStatefulDiscussionClient`) |
+| `services/ghbridge/test/helpers.js` | Modified (add `PutPendingDispatch`/`ResolvePendingDispatch` stubs) |
 | `services/ghbridge/test/dispatch-auth.test.js` | Modified |
-| `services/ghbridge/test/link-complete.test.js` | Created |
 
 ### 7a — DiscussionAdapter: add pending-dispatch methods
 
@@ -403,21 +558,23 @@ existing `appendHistory` call. Move `await this.#store.add(ctx)` before the
 any bookkeeping. Keep the final `store.add(ctx)` at line 344 (captures
 dispatch-result state).
 
-### 7c — Link augmentation on link_required
+### 7c — Thin #stashAndPostLink
 
-Add a new `#stashAndPostLink` method. Both intake paths call it when
-dispatch returns `link_required` (instead of calling `#renderDeclined`).
+Both intake paths call `#stashAndPostLink` when dispatch returns
+`link_required` (instead of calling `#renderDeclined`).
 
 The `link_required` case stays in `#renderDeclined` — it is still needed by
 the `ResumeScheduler.onDeclined` callback (`index.js:127`), which fires
 when a resumed dispatch returns `link_required` (e.g., binding revoked
 between recess and elapsed-timer fire). That path posts the bare authorize
-URL without augmentation, since there is no specific user turn to stash for
-a resume-initiated re-dispatch.
+URL without augmentation.
 
 ```js
 async #stashAndPostLink(ctx, result, requester) {
-  const linkToken = crypto.randomUUID();
+  const { linkToken, augmentedUrl } = prepareLinkResume(
+    result.authorizeUrl,
+    this.#config.callback_base_url,
+  );
 
   await this.#store.putPendingDispatch({
     link_token: linkToken,
@@ -427,12 +584,7 @@ async #stashAndPostLink(ctx, result, requester) {
     created_at: Date.now(),
   });
 
-  const url = new URL(result.authorizeUrl);
-  const callbackBase = normalizeBaseUrl(this.#config.callback_base_url);
-  url.searchParams.set("redirect_uri", `${callbackBase}/api/link-complete`);
-  url.searchParams.set("client_state", linkToken);
-
-  const body = `To dispatch, link your GitHub account: ${url}`;
+  const body = `To dispatch, link your GitHub account: ${augmentedUrl}`;
   const recordOrigin = async (comment) => {
     await this.#client.RecordOrigin(
       bridge.Origin.fromObject({
@@ -448,134 +600,63 @@ async #stashAndPostLink(ctx, result, requester) {
 }
 ```
 
-Add `import crypto from "node:crypto";` at the top of the file.
+Add `import { prepareLinkResume, createLinkCompleteHandler } from
+"@forwardimpact/libbridge";` to the imports.
 
-The augmented authorize URL includes `redirect_uri` and `client_state` as
-query params. When the user completes OAuth, `ghauth.Complete` creates a
-downstream grant (because `flow.redirect_uri` is set) whose code is
-included in the redirect to `/api/link-complete`. The link-complete handler
-does not redeem this code — the `GetToken` gate during re-dispatch is the
-proof of completion. The orphaned grant expires via the grants store TTL;
-this is acceptable overhead from reusing the existing redirect plumbing.
+### 7d — Wire createBridgeServer with onLinkComplete
 
-### 7d — `/api/link-complete` endpoint
-
-Mount a GET route on the bridge app in the constructor, after
-`createBridgeServer`:
+In the constructor, create the handler and pass it to `createBridgeServer`:
 
 ```js
-this.#bridge.app.get("/api/link-complete", (c) =>
-  this.#handleLinkComplete(c),
-);
+const onLinkComplete = createLinkCompleteHandler({
+  channel: CHANNEL,
+  store: this.#store,
+  dispatcher: this.#dispatcher,
+  buildCallbackMeta: (ctx) => ({ discussionId: ctx.discussion_id }),
+});
+
+this.#bridge = createBridgeServer({
+  config, logger, tracer,
+  webhookPath: WEBHOOK_PATH,
+  onWebhook: (c) => this.#handleWebhook(c),
+  onCallback: (c) => this.#onCallback(c),
+  onLinkComplete,
+});
 ```
 
-Handler. No `ackTarget` is passed on re-dispatch — the user is on the
-browser confirmation page, not watching the discussion thread for a
-reaction:
-
-```js
-async #handleLinkComplete(c) {
-  const linkToken = c.req.query("state");
-  if (!linkToken) {
-    return c.html(
-      "<!DOCTYPE html><html><body><h1>Error</h1>" +
-        "<p>Missing state parameter.</p></body></html>",
-      400,
-    );
-  }
-
-  const target = await this.#store.resolvePendingDispatch(linkToken);
-  if (!target) {
-    return c.html(
-      "<!DOCTYPE html><html><body><h1>Already processed</h1>" +
-        "<p>This link has already been used or has expired." +
-        "</p></body></html>",
-    );
-  }
-
-  const ctx = await this.#store.loadByChannel(CHANNEL, target.discussion_id);
-  if (!ctx) {
-    return c.html(
-      "<!DOCTYPE html><html><body><h1>Error</h1>" +
-        "<p>Discussion not found.</p></body></html>",
-      404,
-    );
-  }
-
-  const userTurn = [...ctx.history]
-    .reverse()
-    .find(
-      (e) => e.role === "user" && e.author === target.surface_user_id,
-    );
-  if (!userTurn) {
-    return c.html(
-      "<!DOCTYPE html><html><body><h1>Error</h1>" +
-        "<p>No message found to re-dispatch.</p></body></html>",
-      404,
-    );
-  }
-
-  const result = await this.#dispatcher.dispatch({
-    ctx,
-    prompt: buildPrompt(userTurn.text, ctx.history),
-    requester: target.surface_user_id,
-    callbackMeta: { discussionId: target.discussion_id },
-    workflowInputs: { discussionId: target.discussion_id },
-  });
-
-  if (result.kind === "dispatched") {
-    return c.html(
-      "<!DOCTYPE html><html><body><h1>Processing</h1>" +
-        "<p>Your message is being processed. " +
-        "You can close this window.</p></body></html>",
-    );
-  }
-
-  return c.html(
-    "<!DOCTYPE html><html><body><h1>Unable to dispatch</h1>" +
-      "<p>Your account could not be verified. Please try " +
-      "linking again from the discussion.</p></body></html>",
-  );
-}
-```
+The orphaned downstream grant (created by `Complete` because
+`flow.redirect_uri` is set) expires via the grants store TTL; this is
+acceptable overhead from reusing the existing redirect plumbing.
 
 ### 7e — Tests
 
 **helpers.js** — extend `createStatefulDiscussionClient` with
-`PutPendingDispatch` (stores in a local map) and
-`ResolvePendingDispatch` (consume-and-return from the map, throw NOT_FOUND
-if absent). Both tests (`dispatch-auth.test.js` and `link-complete.test.js`)
-share this fixture.
+`PutPendingDispatch` / `ResolvePendingDispatch` stubs.
 
 **dispatch-auth.test.js** — update the `link_required` test: the posted
 comment now contains augmented URL params (`redirect_uri`, `client_state`),
 not the bare authorize URL.
 
-**link-complete.test.js** (new) — exercises the full resume round-trip:
+Integration tests for the link-complete handler live in
+`libraries/libbridge/test/link-resume.test.js` (Step 6). Bridge-level
+tests verify that the ghbridge intake paths persist turns before stashing
+and post the augmented URL:
 
 | Case | Spec criterion | Assertion |
 |---|---|---|
-| Valid link_token, binding exists | SC 5 (completing link causes dispatch) | dispatch fires, renders "Processing" page |
-| Valid link_token, no binding | — | dispatch returns link_required, renders "Unable to dispatch" |
-| Unknown/consumed link_token | SC 7 (tamper-resistance) | renders "Already processed" |
-| Missing `state` param | SC 7 (tamper-resistance) | 400 |
-| Multi-party thread: two users posted | SC 8 (correct turn attribution) | re-dispatches the linking user's turn, not the other's |
-| Altered `state` param (wrong token) | SC 7 (tamper-resistance) | renders "Already processed" (server-held target wins) |
-| Discussion-created then link_required | SC 3 (first-message canonical store) | after link is posted, the user turn is present in the discussion store |
-| Comment then link_required | SC 4 (comment-path canonical store) | after link is posted, the user turn is present in the discussion store |
-| Inspect PendingDispatch record | SC 6 (no message body) | record contains `link_token`, `surface`, `surface_user_id`, `discussion_id`, `created_at` only — no `text` or `body` field |
+| Discussion-created then link_required | SC 3 (canonical store) | user turn in store before pending stash |
+| Comment then link_required | SC 4 (canonical store) | user turn in store before pending stash |
+| Inspect PendingDispatch record | SC 6 (no message body) | record has no `text` or `body` field |
 
 Verify: `bun test services/ghbridge/test/` — all tests pass.
 
-## Step 8 — msbridge: resume parity
+## Step 8 — msbridge: resume parity (symmetric with Step 7)
 
-Intent: msbridge gets the same resume flow as ghbridge — turn persistence
-with author, pending-dispatch stash on `link_required`, and a
-`/api/link-complete` endpoint. The handler logic is identical to ghbridge's;
-the only channel-specific difference is that `#stashAndPostLink` uses
-`sendReply` (Bot Framework) instead of `postSingleDiscussionReply`
-(GraphQL). Depends on Steps 5 (PendingDispatch store) and 6 (Dispatcher
-clean break).
+Intent: msbridge gets the same resume flow as ghbridge. The structure
+mirrors Step 7 exactly — identical DiscussionAdapter methods, same
+`prepareLinkResume` + `createLinkCompleteHandler` wiring from libbridge.
+The only channel-specific code is in `#stashAndPostLink` (one `sendReply`
+call). Depends on Steps 5 and 6.
 
 | File | Action |
 |---|---|
@@ -583,62 +664,46 @@ clean break).
 | `services/msbridge/src/discussion-adapter.js` | Modified |
 | `services/msbridge/test/helpers.js` | Modified |
 | `services/msbridge/test/dispatch-auth.test.js` | Modified |
-| `services/msbridge/test/link-complete.test.js` | Created |
 
 ### 8a — DiscussionAdapter: add pending-dispatch methods
 
-Add `putPendingDispatch(target)` and `resolvePendingDispatch(linkToken)` to
-msbridge's `DiscussionAdapter`. Identical to ghbridge's (Step 7a) — same
-`isNotFound` pattern, same bridge RPC wrappers.
+Identical to ghbridge (Step 7a) — same two methods, same `isNotFound`
+pattern, same bridge RPC wrappers. The code is the same because both
+adapters wrap the same `BridgeClient`.
 
 ### 8b — Turn persistence with author
 
 **`#handleNewMessage` (line 219)** — add `author: requester` to the
-existing `appendHistory` call:
+existing `appendHistory` call. Add `await this.#store.add(ctx)` before the
+dispatch attempt to ensure the turn reaches the canonical store before any
+pending-dispatch bookkeeping on the `link_required` path. msbridge has a
+single intake path (no discussion-created / comment split), so one
+insertion point satisfies the invariant:
 
 ```js
 appendHistory(ctx.history, { role: "user", text, author: requester });
-```
-
-Move `await this.#store.add(ctx)` before the `processInbound` call
-(currently at lines 223–224 inside the `!freshDispatchAllowed` branch) to
-ensure the turn reaches the canonical store before any bookkeeping on
-every code path, not just the non-dispatch path:
-
-```js
-appendHistory(ctx.history, { role: "user", text, author: requester });
-
-const { freshDispatchAllowed } = await this.#resume.processInbound(ctx);
-if (!freshDispatchAllowed) {
-  await this.#store.add(ctx);
-  await this.#store.flush();
-  span.setOk();
-  return;
-}
-```
-
-Wait — msbridge currently persists only on the `!freshDispatchAllowed`
-early return. On the dispatch path, the dispatcher itself calls
-`store.add(ctx)` + `store.flush()` on success. For the resume invariant,
-the turn must be persisted **before** the pending-dispatch stash
-(link_required path). Add `await this.#store.add(ctx)` before the dispatch
-call:
-
-```js
+ctx.last_active_at = Date.now();
 await this.#store.add(ctx);
 
-const limit = this.#rateLimiter.check(threadId, ctx.dispatches);
-// ... rate limit, dispatch, etc.
+const { freshDispatchAllowed } = await this.#resume.processInbound(ctx);
 ```
 
-### 8c — Link augmentation on link_required
+Keep the existing `store.add(ctx)` + `store.flush()` in the
+`!freshDispatchAllowed` early return and after dispatch (captures
+dispatch-result state).
 
-Add a `#stashAndPostLink` method mirroring ghbridge's (Step 7c), using
-`sendReply` instead of `postSingleDiscussionReply`:
+### 8c — Thin #stashAndPostLink
+
+Same pattern as ghbridge (Step 7c) — `prepareLinkResume` from libbridge
+handles token minting and URL augmentation. The only channel-specific line
+is the `sendReply` call:
 
 ```js
 async #stashAndPostLink(ctx, result, requester) {
-  const linkToken = crypto.randomUUID();
+  const { linkToken, augmentedUrl } = prepareLinkResume(
+    result.authorizeUrl,
+    this.#config.callback_base_url,
+  );
 
   await this.#store.putPendingDispatch({
     link_token: linkToken,
@@ -648,78 +713,73 @@ async #stashAndPostLink(ctx, result, requester) {
     created_at: Date.now(),
   });
 
-  const url = new URL(result.authorizeUrl);
-  const callbackBase = normalizeBaseUrl(this.#config.callback_base_url);
-  url.searchParams.set("redirect_uri", `${callbackBase}/api/link-complete`);
-  url.searchParams.set("client_state", linkToken);
-
   const ref = ctx.participants?.[0]?.metadata;
   if (ref) {
     await sendReply(
       this.#adapter,
       this.#msAppId,
       ref,
-      `To dispatch, link your GitHub account: ${url}`,
+      `To dispatch, link your GitHub account: ${augmentedUrl}`,
     );
   }
 }
 ```
 
-Add `import crypto from "node:crypto";` at the top of the file.
+Add `import { prepareLinkResume, createLinkCompleteHandler } from
+"@forwardimpact/libbridge";` to the imports. Store `this.#config = config`
+in the constructor (`callback_base_url` is needed by `prepareLinkResume`).
 
-In `#handleNewMessage`, when dispatch returns `link_required`, call
-`#stashAndPostLink` instead of `#renderDeclined`. Keep `link_required`
-in `#renderDeclined` for the `ResumeScheduler.onDeclined` callback (same
-reasoning as ghbridge Step 7c).
+In `#handleNewMessage`, call `#stashAndPostLink` on `link_required` instead
+of `#renderDeclined`. Keep `link_required` in `#renderDeclined` for the
+`ResumeScheduler.onDeclined` callback (same reasoning as Step 7c).
 
-### 8d — `/api/link-complete` endpoint
+### 8d — Wire createBridgeServer with onLinkComplete
 
-Mount a GET route on the bridge app in the constructor, after
-`createBridgeServer`:
+Identical wiring to ghbridge (Step 7d), with `buildCallbackMeta` using
+`threadId` (msbridge's convention):
 
 ```js
-this.#bridge.app.get("/api/link-complete", (c) =>
-  this.#handleLinkComplete(c),
-);
+const onLinkComplete = createLinkCompleteHandler({
+  channel: CHANNEL,
+  store: this.#store,
+  dispatcher: this.#dispatcher,
+  buildCallbackMeta: (ctx) => ({ threadId: ctx.discussion_id }),
+});
+
+this.#bridge = createBridgeServer({
+  config, logger, tracer,
+  webhookPath: WEBHOOK_PATH,
+  onWebhook: botFrameworkIntake(...),
+  onCallback: (c) => this.#onCallback(c),
+  onLinkComplete,
+});
 ```
-
-The handler is identical to ghbridge's (Step 7d) — resolve
-`PendingDispatch` by link token, load discussion context, find latest user
-turn by author, re-dispatch, render confirmation page. No `ackTarget` (user
-is on the browser). No channel SDK involved.
-
-Store the `config` reference as `this.#config = config` in the constructor
-(currently only `this.#msAppId` is stored from config; `callback_base_url`
-is needed for `normalizeBaseUrl` in `#stashAndPostLink`).
 
 ### 8e — Tests
 
-**helpers.js** — extend msbridge's `createStatefulDiscussionClient` with
-`PutPendingDispatch` / `ResolvePendingDispatch` stubs (same pattern as
-ghbridge Step 7e).
+**helpers.js** — extend `createStatefulDiscussionClient` with
+`PutPendingDispatch` / `ResolvePendingDispatch` stubs.
 
 **dispatch-auth.test.js** — update the `link_required` test: the reply
 now contains the augmented URL.
 
-**link-complete.test.js** (new) — same test matrix as ghbridge's
-(Step 7e), adapted for Bot Framework mocks instead of GraphQL:
+Bridge-level tests verify turn persistence and URL augmentation; the
+link-complete handler is tested in `libbridge/test/link-resume.test.js`
+(Step 6):
 
-| Case | Assertion |
-|---|---|
-| Valid link_token, binding exists | dispatch fires, renders "Processing" page |
-| Valid link_token, no binding | renders "Unable to dispatch" |
-| Unknown/consumed link_token | renders "Already processed" |
-| Missing `state` param | 400 |
-| New message then link_required | user turn present in discussion store before pending stash |
-| Inspect PendingDispatch record | no message body in record |
+| Case | Spec criterion | Assertion |
+|---|---|---|
+| New message then link_required | SC 3 (canonical store) | user turn in store before pending stash |
+| Inspect PendingDispatch record | SC 6 (no message body) | record has no `text` or `body` field |
 
 Verify: `bun test services/msbridge/test/` — all tests pass.
 
 ## Libraries used
 
 `@forwardimpact/libbridge` (appendHistory, Dispatcher, buildPrompt,
-normalizeBaseUrl, createBridgeServer), `@forwardimpact/libtype` (bridge,
-ghauth typed message constructors).
+normalizeBaseUrl, createBridgeServer, prepareLinkResume,
+createLinkCompleteHandler), `@forwardimpact/libtype` (bridge, ghauth typed
+message constructors).
 
 ## Risks
 
