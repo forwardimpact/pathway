@@ -11,6 +11,7 @@
   },
   "comment": {
     "html_url": "https://github.com/acme/repo/pull/99#issuecomment-2",
-    "user": { "login": "carol", "type": "Bot" }
+    "user": { "login": "carol", "type": "Bot" },
+    "body": "CI failed: 2 lint errors in libeval."
   }
 }
