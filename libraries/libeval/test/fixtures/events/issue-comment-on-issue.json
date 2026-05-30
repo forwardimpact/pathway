@@ -8,6 +8,7 @@
   },
   "comment": {
     "html_url": "https://github.com/acme/repo/issues/42#issuecomment-1",
-    "user": { "login": "carol", "type": "User" }
+    "user": { "login": "carol", "type": "User" },
+    "body": "Repros only on windows-latest. @staff-engineer please check the retry logic."
   }
 }
