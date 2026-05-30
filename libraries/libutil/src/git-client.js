@@ -139,12 +139,15 @@ export class GitClient {
   }
 
   async #runRaw(args, { cwd, allowFailure = false } = {}) {
-    const env = this.#token
-      ? { ...this.#runtime.proc.env, GIT_ASKPASS_TOKEN: this.#token }
-      : this.#runtime.proc.env;
-    const result = await this.#runtime.subprocess.run("git", args, {
+    // Authenticate over HTTPS by injecting a per-invocation bearer header via
+    // git's `-c` config (the standard token mechanism; `git -c http.extraHeader`
+    // must precede the subcommand). No-op when the client carries no token.
+    const fullArgs = this.#token
+      ? ["-c", `http.extraHeader=AUTHORIZATION: bearer ${this.#token}`, ...args]
+      : args;
+    const result = await this.#runtime.subprocess.run("git", fullArgs, {
       cwd,
-      env,
+      env: this.#runtime.proc.env,
     });
     if (!allowFailure && result.exitCode !== 0) {
       throw new GitError(args.join(" "), result);

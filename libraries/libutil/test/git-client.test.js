@@ -71,12 +71,20 @@ describe("GitClient", () => {
     );
   });
 
-  test("withAuth threads the token into the git env", async () => {
+  test("withAuth injects a bearer http.extraHeader before the subcommand", async () => {
     const { client, subprocess } = clientWith();
     await client.withAuth("secret").fetch("origin", undefined, { cwd: "/r" });
-    assert.strictEqual(
-      subprocess.calls.at(-1).opts.env.GIT_ASKPASS_TOKEN,
-      "secret",
-    );
+    const args = subprocess.calls.at(-1).args;
+    assert.deepStrictEqual(args.slice(0, 3), [
+      "-c",
+      "http.extraHeader=AUTHORIZATION: bearer secret",
+      "fetch",
+    ]);
+  });
+
+  test("an unauthenticated client passes no -c header", async () => {
+    const { client, subprocess } = clientWith();
+    await client.fetch("origin", undefined, { cwd: "/r" });
+    assert.strictEqual(subprocess.calls.at(-1).args[0], "fetch");
   });
 });

@@ -92,6 +92,20 @@ describe("createDefaultClock / createDefaultSubprocess", () => {
     assert.strictEqual(result.stdout, "hi");
     assert.strictEqual(result.exitCode, 0);
   });
+
+  test("subprocess.run reports a numeric non-zero exit on a normal failure", async () => {
+    const sub = createDefaultSubprocess();
+    const result = await sub.run("node", ["-e", "process.exit(3)"]);
+    assert.strictEqual(result.exitCode, 3);
+    assert.strictEqual(typeof result.exitCode, "number");
+  });
+
+  test("subprocess.run returns a numeric exit code on spawn failure (ENOENT)", async () => {
+    const sub = createDefaultSubprocess();
+    const result = await sub.run("definitely-not-a-real-binary-xyz", []);
+    assert.strictEqual(typeof result.exitCode, "number");
+    assert.notStrictEqual(result.exitCode, 0);
+  });
 });
 
 describe("createTestRuntime parity", () => {

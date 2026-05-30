@@ -137,7 +137,11 @@ export function createDefaultSubprocess() {
           resolve({
             stdout: stdout ?? "",
             stderr: stderr ?? "",
-            exitCode: err?.code ?? 0,
+            // Always numeric: child code on normal exit, 128 for a signal-kill
+            // (err.code null, err.signal set), 127 for a spawn failure
+            // (err.code is a string like "ENOENT").
+            exitCode: normalizeExitCode(err),
+            signal: err?.signal ?? null,
           });
         },
       );
@@ -158,10 +162,23 @@ export function createDefaultSubprocess() {
   return { run, spawn };
 }
 
+/**
+ * Map an `execFile` error to a numeric exit code.
+ * @param {Error & {code?: number|string, signal?: string}} [err]
+ * @returns {number}
+ */
+function normalizeExitCode(err) {
+  if (!err) return 0;
+  if (typeof err.code === "number") return err.code;
+  if (err.signal) return 128;
+  return 127;
+}
+
 function emptyAsyncIterable() {
   return {
-    // eslint-disable-next-line require-yield
-    async *[Symbol.asyncIterator]() {},
+    [Symbol.asyncIterator]() {
+      return { next: async () => ({ done: true, value: undefined }) };
+    },
   };
 }
 

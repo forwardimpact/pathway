@@ -67,4 +67,17 @@ describe("Runtime completeness", () => {
     const rt = libmock.createTestRuntime({ clock: sentinel });
     assert.strictEqual(rt.clock, sentinel);
   });
+
+  // SC7 covers every declared collaborator surface, not only the runtime-bag
+  // fields — the typed clients (GitClient/GhClient) documented in the README
+  // Collaborators section must also have exported fakes.
+  test("declared non-bag collaborator surfaces have exported fakes", () => {
+    for (const factory of ["createMockGitClient", "createMockGhClient"]) {
+      assert.strictEqual(
+        typeof libmock[factory],
+        "function",
+        `libmock must export ${factory}`,
+      );
+    }
+  });
 });

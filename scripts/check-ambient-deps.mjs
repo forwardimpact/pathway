@@ -33,16 +33,43 @@ const FS_MODULES = new Set([
 ]);
 const CHILD_PROCESS_MODULES = new Set(["child_process", "node:child_process"]);
 
-const ALLOW = loadJson("check-ambient-deps.allow.json");
-const DENY = new Set(loadJson("check-ambient-deps.deny.json"));
+const ALLOW = loadJson("check-ambient-deps.allow.json", { globs: [] });
+// DENY maps a grandfathered path to the exact smells it is allowed to carry.
+// A deny-listed file that accrues a NEW smell (one not in its list) still
+// fails — this preserves the per-smell granularity of design Decision 9.
+const DENY = loadJson("check-ambient-deps.deny.json", {});
 
-function loadJson(name) {
-  const fallback = name.includes("allow") ? { globs: [] } : [];
+function loadJson(name, fallback) {
   const p = join(ROOT, "scripts", name);
   if (!existsSync(p)) return fallback;
   const text = readFileSync(p, "utf8").trim();
   if (text === "") return fallback;
   return JSON.parse(text);
+}
+
+/**
+ * Given the detected violators and the deny map, return the smells that should
+ * fail the check per file: every smell of a non-grandfathered file, plus any
+ * smell a grandfathered file accrued beyond its allowed set. `fs-and-fssync`
+ * is a new-code rule that fails even for grandfathered files.
+ * @param {Array<{file: string, smells: string[]}>} violators
+ * @param {Record<string, string[]>} deny - path → allowed smells.
+ * @returns {Array<{file: string, smells: string[], grandfathered: boolean}>}
+ */
+function offendersAgainstDeny(violators, deny) {
+  const out = [];
+  for (const v of violators) {
+    const allowed = deny[v.file];
+    const grandfathered = Array.isArray(allowed);
+    const flagged = new Set(
+      grandfathered ? v.smells.filter((s) => !allowed.includes(s)) : v.smells,
+    );
+    if (v.smells.includes("fs-and-fssync")) flagged.add("fs-and-fssync");
+    if (flagged.size > 0) {
+      out.push({ file: v.file, smells: [...flagged].sort(), grandfathered });
+    }
+  }
+  return out;
 }
 
 function collectSrcFiles(dir) {
@@ -227,39 +254,26 @@ function main() {
   }
 
   if (seedMode) {
-    process.stdout.write(
-      `${JSON.stringify(
-        violators.map((v) => v.file),
-        null,
-        2,
-      )}\n`,
-    );
+    const map = {};
+    for (const v of violators) map[v.file] = v.smells;
+    process.stdout.write(`${JSON.stringify(map, null, 2)}\n`);
     return;
   }
 
-  const offenders = violators.filter((v) => !DENY.has(v.file));
-  // `fs-and-fssync` is a new-code rule: it fires even for grandfathered files.
-  const denyButFsBoth = violators.filter(
-    (v) => DENY.has(v.file) && v.smells.includes("fs-and-fssync"),
-  );
-
-  if (offenders.length === 0 && denyButFsBoth.length === 0) {
-    return;
-  }
+  const offenders = offendersAgainstDeny(violators, DENY);
+  if (offenders.length === 0) return;
   for (const v of offenders) {
+    const where = v.grandfathered
+      ? "grandfathered file accrued a new ambient smell"
+      : "uses ambient deps";
     console.error(
-      `error: ${v.file} uses ambient deps [${v.smells.join(", ")}] — destructure the runtime bag or add to the deny-list during migration`,
-    );
-  }
-  for (const v of denyButFsBoth) {
-    console.error(
-      `error: ${v.file} destructures both fs and fsSync — pick one surface (design Decision 7)`,
+      `error: ${v.file} ${where} [${v.smells.join(", ")}] — destructure the runtime bag, or grandfather it in check-ambient-deps.deny.json during migration`,
     );
   }
   process.exitCode = 1;
 }
 
-export { smellsInSource };
+export { smellsInSource, offendersAgainstDeny };
 
 if (resolve(process.argv[1] ?? "") === fileURLToPath(import.meta.url)) {
   main();

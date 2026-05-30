@@ -8,7 +8,6 @@
     "libraries/libutil/src/git-client.js",
     "libraries/libutil/src/gh-client.js",
     "libraries/libcli/src/**",
-    "libraries/libmock/src/**",
-    "scripts/**"
+    "libraries/libmock/src/**"
   ]
 }
