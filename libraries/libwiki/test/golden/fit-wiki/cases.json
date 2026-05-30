@@ -151,5 +151,41 @@
     "stdoutFile": "unknown.stdout.txt",
     "stderrFile": "unknown.stderr.txt",
     "transform": []
+  },
+  {
+    "name": "boot --format json (fixture wiki)",
+    "args": [
+      "boot",
+      "--agent",
+      "staff-engineer",
+      "--format",
+      "json",
+      "--today",
+      "2026-05-30",
+      "--wiki-root",
+      "test/golden/fit-wiki/fixture"
+    ],
+    "env": {},
+    "exitCode": 0,
+    "stdoutFile": "boot-json.stdout.txt",
+    "stderrFile": "boot-json.stderr.txt",
+    "transform": []
+  },
+  {
+    "name": "audit --format json (clean fixture wiki)",
+    "args": [
+      "audit",
+      "--format",
+      "json",
+      "--today",
+      "2026-05-30",
+      "--wiki-root",
+      "test/golden/fit-wiki/fixture"
+    ],
+    "env": {},
+    "exitCode": 0,
+    "stdoutFile": "audit-json.stdout.txt",
+    "stderrFile": "audit-json.stderr.txt",
+    "transform": []
   }
 ]

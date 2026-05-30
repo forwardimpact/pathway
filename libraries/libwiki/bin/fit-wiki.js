@@ -2,7 +2,6 @@
 
 import "@forwardimpact/libpreflight/node22";
 
-import { readFileSync } from "node:fs";
 import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 import { GitClient } from "@forwardimpact/libutil/git-client";
 import { createScriptConfig } from "@forwardimpact/libconfig";
@@ -18,7 +17,10 @@ const NEEDS_WIKI_SYNC = new Set(["claim", "release", "push", "pull", "init"]);
 async function main() {
   const runtime = createDefaultRuntime();
   const { version } = JSON.parse(
-    readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+    runtime.fsSync.readFileSync(
+      new URL("../package.json", import.meta.url),
+      "utf8",
+    ),
   );
   const definition = createDefinition(runtime.proc.env, version);
   const cli = createCli(definition, { runtime });
