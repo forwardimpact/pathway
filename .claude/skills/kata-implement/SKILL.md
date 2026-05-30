@@ -45,8 +45,7 @@ apply alongside the skill-specific ones below.
 
 <do_confirm_checklist goal="Confirm implementation is complete before pushing">
 
-- [ ] `bun run check` passes (format and lint).
-- [ ] `bun run test` passes (unit tests).
+- [ ] `bun run check` and `bun run test` pass.
 - [ ] Spec-specific verification commands from the plan pass.
 - [ ] Full diff reviewed against the spec's success criteria — every criterion
       met.
@@ -54,7 +53,6 @@ apply alongside the skill-specific ones below.
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias, panel size per caller protocol) and every **blocker**,
       **high**, and **medium** finding addressed.
-- [ ] PR title references the spec id (e.g. `feat(scope): ... (#NNN)`).
 
 </do_confirm_checklist>
 
@@ -156,7 +154,10 @@ protocol](../kata-review/references/caller-protocol.md). Tell each reviewer not
 to invoke `kata-implement`. Address every confirmed blocker/high/medium finding
 before advancing.
 
-Push all commits to the remote branch only after the panel review is clean.
+### Step 8: Open an implementation PR
+
+Push all commits to the remote branch only after the panel review is clean. The
+PR title references the spec id: `feat(scope): ... (#NNN)`.
 
 ## Handling Problems
 

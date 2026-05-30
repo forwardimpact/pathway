@@ -47,14 +47,7 @@ there is no architectural direction to translate into implementation steps.
 
 <do_confirm_checklist goal="Verify plan quality before recommending approval">
 
-- [ ] One-paragraph approach, no per-step rationale — more belongs in the design.
-- [ ] Changes are concrete — exact file paths, functions, before/after.
-- [ ] Blast radius visible — created, modified, and deleted files clear.
-- [ ] Ordering explicit with stated dependencies.
-- [ ] Clean break unless the design (and spec) explicitly required backward compatibility.
-- [ ] Risks list only items the implementer cannot see from the plan itself.
-- [ ] Libraries used is one line (packages + exports, or `none`).
-- [ ] Execution recommendation present (which agents, sequential vs parallel).
+- [ ] Plan meets the criteria in § Writing a Plan.
 - [ ] Clean sub-agent review panel of `plan-a.md` (and any parts) via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias, panel size per caller protocol) and every **blocker**,

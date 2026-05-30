@@ -48,13 +48,7 @@ asked for. If they ask for a spec, write the spec and stop.
 
 <do_confirm_checklist goal="Verify spec quality before recommending approval">
 
-- [ ] Problem is stated first, backed by evidence (errors, metrics, examples).
-- [ ] Scope names specific files, APIs, or entities — and states what is
-      excluded.
-- [ ] Success criteria are verifiable (a command, observable behaviour, or
-      testable property).
-- [ ] No implementation details have leaked in (HOW belongs in the plan) —
-      including `file:line` citations in Problem evidence.
+- [ ] Spec meets the criteria in § Writing a Spec.
 - [ ] Clean sub-agent review panel of `spec.md` via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias, panel size per caller protocol) and every **blocker**,
@@ -128,6 +122,10 @@ findings, not to gate the approval signal.
 If criteria fall short, request changes via PR comment.
 
 ## Process
+
+### Step 0: Read Memory
+
+Read `wiki/MEMORY.md` then run `Bash: fit-wiki boot` (per [Memory Protocol § On-Boot Read Set](https://github.com/forwardimpact/monorepo/blob/main/.claude/agents/references/memory-protocol.md#on-boot-read-set)). The boot digest's `owned_priorities`, `claims`, and (when this skill reads Tier-2 surfaces) `storyboard_items` seed the rest of this skill's Process. Extract specs previously written and any deferred work from prior entries.
 
 ### Step 1: Claim the spec number
 

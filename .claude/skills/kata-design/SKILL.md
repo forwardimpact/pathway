@@ -49,23 +49,12 @@ is no commitment to implement, and a design has nothing to shape.
 
 <do_confirm_checklist goal="Verify design quality before recommending approval">
 
-- [ ] Components, interfaces, and data flow stated — Mermaid where it clarifies.
-- [ ] Each key decision names a rejected alternative and why.
-- [ ] Stays within spec scope at the architectural level — names components,
-      interfaces, and data structures but not file-level changes, execution
-      ordering, or implementation steps (plan scope).
-- [ ] Clean break unless the spec explicitly required backward compatibility.
-- [ ] Under 200 lines total.
+- [ ] Under 200 lines.
+- [ ] Design meets the criteria in § Writing a Design.
+- [ ] `bun run format:fix` run and changes committed.
 - [ ] Clean sub-agent review panel of `design-a.md` via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, panel
       size per caller protocol) and every blocker/high/medium finding addressed.
-- [ ] Run `bun run format:fix` before pushing — commit any formatter changes.
-- [ ] Grep `design-a.md` against breaking renames on `main` since divergence —
-      `git log origin/main --since '14 days ago' --grep '^feat!:\|^fix!:'`
-      lists them; update renamed identifiers before push.
-- [ ] After push, verify the design landed on origin —
-      `git ls-tree origin/<branch> -- specs/<NNN-slug>/design-a.md` returns a
-      blob. Empty output means a phantom write; re-push and re-verify.
 
 </do_confirm_checklist>
 
@@ -174,6 +163,13 @@ Address every confirmed blocker/high/medium finding before opening the PR —
 the PR should not become visible to `kata-dispatch` until the panel is clean.
 
 ### Step 6: Open a design PR
+
+Before pushing, grep `design-a.md` against breaking renames on `main` since
+divergence — `git log origin/main --since '14 days ago' --grep '^feat!:\|^fix!:'`
+lists them; update renamed identifiers before push. After push, verify the
+design landed on origin —
+`git ls-tree origin/<branch> -- specs/<NNN-slug>/design-a.md` returns a blob;
+empty output means a phantom write — re-push and re-verify.
 
 The PR title carries the spec id: `design(NNN): …`. Do not apply the
 `design:approved` label and do not recommend approval — those are human-only
