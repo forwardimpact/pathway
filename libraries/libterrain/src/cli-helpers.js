@@ -105,10 +105,27 @@ export function createPipeline(opts) {
   const validator = new ContentValidator(logger);
 
   // Build an execFileFn compatible with SyntheaTool / SdvTool from the
-  // injected subprocess surface. Falls back to the runtime default.
+  // injected subprocess surface. These tools follow the `promisify(execFile)`
+  // contract: it REJECTS on a non-zero exit, and they depend on that — e.g.
+  // `checkAvailability()` probes `python3 -c "import sdv"` and treats a throw
+  // as "tool unavailable, skip". `runtime.subprocess.run` resolves on failure,
+  // so re-throw here to preserve the reject-on-failure semantics.
   const { run: subprocessRun } = runtime.subprocess;
-  const execFileFn = (cmd, args, opts2) =>
-    subprocessRun(cmd, args ?? [], opts2 ?? {});
+  const execFileFn = async (cmd, args, opts2) => {
+    const result = await subprocessRun(cmd, args ?? [], opts2 ?? {});
+    if (result.exitCode !== 0) {
+      const err = new Error(
+        `${cmd} exited with code ${result.exitCode}: ${
+          result.stderr?.trim() || result.stdout?.trim() || "(no output)"
+        }`,
+      );
+      err.code = result.exitCode;
+      err.stdout = result.stdout;
+      err.stderr = result.stderr;
+      throw err;
+    }
+    return result;
+  };
 
   function toolFactory(name, deps) {
     switch (name) {
