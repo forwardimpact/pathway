@@ -321,6 +321,18 @@ Update `wiki/STATUS.md`: `1270/multi-tenant-bridges\tplan\tapproved` →
   risk is if Microsoft removes the multi-tenant mode (no current
   signal of that). Documented in `services/msbridge/README.md`.
 
+- **Contract: `RegistryTenantResolver.resolveByTenantId` returns
+  rows regardless of state.** Per part-04 (`libbridge/src/tenant-resolver.js:101`,
+  JSDoc-documented), `resolveByTenantId` returns revoked tenants by
+  design so the callback path can distinguish "unknown tenant" from
+  "known but revoked". Any part-05+ call site that treats the
+  returned row as authorization to proceed is a privilege escalation
+  against revoked tenants. Reviewers must verify each new
+  `resolveByTenantId` caller applies its own `state === "active"`
+  check, or routes through `resolveByRepo`/`resolveByChannelKey`
+  (which already filter to active). Carry-over from PR #1316 security
+  review (O3).
+
 ## Libraries used
 
 `libbridge` (parts 04 surface), `libconfig`, `librpc`, `libstorage`,
