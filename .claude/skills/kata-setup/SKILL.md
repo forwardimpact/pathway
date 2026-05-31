@@ -37,6 +37,8 @@ facilitated sessions, and event-driven responses.
 - [ ] Use fully-qualified action references
       (forwardimpact/kata-action-agent@v1), never local paths.
 - [ ] Use npm/npx in all generated content, never bun/bunx/just.
+- [ ] Read [TRUST.md](../../../TRUST.md) — the hosted-vs-self-hosted
+      trust model the operator is opting into.
 
 </read_do_checklist>
 

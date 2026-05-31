@@ -7,6 +7,10 @@ conversations and the Kata agent team.
 
 <!-- END:description -->
 
+For the trust model when this bridge runs as the hosted Forward Impact
+service vs the customer's self-hosted deployment, see
+[TRUST.md](../../TRUST.md).
+
 ## Prerequisites
 
 - A Microsoft 365 developer tenant with an Azure Bot resource registered

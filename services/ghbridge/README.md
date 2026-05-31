@@ -7,6 +7,10 @@ the Kata agent team.
 
 <!-- END:description -->
 
+For the trust model when this bridge runs as the hosted Forward Impact
+service vs the customer's self-hosted deployment, see
+[TRUST.md](../../TRUST.md).
+
 ## Prerequisites
 
 - The Kata Agent Team GitHub App with `discussions: write` permission and
