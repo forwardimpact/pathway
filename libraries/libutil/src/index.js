@@ -165,6 +165,7 @@ export {
 } from "./runtime.js";
 export {
   isoDate,
+  isoTimestamp,
   isoWeek,
   isoWeekString,
   yearMonth,

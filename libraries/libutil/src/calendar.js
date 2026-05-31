@@ -29,6 +29,16 @@ export function isoDate(input) {
 }
 
 /**
+ * Format an input as a full ISO 8601 timestamp (`YYYY-MM-DDTHH:mm:ss.sssZ`,
+ * UTC). Pass `runtime.clock.now()` for "now"; never reads the wall clock.
+ * @param {Date|number|string} input
+ * @returns {string}
+ */
+export function isoTimestamp(input) {
+  return toDate(input).toISOString();
+}
+
+/**
  * Compute the ISO 8601 year-week for an input. `year` is the ISO week-year
  * (not necessarily the calendar year for edge weeks).
  * @param {Date|number|string} input

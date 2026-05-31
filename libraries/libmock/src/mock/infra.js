@@ -149,8 +149,10 @@ export function createMockStdin(chunks = []) {
 /**
  * Creates a mock `process`-like object matching the `Runtime.proc` surface:
  * `cwd()`, `env`, `argv`, `stdin`, `stdout.write`, `stderr.write`,
- * `exit(code)`, `kill(pid, signal)`, and a settable `exitCode`. Writes are
- * captured on `stdout.chunks` / `stderr.chunks`; kill calls on `kills`.
+ * `exit(code)`, `kill(pid, signal)`, `pid`, `platform`, `on(event, handler)`,
+ * and a settable `exitCode`. Writes are captured on `stdout.chunks` /
+ * `stderr.chunks`; kill calls on `kills`; event handlers on `handlers` (fire
+ * them via `emit(event, ...args)` to simulate a signal).
  *
  * @param {object} [options]
  * @param {Record<string, string>} [options.env] - Initial env map.
@@ -160,12 +162,26 @@ export function createMockStdin(chunks = []) {
  * @param {(pid: number, signal: string|number) => any} [options.kill] - Optional
  *   `kill` implementation (e.g. to model a liveness probe); calls are always
  *   recorded on the returned `kills` array regardless.
+ * @param {number} [options.pid] - The fake's `pid` (default 1234).
+ * @param {string} [options.platform] - The fake's `platform` string
+ *   (default `"linux"`; set `"darwin"`/`"win32"` to exercise per-platform code).
  * @returns {object}
  */
-export function createMockProcess({ env = {}, cwd, argv, stdin, kill } = {}) {
+export function createMockProcess({
+  env = {},
+  cwd,
+  argv,
+  stdin,
+  kill,
+  pid = 1234,
+  platform = "linux",
+} = {}) {
   const stdout = { chunks: [], write: (s) => stdout.chunks.push(String(s)) };
   const stderr = { chunks: [], write: (s) => stderr.chunks.push(String(s)) };
   const kills = [];
+  // Registered event handlers (e.g. "SIGTERM"/"SIGINT"); a test can fire them
+  // via `emit(event, ...args)` to simulate a signal without a real process.
+  const handlers = {};
   return {
     env: { ...env },
     cwd: () => cwd ?? "/work",
@@ -173,6 +189,8 @@ export function createMockProcess({ env = {}, cwd, argv, stdin, kill } = {}) {
     stdin: createMockStdin(stdin ?? []),
     stdout,
     stderr,
+    pid,
+    platform,
     exitCode: 0,
     exit(code = 0) {
       this.exitCode = code;
@@ -181,6 +199,13 @@ export function createMockProcess({ env = {}, cwd, argv, stdin, kill } = {}) {
     kill(pid, signal) {
       kills.push({ pid, signal });
       return kill?.(pid, signal);
+    },
+    handlers,
+    on(event, handler) {
+      (handlers[event] ??= []).push(handler);
+    },
+    emit(event, ...args) {
+      for (const handler of handlers[event] ?? []) handler(...args);
     },
   };
 }

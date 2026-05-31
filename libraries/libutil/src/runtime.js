@@ -1,5 +1,8 @@
 import { spawn as nodeSpawn, execFile, spawnSync } from "node:child_process";
-import nodeFsSync from "node:fs";
+import nodeFsSync, {
+  createReadStream as nodeCreateReadStream,
+  createWriteStream as nodeCreateWriteStream,
+} from "node:fs";
 import nodeFs from "node:fs/promises";
 import { Finder } from "./finder.js";
 
@@ -16,17 +19,25 @@ import { Finder } from "./finder.js";
  * @property {Object} fs
  *   Async filesystem surface (the `node:fs/promises` shape): `readFile`,
  *   `writeFile`, `readdir`, `stat`, `mkdir`, `access`, `copyFile`, `cp`, `rm`,
- *   `lstat`, `unlink`, `symlink`, `utimes`, `chmod`. A module destructures
- *   `fs` xor `fsSync`, never both (design Decision 7).
+ *   `lstat`, `unlink`, `symlink`, `utimes`, `chmod`, plus the two stream
+ *   factories `createReadStream` / `createWriteStream` (the `node:fs` shape —
+ *   the promises API has no stream factories, so they live on the async
+ *   surface as the canonical streaming seam). A module destructures `fs` xor
+ *   `fsSync`, never both (design Decision 7).
  * @property {Object} fsSync
  *   Sync filesystem surface (the `node:fs` shape): `existsSync`,
  *   `readFileSync`, `writeFileSync`, `mkdirSync`, `readdirSync`, `statSync`,
- *   `openSync`, `closeSync`, `unlinkSync`.
+ *   `openSync`, `readSync`, `closeSync`, `unlinkSync`.
  * @property {Object} proc
  *   Process surface: `cwd()`, `env`, `argv`, `stdin`, `stdout.write`,
  *   `stderr.write`, `exit(code)`, `kill(pid, signal)` (a negative `pid`
- *   signals the process group, e.g. for daemon teardown), and an `exitCode`
- *   accessor.
+ *   signals the process group, e.g. for daemon teardown), `pid` (this
+ *   process's id — used to exclude self from process-group descendant scans),
+ *   `platform` (the `process.platform` string — `"darwin"`/`"win32"`/`"linux"`
+ *   — for per-platform path resolution), `on(event, handler)` (subscribe to
+ *   process events such as `"SIGTERM"`/`"SIGINT"` so daemons register signal
+ *   handlers through the collaborator instead of the global), and an
+ *   `exitCode` accessor.
  * @property {Object} clock
  *   Time surface: `now()`, `sleep(ms)`, `setTimeout(fn, ms)`,
  *   `clearTimeout(handle)`.
@@ -35,8 +46,12 @@ import { Finder } from "./finder.js";
  *   exitCode}>` (async, buffered), `runSync(cmd, args, opts) -> {stdout,
  *   stderr, exitCode}` (synchronous, buffered — for the rare caller that
  *   cannot go async, e.g. a sync config accessor shelling to `gh auth
- *   token`), and `spawn(cmd, args, opts) -> {stdout, stderr, exitCode, kill}`
- *   where `stdout`/`stderr` are AsyncIterables and `exitCode` a Promise.
+ *   token`), and `spawn(cmd, args, opts) -> {stdout, stderr, stdin, exitCode,
+ *   signal, kill, pid}` where `stdout`/`stderr` are AsyncIterables,
+ *   `exitCode`/`signal` are Promises (the terminating signal name or `null`),
+ *   `stdin` is the child's writable (only when `opts.stdio` pipes stdin, else
+ *   `null`), `kill(signal)` signals the child, and `pid` is its id (`undefined`
+ *   on spawn failure).
  * @property {Object} finder
  *   A constructed `Finder` (project path resolution + symlink management).
  */
@@ -81,6 +96,9 @@ export function createDefaultProc({ source = process, env = source.env } = {}) {
     stderr: { write: (s) => source.stderr.write(s) },
     exit: (code) => source.exit(code),
     kill: (pid, signal) => source.kill(pid, signal),
+    pid: source.pid,
+    platform: source.platform,
+    on: (event, handler) => source.on(event, handler),
   };
   Object.defineProperty(proc, "exitCode", {
     enumerable: true,
@@ -172,13 +190,45 @@ export function createDefaultSubprocess() {
 
   const spawn = (cmd, args = [], opts = {}) => {
     const child = nodeSpawn(cmd, args, opts);
+    let resolveSignal;
+    const signal = new Promise((r) => {
+      resolveSignal = r;
+    });
+    let resolveExit;
+    const exitCode = new Promise((r) => {
+      resolveExit = r;
+    });
+    child.on("close", (code, sig) => {
+      resolveSignal(sig ?? null);
+      resolveExit(code ?? 0);
+    });
+    // A spawn failure (e.g. ENOENT for a missing binary) emits an `error`
+    // event. With no listener Node rethrows it as an uncaughtException and
+    // crashes the whole process — even for callers that synchronously guard
+    // `pid === undefined`, because the event fires on a later tick. Mirror the
+    // run()/runSync() contract instead: resolve a 127 exit code and a null
+    // signal so the surface never rejects and never crashes. `resolveExit` is
+    // idempotent, so a `close` arriving after `error` is a no-op.
+    child.on("error", () => {
+      resolveSignal(null);
+      resolveExit(127);
+    });
     return {
       stdout: child.stdout ?? emptyAsyncIterable(),
       stderr: child.stderr ?? emptyAsyncIterable(),
-      exitCode: new Promise((resolve) => {
-        child.on("close", (code) => resolve(code ?? 0));
-      }),
+      // The child's writable stdin — present only when `opts.stdio` makes
+      // stdin a pipe (e.g. `["pipe", ...]`); `null` otherwise. A supervising
+      // caller writes its piped output into it.
+      stdin: child.stdin ?? null,
+      exitCode,
+      // Resolves with the terminating signal name (or `null` on a clean exit),
+      // alongside `exitCode`. Supervisors that distinguish a SIGTERM teardown
+      // from a crash read it; clean-exit callers can ignore it.
+      signal,
       kill: (signal) => child.kill(signal),
+      // The child's pid — `undefined` if the spawn failed. Detached callers
+      // read it to derive the process-group id for group teardown.
+      pid: child.pid,
     };
   };
 
@@ -215,7 +265,14 @@ function emptyAsyncIterable() {
  * @returns {Readonly<Runtime>}
  */
 export function createDefaultRuntime({ env = process.env } = {}) {
-  const fs = nodeFs;
+  // The async fs surface is `node:fs/promises` augmented with the two stream
+  // factories (which only exist on `node:fs`), so streaming consumers never
+  // import `node:fs` directly.
+  const fs = {
+    ...nodeFs,
+    createReadStream: nodeCreateReadStream,
+    createWriteStream: nodeCreateWriteStream,
+  };
   const fsSync = nodeFsSync;
   const proc = createDefaultProc({ source: process, env });
   const clock = createDefaultClock();
