@@ -7,6 +7,8 @@ import { spy } from "./spy.js";
 export function createMockFs(files = {}) {
   const data = new Map(Object.entries(files));
   const dirs = new Set();
+  let nextFd = 3;
+  const openFds = new Map();
 
   // Auto-create parent directories for initial files
   for (const path of data.keys()) {
@@ -129,6 +131,27 @@ export function createMockFs(files = {}) {
       }
       data.set(dest, content);
     }),
+    cp: spy(async (src, dest) => {
+      // Mirror fs.cp(src, dest, { recursive }): copy a file, or a directory
+      // subtree (every entry under `src/` re-rooted under `dest/`).
+      if (data.has(src)) {
+        data.set(dest, data.get(src));
+        return;
+      }
+      const prefix = src.endsWith("/") ? src : `${src}/`;
+      const destPrefix = dest.endsWith("/") ? dest : `${dest}/`;
+      const reroot = (k) => destPrefix + k.slice(prefix.length);
+      const under = (k) => k.startsWith(prefix);
+      dirs.add(dest);
+      for (const key of [...data.keys()].filter(under)) {
+        data.set(reroot(key), data.get(key));
+      }
+      for (const dir of [...dirs].filter(under)) dirs.add(reroot(dir));
+    }),
+    // Timestamps and permissions are not modeled by the in-memory store; these
+    // record the call (via spy) so consumers stay testable and assertable.
+    utimes: spy(async () => {}),
+    chmod: spy(async () => {}),
     existsSync: spy((path) => data.has(path) || dirs.has(path)),
     readFileSync: spy((path, encoding) => {
       const content = data.get(path);
@@ -149,6 +172,19 @@ export function createMockFs(files = {}) {
     }),
     mkdirSync: spy((path) => {
       dirs.add(path);
+    }),
+    openSync: spy((path) => {
+      // Create/truncate the file and hand back a synthetic descriptor.
+      data.set(path, "");
+      const fd = nextFd++;
+      openFds.set(fd, path);
+      return fd;
+    }),
+    closeSync: spy((fd) => {
+      openFds.delete(fd);
+    }),
+    unlinkSync: spy((path) => {
+      data.delete(path);
     }),
   };
 }

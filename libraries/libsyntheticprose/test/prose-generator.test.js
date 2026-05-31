@@ -1,8 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync } from "fs";
-import { join } from "path";
-import { tmpdir } from "os";
+import { createTestRuntime, createMockFs } from "@forwardimpact/libmock";
 import { ProseCache } from "../src/engine/cache.js";
 import { ProseGenerator } from "../src/engine/generator.js";
 
@@ -30,11 +28,16 @@ function makeLlmApi(response = "test response") {
   };
 }
 
+const CACHE_PATH = "/prose/cache.json";
+
 function makeFixture(overrides = {}) {
-  const tmpDir = mkdtempSync(join(tmpdir(), "prose-gen-"));
+  // A shared in-memory runtime: the mock fs persists writes so a second
+  // ProseCache over the same path sees what the first one saved.
+  const runtime = createTestRuntime({ fs: createMockFs() });
   const cache = new ProseCache({
-    cachePath: join(tmpDir, "cache.json"),
+    cachePath: CACHE_PATH,
     logger: makeLogger(),
+    runtime,
   });
   const generator = new ProseGenerator({
     cache,
@@ -42,94 +45,78 @@ function makeFixture(overrides = {}) {
     llmApi: makeLlmApi(),
     promptLoader: makePromptLoader(),
     logger: makeLogger(),
+    runtime,
     ...overrides,
   });
-  return { tmpDir, cache, generator };
+  return { cache, generator, runtime };
 }
 
 describe("ProseGenerator", () => {
   test("generatePlain returns null in no-prose mode", async () => {
-    const { tmpDir, generator } = makeFixture({ mode: "no-prose" });
-    try {
-      const result = await generator.generatePlain("test-key", {
-        topic: "test",
-      });
-      assert.strictEqual(result, null);
-    } finally {
-      rmSync(tmpDir, { recursive: true });
-    }
+    const { generator } = makeFixture({ mode: "no-prose" });
+    const result = await generator.generatePlain("test-key", {
+      topic: "test",
+    });
+    assert.strictEqual(result, null);
   });
 
   test("generatePlain writes through to cache and bumps generated count", async () => {
-    const { tmpDir, cache, generator } = makeFixture({
+    const { cache, generator } = makeFixture({
       llmApi: makeLlmApi("fresh response"),
     });
-    try {
-      const r1 = await generator.generatePlain("key1", { topic: "test" });
-      assert.strictEqual(r1, "fresh response");
-      assert.strictEqual(generator.stats.generated, 1);
-      assert.strictEqual([...cache.keys()].length, 1);
-    } finally {
-      rmSync(tmpDir, { recursive: true });
-    }
+    const r1 = await generator.generatePlain("key1", { topic: "test" });
+    assert.strictEqual(r1, "fresh response");
+    assert.strictEqual(generator.stats.generated, 1);
+    assert.strictEqual([...cache.keys()].length, 1);
   });
 
   test("generatePlain returns cached value without calling LLM", async () => {
-    const { tmpDir, cache, generator } = makeFixture({
+    const { cache, generator, runtime } = makeFixture({
       llmApi: makeLlmApi("first"),
     });
-    try {
-      await generator.generatePlain("key1", { topic: "test" });
-      cache.save();
+    await generator.generatePlain("key1", { topic: "test" });
+    cache.save();
 
-      // New generator over same cache file, in cached mode (no LLM).
-      const cache2 = new ProseCache({
-        cachePath: cache.cachePath,
-        logger: makeLogger(),
-      });
-      const generator2 = new ProseGenerator({
-        cache: cache2,
-        mode: "cached",
-        promptLoader: makePromptLoader(),
-        logger: makeLogger(),
-      });
-      const r2 = await generator2.generatePlain("key1", { topic: "test" });
-      assert.strictEqual(r2, "first");
-      assert.strictEqual(cache2.stats.hits, 1);
-      assert.strictEqual(generator2.stats.generated, 0);
-    } finally {
-      rmSync(tmpDir, { recursive: true });
-    }
+    // New generator over the same cache file (same runtime → same mock fs),
+    // in cached mode (no LLM).
+    const cache2 = new ProseCache({
+      cachePath: cache.cachePath,
+      logger: makeLogger(),
+      runtime,
+    });
+    const generator2 = new ProseGenerator({
+      cache: cache2,
+      mode: "cached",
+      promptLoader: makePromptLoader(),
+      logger: makeLogger(),
+      runtime,
+    });
+    const r2 = await generator2.generatePlain("key1", { topic: "test" });
+    assert.strictEqual(r2, "first");
+    assert.strictEqual(cache2.stats.hits, 1);
+    assert.strictEqual(generator2.stats.generated, 0);
   });
 
   test("generatePlain throws on cache miss when strict + cached", async () => {
-    const { tmpDir, generator } = makeFixture({
+    const { generator } = makeFixture({
       mode: "cached",
       strict: true,
     });
-    try {
-      await assert.rejects(
-        () => generator.generatePlain("missing", { topic: "x" }),
-        /Cache miss/,
-      );
-    } finally {
-      rmSync(tmpDir, { recursive: true });
-    }
+    await assert.rejects(
+      () => generator.generatePlain("missing", { topic: "x" }),
+      /Cache miss/,
+    );
   });
 
   test("generatePlain returns null on cache miss when cached + non-strict", async () => {
-    const { tmpDir, generator } = makeFixture({ mode: "cached" });
-    try {
-      const result = await generator.generatePlain("missing", { topic: "x" });
-      assert.strictEqual(result, null);
-    } finally {
-      rmSync(tmpDir, { recursive: true });
-    }
+    const { generator } = makeFixture({ mode: "cached" });
+    const result = await generator.generatePlain("missing", { topic: "x" });
+    assert.strictEqual(result, null);
   });
 
   test("generateStructured respects maxTokens option", async () => {
     let capturedMaxTokens = null;
-    const { tmpDir, generator } = makeFixture({
+    const { generator } = makeFixture({
       llmApi: {
         createCompletions: async (opts) => {
           capturedMaxTokens = opts.max_tokens;
@@ -139,41 +126,29 @@ describe("ProseGenerator", () => {
         },
       },
     });
-    try {
-      await generator.generateStructured(
-        "test-key",
-        [{ role: "user", content: "test" }],
-        { maxTokens: 2000 },
-      );
-      assert.strictEqual(capturedMaxTokens, 2000);
-    } finally {
-      rmSync(tmpDir, { recursive: true });
-    }
+    await generator.generateStructured(
+      "test-key",
+      [{ role: "user", content: "test" }],
+      { maxTokens: 2000 },
+    );
+    assert.strictEqual(capturedMaxTokens, 2000);
   });
 
   test("generateJson strips markdown fences", async () => {
-    const { tmpDir, generator } = makeFixture({
+    const { generator } = makeFixture({
       llmApi: makeLlmApi('```json\n{"key": "value"}\n```'),
     });
-    try {
-      const result = await generator.generateJson("test-key", [
-        { role: "user", content: "test" },
-      ]);
-      assert.deepStrictEqual(result, { key: "value" });
-    } finally {
-      rmSync(tmpDir, { recursive: true });
-    }
+    const result = await generator.generateJson("test-key", [
+      { role: "user", content: "test" },
+    ]);
+    assert.deepStrictEqual(result, { key: "value" });
   });
 
   test("generateJson returns null in no-prose mode", async () => {
-    const { tmpDir, generator } = makeFixture({ mode: "no-prose" });
-    try {
-      const result = await generator.generateJson("test-key", [
-        { role: "user", content: "test" },
-      ]);
-      assert.strictEqual(result, null);
-    } finally {
-      rmSync(tmpDir, { recursive: true });
-    }
+    const { generator } = makeFixture({ mode: "no-prose" });
+    const result = await generator.generateJson("test-key", [
+      { role: "user", content: "test" },
+    ]);
+    assert.strictEqual(result, null);
   });
 });
