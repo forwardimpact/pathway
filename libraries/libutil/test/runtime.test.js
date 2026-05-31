@@ -145,6 +145,17 @@ describe("createDefaultClock / createDefaultSubprocess", () => {
     const result = sub.runSync("definitely-not-a-real-binary-xyz", []);
     assert.strictEqual(result.exitCode, 127);
   });
+
+  test("subprocess.spawn resolves exitCode 127 on spawn failure without crashing", async () => {
+    // Regression: a spawn failure (ENOENT) emits a child `error` event; with
+    // no listener Node rethrows it as an uncaughtException and crashes the
+    // process. The wrapper must resolve a 127 exit code instead.
+    const sub = createDefaultSubprocess();
+    const child = sub.spawn("definitely-not-a-real-binary-xyz", []);
+    assert.strictEqual(child.pid, undefined);
+    assert.strictEqual(await child.exitCode, 127);
+    assert.strictEqual(await child.signal, null);
+  });
 });
 
 describe("createTestRuntime parity", () => {

@@ -1,3 +1,4 @@
+import { Readable, Writable } from "node:stream";
 import { spy } from "./spy.js";
 /**
  * Creates a mock filesystem backed by an in-memory Map
@@ -37,6 +38,21 @@ export function createMockFs(files = {}) {
         path,
         typeof content === "string" ? content : content.toString(),
       );
+    }),
+    appendFile: spy(async (path, content) => {
+      const chunk = typeof content === "string" ? content : content.toString();
+      data.set(path, (data.get(path) ?? "") + chunk);
+    }),
+    rename: spy(async (src, dest) => {
+      if (!data.has(src)) {
+        const err = new Error(
+          `ENOENT: no such file or directory, rename '${src}' -> '${dest}'`,
+        );
+        err.code = "ENOENT";
+        throw err;
+      }
+      data.set(dest, data.get(src));
+      data.delete(src);
     }),
     readdir: spy(async (path, opts = {}) => {
       // Collect immediate children; an entry is a directory if anything lives
@@ -182,18 +198,104 @@ export function createMockFs(files = {}) {
     mkdirSync: spy((path) => {
       dirs.add(path);
     }),
-    openSync: spy((path) => {
-      // Create/truncate the file and hand back a synthetic descriptor.
-      data.set(path, "");
+    statSync: spy((path) => {
+      const content = data.get(path);
+      if (content !== undefined)
+        return {
+          size: Buffer.byteLength(content),
+          mtimeMs: 0,
+          isFile: () => true,
+          isDirectory: () => false,
+        };
+      if (dirs.has(path))
+        return {
+          size: 0,
+          mtimeMs: 0,
+          isFile: () => false,
+          isDirectory: () => true,
+        };
+      const err = new Error(
+        `ENOENT: no such file or directory, stat '${path}'`,
+      );
+      err.code = "ENOENT";
+      throw err;
+    }),
+    readdirSync: spy((dir) => {
+      const prefix = dir.endsWith("/") ? dir : `${dir}/`;
+      const names = new Set();
+      for (const key of [...data.keys(), ...dirs]) {
+        if (!key.startsWith(prefix)) continue;
+        const name = key.slice(prefix.length).split("/")[0];
+        if (name) names.add(name);
+      }
+      return [...names];
+    }),
+    // Permissions are not modeled by the in-memory store; record the call.
+    chmodSync: spy(() => {}),
+    openSync: spy((path, flags = "r") => {
+      // For write/append flags, create/truncate; for read flags, require the
+      // file to exist (mirror node:fs.openSync ENOENT). Hand back a synthetic
+      // descriptor that records its backing path.
+      const reading = typeof flags === "string" && flags.startsWith("r");
+      if (reading && !data.has(path)) {
+        const err = new Error(
+          `ENOENT: no such file or directory, open '${path}'`,
+        );
+        err.code = "ENOENT";
+        throw err;
+      }
+      if (!reading) data.set(path, "");
       const fd = nextFd++;
       openFds.set(fd, path);
       return fd;
+    }),
+    readSync: spy((fd, buffer, offset = 0, length, position = 0) => {
+      // Mirror fs.readSync(fd, buffer, offset, length, position): copy bytes
+      // from the file's stored content into `buffer`, returning the byte count.
+      const path = openFds.get(fd);
+      if (path === undefined) {
+        const err = new Error("EBADF: bad file descriptor, read");
+        err.code = "EBADF";
+        throw err;
+      }
+      const content = Buffer.from(data.get(path) ?? "");
+      const start = position ?? 0;
+      const want = length ?? buffer.length - offset;
+      const slice = content.subarray(start, start + want);
+      slice.copy(buffer, offset);
+      return slice.length;
     }),
     closeSync: spy((fd) => {
       openFds.delete(fd);
     }),
     unlinkSync: spy((path) => {
       data.delete(path);
+    }),
+    createReadStream: spy((path) => {
+      // Stream the stored content (or error asynchronously, like node:fs).
+      const content = data.get(path);
+      if (content === undefined) {
+        const err = new Error(
+          `ENOENT: no such file or directory, open '${path}'`,
+        );
+        err.code = "ENOENT";
+        const stream = new Readable({ read() {} });
+        queueMicrotask(() => stream.emit("error", err));
+        return stream;
+      }
+      return Readable.from([Buffer.from(content)]);
+    }),
+    createWriteStream: spy((path, opts = {}) => {
+      // Accumulate writes into the in-memory store. `flags: "a"` appends.
+      const append = opts.flags === "a";
+      if (!append || !data.has(path)) data.set(path, "");
+      const stream = new Writable({
+        write(chunk, _enc, cb) {
+          data.set(path, (data.get(path) ?? "") + chunk.toString());
+          cb();
+        },
+      });
+      return stream;
     }),
   };
 }
