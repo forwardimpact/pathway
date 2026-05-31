@@ -98,11 +98,12 @@ products/
   landmark/    # fit-landmark
   summit/      # fit-summit
   outpost/     # fit-outpost — knowledge system, scheduler, macOS app
-  gear/        # fit-skills and services
+  gear/        # fit-skills — catalog CLI for libraries and services
+  kata/        # kata-skills — Kata Agent Team skill pack
 libraries/
   lib*/        # shared infrastructure and domain libraries
 services/
-  graph/ map/ mcp/ pathway/ trace/ vector/
+  bridge/ embedding/ ghbridge/ ghuser/ graph/ map/ mcp/ msbridge/ oauth/ pathway/ trace/ vector/
 config/
   config.json  # service definitions
 data/
