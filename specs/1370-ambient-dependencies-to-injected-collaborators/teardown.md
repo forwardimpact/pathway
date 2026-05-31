@@ -59,14 +59,36 @@ collaborator) and falls back to a freshly-built default when a caller has not
 yet been updated to inject one. These exist **only** for not-yet-migrated
 callers; once every caller injects `runtime`, the fallback is dead code.
 
-- **`?? createDefaultRuntime()`** (full-bag fallback) —
-  `librpc/src/server.js` (`Server`), `libeval/src/benchmark/workdir.js`
-  (`WorkdirManager.start`), `librc/src/index.js` (`waitForSocket`),
-  `libconfig/src/bootstrap.js` (`bootstrapProject`), `libcodegen/src/base.js`
-  (`CodegenBase`), `libcoaligned/src/{jtbd,instructions}.js`,
-  `libterrain/src/{pipeline,sinks}.js`.
-- **`?? createDefaultClock()`** (clock-only fallback) —
-  `libtelemetry/src/{span,logger}.js`.
+- **Full-bag fallback** — a `?? createDefaultRuntime()` coalesce **or** a
+  `runtime = createDefaultRuntime()` default parameter (both are the same
+  bridge; parts 03+ favour the default-parameter form, matching the
+  `libstorage` reference idiom):
+  - parts 01–03: `librpc/src/server.js` (`Server`),
+    `libeval/src/benchmark/workdir.js` (`WorkdirManager.start`),
+    `librc/src/index.js` (`waitForSocket`), `libconfig/src/bootstrap.js`
+    (`bootstrapProject`), `libcodegen/src/base.js` (`CodegenBase`),
+    `libcoaligned/src/{jtbd,instructions}.js`,
+    `libterrain/src/{pipeline,sinks}.js`.
+  - part 04, default-parameter form (`runtime = createDefaultRuntime()`):
+    `libindex/src/buffered.js` (`BufferedIndex`, 4th `{ runtime }` arg),
+    `libmacos/src/posix-spawn.js` (`readOutput`, `spawn`, `waitForExit`),
+    `libprompt/src/loader.js` (`PromptLoader`), `libtemplate/src/loader.js`
+    (`TemplateLoader`), `libsecret/src/index.js` (the env-file + Supabase-JWT
+    helpers — `readEnvFile`, `getOrGenerateSecret`, `updateEnvFile`,
+    `mintSupabaseJwt`, `mintSupabaseAnonKey`, `mintSupabaseServiceRoleKey`,
+    and `generateJWT` — 7 exported functions),
+    `libsyntheticgen/src/engine/{activity,activity-initiatives}.js`,
+    `libsyntheticprose/src/engine/{generator,cache,pathway}.js`,
+    `libsyntheticrender/src/render/{dataset-renderers,markdown,link-assigner}.js`.
+  - part 04, coalesce form (`runtime ?? createDefaultRuntime()`):
+    `libpack/src/{builder,stager,disc-emitter,git-emitter,tar-emitter}.js`.
+- **Clock-only fallback** — `?? createDefaultClock()` **or** a `clock =
+  createDefaultClock()` default parameter —
+  `libtelemetry/src/{span,logger}.js`;
+  `libbridge/src/{callback-registry,callback-handler,callback-payload,dispatcher,rate-limit,elapsed-scheduler,inbox-handler,resume-scheduler}.js`
+  (libbridge consumes only the clock surface, so it injects `clock` directly
+  rather than the full bag — a faithful narrow projection of `runtime.clock`;
+  teardown makes `clock` a required parameter and drops the default).
 - **`globalThis.*` clock/proc fallbacks** —
   `libeval/src/inbox-poller.js` (`globalThis.setTimeout`/`clearTimeout`),
   `libeval/src/redaction.js` `defaultProc()` (`globalThis.process?.env` /
@@ -165,8 +187,14 @@ the items above migrate and this section shrinks to empty.
       `libraries/libutil/` (Bridge 1).
 - [ ] `rg "createCli\(" libraries/ products/ services/ | grep -v runtime |
       grep -v /test/` → 0 (Bridge 2).
-- [ ] `rg "\?\? createDefaultRuntime\(\)|\?\? createDefaultClock\(\)" libraries/
-      products/ services/` → every hit dead (Bridge 3).
+- [ ] `rg "(\?\?|=) *createDefaultRuntime\(\)|(\?\?|=) *createDefaultClock\(\)"
+      libraries/ products/ services/ -g '!**/libutil/src/runtime.js'` → every
+      hit dead (Bridge 3; the `=` alternative catches the `runtime =
+      createDefaultRuntime()` / `clock = createDefaultClock()`
+      default-parameter form that parts 03+ use, which the old `??`-only grep
+      missed. The excluded `libutil/src/runtime.js` is the factory itself —
+      its internal `createDefaultClock()` build step is permanent, not a
+      consumer fallback).
 - [ ] `rg "\?\? process\b|globalThis\.(process|setTimeout|clearTimeout)|getDefaultRuntime"
       libraries/ products/ services/` → only the foundation-gap residue in
       `librc/manager.js` remains (Bridge 3 + the NOT-BC section).
