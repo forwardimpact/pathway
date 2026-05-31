@@ -20,19 +20,6 @@ import {
 } from "@forwardimpact/libcli";
 
 /**
- * Format discipline list item for --list output
- * @param {Object} discipline - Discipline entity
- * @returns {string} Formatted list line
- */
-function formatListItem(discipline) {
-  const type = discipline.isProfessional ? "professional" : "management";
-  const tracks = (discipline.validTracks || [])
-    .filter((t) => t !== null)
-    .join("|");
-  return `${discipline.id}, ${discipline.specialization || discipline.id}, ${type}, ${tracks || "—"}`;
-}
-
-/**
  * Format discipline summary output
  * @param {Array} disciplines - Raw discipline entities
  */
@@ -53,8 +40,7 @@ function formatSummary(disciplines) {
     "\n" + formatSubheader(`Total: ${disciplines.length} disciplines`) + "\n\n",
   );
   process.stdout.write(
-    formatBullet("Run 'npx fit-pathway discipline --list' for IDs and names") +
-      "\n",
+    formatBullet("Run 'npx fit-pathway discipline --list' for IDs") + "\n",
   );
   process.stdout.write(
     formatBullet("Run 'npx fit-pathway discipline <id>' for details") + "\n\n",
@@ -84,6 +70,5 @@ export const runDisciplineCommand = createEntityCommand({
   }),
   formatSummary,
   formatDetail,
-  formatListItem,
   emojiIcon: "📋",
 });

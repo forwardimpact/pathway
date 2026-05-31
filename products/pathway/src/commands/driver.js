@@ -21,15 +21,6 @@ import {
 import { getConceptEmoji } from "@forwardimpact/map/levels";
 
 /**
- * Format driver list item for --list output
- * @param {Object} driver - Driver entity
- * @returns {string} Formatted list line
- */
-function formatListItem(driver) {
-  return `${driver.id}, ${driver.name}`;
-}
-
-/**
  * Format driver summary output
  * @param {Array} drivers - Raw driver entities
  * @param {Object} data - Full data context
@@ -57,8 +48,7 @@ function formatSummary(drivers, data) {
     "\n" + formatSubheader(`Total: ${drivers.length} drivers`) + "\n\n",
   );
   process.stdout.write(
-    formatBullet("Run 'npx fit-pathway driver --list' for IDs and names") +
-      "\n",
+    formatBullet("Run 'npx fit-pathway driver --list' for IDs") + "\n",
   );
   process.stdout.write(
     formatBullet("Run 'npx fit-pathway driver <id>' for details") + "\n\n",
@@ -108,6 +98,5 @@ export const runDriverCommand = createEntityCommand({
   }),
   formatSummary,
   formatDetail,
-  formatListItem,
   emojiIcon: "🎯",
 });
