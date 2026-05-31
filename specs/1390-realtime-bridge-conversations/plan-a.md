@@ -67,6 +67,20 @@ Libraries used: none.
   composite action's inner steps. The `fit-eval discuss` command reads them
   from `process.env`.
 
+- **Tenant-scope the inbox route (security carry-over from PR #1316).**
+  Plan 1270 part 04 established the convention that bridge-facing routes
+  bound to a session carry the tenant in the path:
+  `/api/callback/:tenant_id/:token`. The inbox endpoint defined in this
+  plan as `/api/inbox/:correlationId` should follow the same shape —
+  `/api/inbox/:tenant_id/:correlationId` — with a registry-side tenant
+  check that fails closed when the path tenant does not match the
+  registered correlation's tenant. Without that, an attacker who learns a
+  `correlation_id` (a non-secret routing handle in 1270's threat model)
+  for a victim tenant could long-poll another tenant's in-flight session.
+  Carry-over from PR #1316 security review (O2); not blocking 1316
+  because no production bridge wires the inbox route yet (only
+  `libeval/test/inbox-poller.test.js`).
+
 ## Execution
 
 Both parts are sequential — Part 2 depends on Part 1's new endpoints. Route
