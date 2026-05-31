@@ -1,7 +1,7 @@
 import { join } from "path";
 
 /** Recursively collect all paths (files and directories) under `dir`, relative to `dir`. */
-export async function collectPaths(dir, prefix = ".", fs) {
+export async function collectPaths(dir, fs, prefix = ".") {
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const result = [];
   for (const entry of entries) {
@@ -9,7 +9,7 @@ export async function collectPaths(dir, prefix = ".", fs) {
     const abs = join(dir, entry.name);
     if (entry.isDirectory()) {
       result.push(rel);
-      result.push(...(await collectPaths(abs, rel, fs)));
+      result.push(...(await collectPaths(abs, fs, rel)));
     } else {
       result.push(rel);
     }
@@ -22,7 +22,7 @@ export async function resetTimestamps(dir, fs) {
   // Epoch 0 (seconds) — a deterministic constant, not the ambient clock, so a
   // packed tree is byte-identical regardless of when it was staged.
   const epoch = 0;
-  const paths = await collectPaths(dir, ".", fs);
+  const paths = await collectPaths(dir, fs);
   for (const rel of paths) {
     await fs.utimes(join(dir, rel), epoch, epoch);
   }

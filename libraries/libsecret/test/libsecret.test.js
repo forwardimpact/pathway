@@ -2,7 +2,11 @@ import { describe, test } from "node:test";
 import assert from "node:assert";
 import { createHmac } from "node:crypto";
 
-import { createTestRuntime, createMockFs, spy } from "@forwardimpact/libmock";
+import {
+  createTestRuntime,
+  createMockFs,
+  createMockClock,
+} from "@forwardimpact/libmock";
 
 // Module under test
 import {
@@ -24,14 +28,11 @@ import {
 const TEST_ENV_PATH = "/test/.env";
 
 /**
- * Build a test runtime with an in-memory fs. The `chmod` method is
- * added as a spy since createMockFs does not include it.
+ * Build a test runtime with an in-memory fs.
  * @param {Object<string,string>} [files]
  */
 function makeRuntime(files = {}) {
-  const fs = createMockFs(files);
-  fs.chmod = spy(async () => {});
-  return createTestRuntime({ fs });
+  return createTestRuntime({ fs: createMockFs(files) });
 }
 
 describe("libsecret", () => {
@@ -257,12 +258,7 @@ describe("libsecret", () => {
     test("uses injected clock.now() for iat/exp", () => {
       const fixedMs = 1_700_000_000_000;
       const runtime = createTestRuntime({
-        clock: {
-          now: () => fixedMs,
-          sleep: async () => {},
-          setTimeout,
-          clearTimeout,
-        },
+        clock: createMockClock({ start: fixedMs }),
       });
       const jwt = mintSupabaseJwt({ email: "a@b.com", secret }, runtime);
       const payload = JSON.parse(

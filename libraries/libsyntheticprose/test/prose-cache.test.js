@@ -13,7 +13,8 @@ function makeLogger() {
 }
 
 function makeCache(cachePath, mockFs, extraOptions = {}) {
-  const runtime = createTestRuntime({ fs: mockFs, fsSync: mockFs });
+  // createTestRuntime defaults fsSync to fs, so one override covers both.
+  const runtime = createTestRuntime({ fs: mockFs });
   return new ProseCache({
     cachePath,
     logger: makeLogger(),

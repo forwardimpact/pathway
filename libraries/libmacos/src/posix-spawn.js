@@ -6,6 +6,7 @@
 // processes (claude) inherit TCC attributes from the responsible binary.
 
 import { dlopen, ptr } from "bun:ffi";
+import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -144,8 +145,11 @@ export function spawn(
     .map(([k, v]) => `${k}=${v}`);
   const envp = buildStringArray(envStrings);
 
-  // Capture stdout/stderr via temp files instead of pipes.
-  const tag = `outpost-${clock.now()}-${clock.now()}`;
+  // Capture stdout/stderr via temp files instead of pipes. The tag must be
+  // unique across concurrent spawns; `runtime.proc` exposes no pid, so a
+  // random UUID replaces the former `${pid}-${Date.now()}` scheme (clock.now()
+  // alone is not unique within a millisecond).
+  const tag = `outpost-${clock.now()}-${randomUUID()}`;
   const stdoutFile = join(tmpdir(), `${tag}-stdout`);
   const stderrFile = join(tmpdir(), `${tag}-stderr`);
   const stdoutFd = fsSync.openSync(stdoutFile, "w", 0o600);

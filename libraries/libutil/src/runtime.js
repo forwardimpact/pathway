@@ -15,12 +15,13 @@ import { Finder } from "./finder.js";
  *
  * @property {Object} fs
  *   Async filesystem surface (the `node:fs/promises` shape): `readFile`,
- *   `writeFile`, `readdir`, `stat`, `mkdir`, `access`, `copyFile`, `rm`,
- *   `lstat`, `unlink`, `symlink`. A module destructures `fs` xor `fsSync`,
- *   never both (design Decision 7).
+ *   `writeFile`, `readdir`, `stat`, `mkdir`, `access`, `copyFile`, `cp`, `rm`,
+ *   `lstat`, `unlink`, `symlink`, `utimes`, `chmod`. A module destructures
+ *   `fs` xor `fsSync`, never both (design Decision 7).
  * @property {Object} fsSync
  *   Sync filesystem surface (the `node:fs` shape): `existsSync`,
- *   `readFileSync`, `writeFileSync`, `mkdirSync`, `readdirSync`, `statSync`.
+ *   `readFileSync`, `writeFileSync`, `mkdirSync`, `readdirSync`, `statSync`,
+ *   `openSync`, `closeSync`, `unlinkSync`.
  * @property {Object} proc
  *   Process surface: `cwd()`, `env`, `argv`, `stdin`, `stdout.write`,
  *   `stderr.write`, `exit(code)`, `kill(pid, signal)` (a negative `pid`

@@ -26,7 +26,7 @@ export class TarEmitter {
   /** Emit a deterministic `.tar.gz` from stagedDir to outputPath. */
   async emit(stagedDir, outputPath) {
     await resetTimestamps(stagedDir, this.#fs);
-    const files = await collectPaths(stagedDir, ".", this.#fs);
+    const files = await collectPaths(stagedDir, this.#fs);
     files.sort();
     const tarBuf = this.#exec("tar", [
       "--no-recursion",

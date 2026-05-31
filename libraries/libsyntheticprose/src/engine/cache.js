@@ -18,6 +18,8 @@ const SCHEMA_FIELD = "_schema";
 
 /** Synchronous prose cache backed by a versioned JSON file on disk. */
 export class ProseCache {
+  #fsSync;
+
   /**
    * @param {object} options
    * @param {string} options.cachePath - Path to prose cache JSON file
@@ -30,7 +32,7 @@ export class ProseCache {
     const { fsSync } = runtime;
     this.cachePath = cachePath;
     this.logger = logger;
-    this.fsSync = fsSync;
+    this.#fsSync = fsSync;
     this.entries = this.#load();
     this.dirty = false;
     this.stats = { hits: 0, misses: 0, missKeys: new Set() };
@@ -83,7 +85,10 @@ export class ProseCache {
     for (const key of [...this.entries.keys()].sort()) {
       payload[key] = this.entries.get(key);
     }
-    this.fsSync.writeFileSync(this.cachePath, JSON.stringify(payload, null, 2));
+    this.#fsSync.writeFileSync(
+      this.cachePath,
+      JSON.stringify(payload, null, 2),
+    );
     this.dirty = false;
   }
 
@@ -112,10 +117,10 @@ export class ProseCache {
 
   #load() {
     try {
-      if (!this.fsSync.existsSync(this.cachePath)) return new Map();
+      if (!this.#fsSync.existsSync(this.cachePath)) return new Map();
 
       const parsed = JSON.parse(
-        this.fsSync.readFileSync(this.cachePath, "utf-8"),
+        this.#fsSync.readFileSync(this.cachePath, "utf-8"),
       );
       const schema = parsed?.[SCHEMA_FIELD];
       if (schema !== undefined && schema !== SCHEMA_VERSION) {

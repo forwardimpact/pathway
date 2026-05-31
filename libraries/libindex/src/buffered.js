@@ -20,13 +20,14 @@ export class BufferedIndex extends IndexBase {
    * @param {object} config - Buffer configuration
    * @param {number} [config.flush_interval] - Flush interval in milliseconds (default: 5000)
    * @param {number} [config.max_buffer_size] - Max items before forced flush (default: 1000)
-   * @param {import("@forwardimpact/libutil/runtime").Runtime} [runtime]
+   * @param {object} [deps] - Injected collaborators
+   * @param {import("@forwardimpact/libutil/runtime").Runtime} [deps.runtime]
    */
   constructor(
     storage,
     indexKey,
     config = {},
-    runtime = createDefaultRuntime(),
+    { runtime = createDefaultRuntime() } = {},
   ) {
     super(storage, indexKey);
     this.#flushInterval = config.flush_interval || 5000;

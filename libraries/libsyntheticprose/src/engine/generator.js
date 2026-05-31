@@ -18,6 +18,8 @@ import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 
 /** Async LLM-backed prose generator that writes through to a ProseCache on every miss. */
 export class ProseGenerator {
+  #clock;
+
   /**
    * @param {object} options
    * @param {ProseCache} options.cache             Sync prose cache
@@ -43,7 +45,7 @@ export class ProseGenerator {
     if (!promptLoader) throw new Error("promptLoader is required");
     if (!logger) throw new Error("logger is required");
     const { clock } = runtime;
-    this.clock = clock;
+    this.#clock = clock;
     this.cache = cache;
     this.mode = mode;
     this.strict = strict;
@@ -103,12 +105,12 @@ export class ProseGenerator {
     }
 
     this.logger.info("prose", `Calling LLM: ${key}`);
-    const startedAt = this.clock.now();
+    const startedAt = this.#clock.now();
     const response = await this.llmApi.createCompletions({
       messages,
       max_tokens: maxTokens,
     });
-    const elapsedMs = this.clock.now() - startedAt;
+    const elapsedMs = this.#clock.now() - startedAt;
     const content = response.choices?.[0]?.message?.content?.trim() || null;
     this.stats.generated++;
     if (content) this.cache.set(cacheKey, content);
@@ -156,7 +158,7 @@ export class ProseGenerator {
   async #callLlm(key, context) {
     const prompt = this.#buildPrompt(key, context);
     this.logger.info("prose", `Calling LLM: ${key}`);
-    const startedAt = this.clock.now();
+    const startedAt = this.#clock.now();
     const response = await this.llmApi.createCompletions({
       messages: [
         { role: "system", content: this.promptLoader.load("prose-system") },
@@ -164,7 +166,7 @@ export class ProseGenerator {
       ],
       max_tokens: context.maxTokens || 500,
     });
-    const elapsedMs = this.clock.now() - startedAt;
+    const elapsedMs = this.#clock.now() - startedAt;
     const content = response.choices?.[0]?.message?.content?.trim() || null;
     this.logger.info("prose", `Generated: ${key}`, {
       chars: content ? content.length : 0,
