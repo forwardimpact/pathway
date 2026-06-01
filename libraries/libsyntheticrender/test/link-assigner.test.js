@@ -2,6 +2,8 @@ import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { createTestRuntime } from "@forwardimpact/libmock";
 import { assignLinks } from "../src/render/link-assigner.js";
+import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
+const _rt = createDefaultRuntime();
 import {
   generateDrugs,
   generatePlatforms,
@@ -68,6 +70,7 @@ describe("assignLinks", () => {
   test("returns all expected entity types", () => {
     const ent = makeTestEntities();
     const result = assignLinks({
+      runtime: _rt,
       ...ent,
       domain: DOMAIN,
       courseCount: 3,
@@ -89,6 +92,7 @@ describe("assignLinks", () => {
   test("blog dates are valid for counts exceeding 24", () => {
     const ent = makeTestEntities();
     const result = assignLinks({
+      runtime: _rt,
       ...ent,
       domain: DOMAIN,
       courseCount: 0,
@@ -108,6 +112,7 @@ describe("assignLinks", () => {
   test("project IRIs use /id/ prefix", () => {
     const ent = makeTestEntities();
     const result = assignLinks({
+      runtime: _rt,
       ...ent,
       domain: DOMAIN,
       courseCount: 2,
@@ -127,6 +132,7 @@ describe("assignLinks", () => {
   test("course orgName uses provided value instead of hardcoded", () => {
     const ent = makeTestEntities();
     const result = assignLinks({
+      runtime: _rt,
       ...ent,
       domain: DOMAIN,
       courseCount: 3,
@@ -144,6 +150,7 @@ describe("assignLinks", () => {
   test("dates use provided startYear/endYear", () => {
     const ent = makeTestEntities();
     const result = assignLinks({
+      runtime: _rt,
       ...ent,
       domain: DOMAIN,
       courseCount: 2,

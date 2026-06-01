@@ -215,7 +215,13 @@ export function buildNodes(ctx) {
           logger,
           parse.clinical,
         );
-        await renderDatasetOutputs(parse.outputs, datasets, files, logger);
+        await renderDatasetOutputs(
+          parse.outputs,
+          datasets,
+          files,
+          logger,
+          runtime,
+        );
         return { files, datasetsMap: datasets };
       },
     },
@@ -463,7 +469,7 @@ function resolveDatasetConfig(ds, clinical, logger) {
 }
 
 /** Render dataset outputs and merge into the files map. */
-async function renderDatasetOutputs(outputs, datasets, files, logger) {
+async function renderDatasetOutputs(outputs, datasets, files, logger, runtime) {
   logger.info("pipeline", `Rendering ${outputs.length} dataset output(s)`);
   for (const out of outputs) {
     if (out.format === "fhir_microdata_html") continue;
@@ -475,7 +481,12 @@ async function renderDatasetOutputs(outputs, datasets, files, logger) {
       );
       continue;
     }
-    const rendered = await renderDataset(dataset, out.format, out.config);
+    const rendered = await renderDataset(
+      dataset,
+      out.format,
+      out.config,
+      runtime,
+    );
     for (const [path, content] of rendered) {
       files.set(path, content);
     }

@@ -118,6 +118,7 @@ function makePipelineDeps({
       renderer: new Renderer(
         new TemplateLoader(TEMPLATE_DIR, createDefaultRuntime()),
         logger,
+        runtime,
       ),
       validator: new ContentValidator(logger),
       proseCacheSink: new NullProseCacheSink(),

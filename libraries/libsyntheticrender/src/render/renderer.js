@@ -22,12 +22,15 @@ export class Renderer {
   /**
    * @param {import('@forwardimpact/libtemplate/loader').TemplateLoader} templateLoader - Template loader
    * @param {object} logger - Logger instance
+   * @param {import("@forwardimpact/libutil/runtime").Runtime} runtime - Injected runtime bag
    */
-  constructor(templateLoader, logger) {
+  constructor(templateLoader, logger, runtime) {
     if (!templateLoader) throw new Error("templateLoader is required");
     if (!logger) throw new Error("logger is required");
+    if (!runtime) throw new Error("runtime is required");
     this.templateLoader = templateLoader;
     this.logger = logger;
+    this.runtime = runtime;
   }
 
   /**
@@ -43,7 +46,13 @@ export class Renderer {
    * @returns {{ files: Map<string,string>, linked: object }}
    */
   renderSkeleton(entities, prose, options = {}) {
-    return renderHTML(entities, prose, this.templateLoader, options);
+    return renderHTML(
+      entities,
+      prose,
+      this.templateLoader,
+      options,
+      this.runtime,
+    );
   }
 
   /**
@@ -72,7 +81,7 @@ export class Renderer {
    * @returns {Map<string,string>}
    */
   renderMarkdown(entities, prose) {
-    return renderMarkdown(entities, prose, this.templateLoader);
+    return renderMarkdown(entities, prose, this.templateLoader, this.runtime);
   }
 
   /**
@@ -133,5 +142,5 @@ export class Renderer {
 export function createRenderer(logger, runtime) {
   const templateDir = join(__dirname, "..", "..", "templates");
   const templateLoader = new TemplateLoader(templateDir, runtime);
-  return new Renderer(templateLoader, logger);
+  return new Renderer(templateLoader, logger, runtime);
 }
