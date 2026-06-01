@@ -181,6 +181,7 @@ function createCodegen(
   mustache,
   protoLoader,
   fs,
+  runtime,
 ) {
   const base = new CodegenBase(
     protoDirs,
@@ -189,6 +190,7 @@ function createCodegen(
     mustache,
     protoLoader,
     fs,
+    runtime,
   );
   return {
     types: new CodegenTypes(base),
@@ -358,6 +360,7 @@ async function runCodegen(protoDirs, projectRoot, finder) {
     mustache,
     protoLoader,
     fs,
+    runtime,
   );
   await executeGeneration(codegens, sourcePath, parsedFlags);
 
