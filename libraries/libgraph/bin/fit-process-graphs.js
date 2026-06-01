@@ -42,7 +42,7 @@ async function main() {
   if (!parsed) process.exit(0);
 
   const resourceIndex = createResourceIndex("resources");
-  const graphIndex = createGraphIndex("graphs");
+  const graphIndex = createGraphIndex("graphs", runtime.clock);
 
   const processor = new GraphProcessor(graphIndex, resourceIndex, logger);
 

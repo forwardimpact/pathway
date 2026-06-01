@@ -41,7 +41,7 @@ async function main() {
   if (!parsed) process.exit(0);
 
   const type = parsed.positionals[0] || null;
-  const graphIndex = createGraphIndex("graphs");
+  const graphIndex = createGraphIndex("graphs", runtime.clock);
 
   const subjects = await graphIndex.getSubjects(type);
 

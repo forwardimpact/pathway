@@ -17,7 +17,7 @@ const runtime = createDefaultRuntime();
 const logger = createLogger("graph", runtime);
 const tracer = await createTracer("graph");
 
-const graphIndex = createGraphIndex("graphs");
+const graphIndex = createGraphIndex("graphs", runtime.clock);
 
 const service = new GraphService(config, graphIndex);
 const server = new Server(service, config, logger, tracer);

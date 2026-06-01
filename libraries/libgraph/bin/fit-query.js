@@ -46,7 +46,7 @@ async function main() {
   }
 
   const pattern = parseGraphQuery(parsed.positionals.join(" "));
-  const graphIndex = createGraphIndex("graphs");
+  const graphIndex = createGraphIndex("graphs", runtime.clock);
 
   const identifiers = await graphIndex.queryItems(pattern);
 

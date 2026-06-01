@@ -27,7 +27,7 @@ const github = createGithubOAuth({
 });
 
 const { clock } = runtime;
-const bindings = new BindingStore(storage);
+const bindings = new BindingStore(storage, { clock });
 const flows = new FlowStore(storage, { clock });
 const grants = new GrantStore(storage, { clock });
 

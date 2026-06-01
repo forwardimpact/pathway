@@ -228,7 +228,7 @@ export async function generatePacks({
   const standardTitle = standard.title || "Engineering Pathway";
 
   const loader = createDataLoader(runtime);
-  const templateLoader = createTemplateLoader(templatesDir);
+  const templateLoader = createTemplateLoader(templatesDir, runtime);
 
   const data = await loader.loadAndValidate(dataDir);
   const agentData = await loader.loadAgentData(dataDir);

@@ -97,20 +97,22 @@ async function runSmokeCommand(runtime, argv, jwt) {
  * @returns {Promise<void>}
  */
 export async function runSelfSmoke({ supabase, config, runtime }) {
-  const { findInvariantSatisfyingPersonas } = await import(
-    "./substrate-persona-query.js"
-  );
+  const { findInvariantSatisfyingPersonas } =
+    await import("./substrate-persona-query.js");
   const { personas, discovery, diagnostic } =
     await findInvariantSatisfyingPersonas({ supabase });
   if (!personas.length) throw new Error(diagnostic);
   const persona = personas[0];
 
   const secret = config.supabaseJwtSecret();
-  const jwt = mintSupabaseJwt({
-    email: persona.email,
-    secret,
-    ttlSeconds: parseDuration("1h"),
-  });
+  const jwt = mintSupabaseJwt(
+    {
+      email: persona.email,
+      secret,
+      ttlSeconds: parseDuration("1h"),
+    },
+    runtime,
+  );
 
   // Spec § Success Criteria rows 1–4: explicit shape check.
   assertJwtShape(jwt, persona.email, runtime.clock.now());
