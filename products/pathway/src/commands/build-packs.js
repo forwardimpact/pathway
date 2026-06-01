@@ -280,12 +280,13 @@ export async function generatePacks({
   });
 
   const builder = new PackBuilder({
-    stager: new PackStager(),
+    stager: new PackStager({ runtime }),
     emitters: {
-      tar: new TarEmitter(),
-      git: new GitEmitter(),
-      disc: new DiscEmitter(),
+      tar: new TarEmitter({ runtime }),
+      git: new GitEmitter({ runtime }),
+      disc: new DiscEmitter({ runtime }),
     },
+    runtime,
   });
 
   const { packs } = await builder.build({ combinations, outputDir, version });
