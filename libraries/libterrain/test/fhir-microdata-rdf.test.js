@@ -143,6 +143,7 @@ function makePipeline() {
     validator: new ContentValidator(logger),
     proseCacheSink: new NullProseCacheSink(),
     toolFactory: makeFhirToolFactory(),
+    runtime,
     logger,
   };
   return { tmpDir, pipeline: new Pipeline(deps) };

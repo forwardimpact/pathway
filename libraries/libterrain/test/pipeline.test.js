@@ -122,6 +122,7 @@ function makePipelineDeps({
       validator: new ContentValidator(logger),
       proseCacheSink: new NullProseCacheSink(),
       toolFactory,
+      runtime,
       logger,
     },
   };
