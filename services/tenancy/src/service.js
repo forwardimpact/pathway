@@ -2,6 +2,13 @@ import { services } from "@forwardimpact/librpc";
 
 const { TenancyBase } = services;
 
+// Returned when no row matches a Resolve* request. The proto returns
+// `Tenant` (non-nullable), so "not found" is encoded as an empty
+// message rather than an error or null. `RegistryTenantResolver` in
+// `libraries/libbridge` reads `t?.state === "active"` and surfaces
+// `null` to its callers; any future caller of `ResolveByTenantId`
+// (used by the callback path) must treat a tenant_id-less response as
+// "no such tenant" rather than dereferencing fields blindly.
 const EMPTY_TENANT = {};
 
 /**
