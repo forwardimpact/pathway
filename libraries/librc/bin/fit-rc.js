@@ -67,7 +67,7 @@ if (!parsed) runtime.proc.exit(0);
 const { values, positionals } = parsed;
 const [command, serviceName] = positionals;
 
-const baseLogger = createLogger("rc");
+const baseLogger = createLogger("rc", runtime);
 const isSilent = values.silent;
 const logger = {
   debug: (...a) => !isSilent && baseLogger.debug(...a),

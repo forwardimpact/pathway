@@ -40,7 +40,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("resources");
+const logger = createLogger("resources", runtime);
 
 /**
  * Process all HTML files in the knowledge base directory and generate resources

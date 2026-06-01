@@ -22,8 +22,6 @@ import { createCli } from "@forwardimpact/libcli";
 import { createLogger } from "@forwardimpact/libtelemetry";
 import { isoTimestamp } from "@forwardimpact/libutil";
 
-const logger = createLogger("outpost");
-
 import { StateManager } from "./state-manager.js";
 import { AgentRunner } from "./agent-runner.js";
 import { Scheduler, formatLocalTime } from "./scheduler.js";
@@ -131,6 +129,7 @@ function renderAgentStatus(name, agent, s, kbMissing) {
  */
 export async function run(runtime, version) {
   const { fs, proc, clock } = runtime;
+  const logger = createLogger("outpost", runtime);
 
   /**
    * Async existence check via the one fs surface this module uses.

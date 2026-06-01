@@ -31,7 +31,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("graphs");
+const logger = createLogger("graphs", runtime);
 
 /**
  * Processes resources into RDF graphs

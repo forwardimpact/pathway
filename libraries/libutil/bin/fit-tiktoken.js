@@ -30,7 +30,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("tiktoken");
+const logger = createLogger("tiktoken", runtime);
 
 /**
  * Counts tokens in the provided text

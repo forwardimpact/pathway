@@ -30,7 +30,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("query");
+const logger = createLogger("query", runtime);
 
 /**
  * Queries the graph index with a triple pattern

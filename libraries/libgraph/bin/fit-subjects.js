@@ -30,7 +30,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("subjects");
+const logger = createLogger("subjects", runtime);
 
 /**
  * Lists graph subjects, optionally filtered by type

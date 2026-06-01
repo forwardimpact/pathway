@@ -16,7 +16,8 @@ const config = await createServiceConfig("ghuser", {
   link_base_url: "",
 });
 
-const logger = createLogger("ghuser");
+const runtime = createDefaultRuntime();
+const logger = createLogger("ghuser", runtime);
 const tracer = await createTracer("ghuser");
 const storage = createStorage("ghuser");
 
@@ -25,7 +26,7 @@ const github = createGithubOAuth({
   clientSecret: config.client_secret,
 });
 
-const { clock } = createDefaultRuntime();
+const { clock } = runtime;
 const bindings = new BindingStore(storage);
 const flows = new FlowStore(storage, { clock });
 const grants = new GrantStore(storage, { clock });

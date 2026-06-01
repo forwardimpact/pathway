@@ -19,7 +19,6 @@ import { join } from "path";
 import { createLogger } from "@forwardimpact/libtelemetry";
 import { createDataLoader } from "@forwardimpact/map/loader";
 
-const logger = createLogger("pathway");
 import { createTemplateLoader } from "@forwardimpact/libtemplate";
 import {
   generateAgentProfile,
@@ -222,6 +221,7 @@ export async function generatePacks({
   templatesDir,
   runtime,
 }) {
+  const logger = createLogger("pathway", runtime);
   logger.info("📦 Generating agent/skill packs...");
 
   const normalizedSiteUrl = siteUrl.replace(/\/$/, "");

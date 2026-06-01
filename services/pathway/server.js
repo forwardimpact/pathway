@@ -16,16 +16,17 @@ const config = await createServiceConfig("pathway", {
   data_dir: "",
 });
 
+// The service entry point is a legitimate construction site for the
+// production runtime; it threads the bag to every collaborator below.
+const runtime = createDefaultRuntime();
+
 // Initialize observability
-const logger = createLogger("pathway");
+const logger = createLogger("pathway", runtime);
 const tracer = await createTracer("pathway");
 
 // Resolve the pathway data directory using the same upward-walk + HOME
 // fallback rules as fit-pathway. SERVICE_PATHWAY_DATA_DIR (picked up by
 // libconfig and exposed as config.data_dir) overrides the discovery.
-// The service entry point is a legitimate construction site for the
-// production runtime; it threads the bag to every collaborator below.
-const runtime = createDefaultRuntime();
 const finder = new Finder({ ...runtime, logger });
 const data_dir = config.data_dir
   ? String(config.data_dir)

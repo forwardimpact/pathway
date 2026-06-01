@@ -34,7 +34,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("vectors");
+const logger = createLogger("vectors", runtime);
 
 /**
  * Processes resources into vector embeddings

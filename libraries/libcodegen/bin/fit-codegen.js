@@ -372,7 +372,7 @@ async function runCodegen(protoDirs, projectRoot, finder) {
  */
 async function main() {
   try {
-    const logger = new Logger("codegen");
+    const logger = new Logger("codegen", runtime);
     const finder = new Finder({
       fs: fsAsync,
       fsSync: fs,
@@ -392,7 +392,7 @@ async function main() {
 
     await runCodegen(protoDirs, projectRoot, finder);
   } catch (err) {
-    const logger = new Logger("codegen");
+    const logger = new Logger("codegen", runtime);
     logger.exception("main", err);
     cli.error(err.message);
     process.exit(1);

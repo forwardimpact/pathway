@@ -141,7 +141,7 @@ const definition = {
 };
 
 const cli = createCli(definition, { runtime });
-const logger = createLogger("terrain");
+const logger = createLogger("terrain", runtime);
 
 /**
  * Build an Anthropic-backed LLM client adapted to the OpenAI choices shape

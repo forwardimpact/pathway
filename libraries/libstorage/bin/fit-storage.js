@@ -104,7 +104,7 @@ const [command] = positionals;
  * @returns {Promise<string[]>} Array of discovered prefixes
  */
 async function discoverLocalPrefixes() {
-  const logger = new Logger("storage");
+  const logger = new Logger("storage", runtime);
   const finder = new Finder({ fs, fsSync: nodeFs, proc: process, logger });
   const root = finder.findUpward(process.cwd(), "data");
   if (!root) return [];
@@ -159,7 +159,7 @@ const commands = {
 
   async upload() {
     await createScriptConfig("storage");
-    const logger = new Logger("storage");
+    const logger = new Logger("storage", runtime);
     const prefixes = prefixList.length
       ? prefixList
       : await discoverLocalPrefixes();
@@ -197,7 +197,7 @@ const commands = {
 
   async download() {
     await createScriptConfig("storage");
-    const logger = new Logger("storage");
+    const logger = new Logger("storage", runtime);
     const prefixes = prefixList.length
       ? prefixList
       : await discoverRemotePrefixes();

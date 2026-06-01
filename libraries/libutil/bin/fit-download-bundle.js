@@ -32,7 +32,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("generated");
+const logger = createLogger("generated", runtime);
 
 /**
  * Downloads generated code bundle from remote storage.

@@ -81,7 +81,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("doc");
+const logger = createLogger("doc", runtime);
 
 /**
  * @param {import("../builder.js").PagesBuilder} builder
@@ -173,6 +173,7 @@ async function main() {
     parseFrontMatter,
     mustache.render,
     prettier,
+    runtime,
   );
 
   try {

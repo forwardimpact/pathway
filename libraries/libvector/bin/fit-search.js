@@ -34,7 +34,7 @@ const definition = {
 
 const runtime = createDefaultRuntime();
 const cli = createCli(definition, { runtime });
-const logger = createLogger("search");
+const logger = createLogger("search", runtime);
 
 /**
  * Searches vector index by embedding a query string
