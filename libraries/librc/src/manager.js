@@ -19,20 +19,10 @@
 import path from "node:path";
 import { createRequire } from "node:module";
 import { pipeline } from "node:stream/promises";
-import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 
 const require = createRequire(import.meta.url);
-const SVSCAN_BIN = require.resolve(
-  "@forwardimpact/libsupervise/bin/fit-svscan.js",
-);
-
-// Lazily constructed so that test code importing this module does not
-// trigger the real-fs side-effects of createDefaultRuntime at import time.
-let _defaultRuntime;
-function getDefaultRuntime() {
-  if (!_defaultRuntime) _defaultRuntime = createDefaultRuntime();
-  return _defaultRuntime;
-}
+const SVSCAN_BIN =
+  require.resolve("@forwardimpact/libsupervise/bin/fit-svscan.js");
 
 /**
  * @typedef {object} RuntimePaths
@@ -109,7 +99,8 @@ export class ServiceManager {
     if (!config) throw new Error("config is required");
     if (!logger) throw new Error("logger is required");
 
-    const runtime = deps.runtime ?? getDefaultRuntime();
+    const runtime = deps.runtime;
+    if (!runtime) throw new Error("deps.runtime is required");
 
     this.#config = config;
     this.#logger = logger;
