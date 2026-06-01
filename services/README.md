@@ -9,22 +9,22 @@ that let agents consume backend functionality natively.
 
 <!-- BEGIN:catalog — Do not edit. Generated from each service's package.json. -->
 
-| Service       | Description                                                                                                                                       |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **bridge**    | Canonical threaded-discussion store — single source of truth for GitHub/Microsoft Teams bridge state.                                             |
-| **embedding** | Text embeddings over gRPC — semantic representation without each product running its own inference.                                               |
-| **ghbridge**  | GitHub Discussions bridge — relay messages between GitHub Discussion threads and the Kata agent team.                                             |
-| **ghserver**  | GitHub App key custody and short-lived installation-token minting for the hosted control plane (proto only — service lands in spec 1270 part 02). |
-| **ghuser**    | GitHub user authentication — per-user OAuth token lifecycle for the Kata Agent User App.                                                          |
-| **graph**     | RDF knowledge graph over gRPC — relationship queries without each product standing up its own store.                                              |
-| **map**       | Activity reads and writes over gRPC — the agent-facing gateway to Map's activity database.                                                        |
-| **mcp**       | Unified MCP server — agents reach backend services as tools without per-service integration.                                                      |
-| **msbridge**  | Microsoft Teams bridge onto libbridge — relay messages between Teams conversations and the Kata agent team.                                       |
-| **oauth**     | OAuth 2.1 authorization server adapter — protocol-only HTTP front that delegates to a configured provider backend over gRPC.                      |
-| **pathway**   | Engineering standard queries over gRPC — career paths and agent profiles as derivable data for products.                                          |
-| **tenancy**   | Tenant registry — `(channel, channel_tenant_key) → Tenant` lookup for the hosted control plane.                                                   |
-| **trace**     | OpenTelemetry span ingestion and storage over gRPC — prove whether agent changes improved outcomes.                                               |
-| **vector**    | Vector similarity search over gRPC — semantic retrieval without a dedicated database per product.                                                 |
+| Service       | Description                                                                                                                  |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **bridge**    | Canonical threaded-discussion store — single source of truth for GitHub/Microsoft Teams bridge state.                        |
+| **embedding** | Text embeddings over gRPC — semantic representation without each product running its own inference.                          |
+| **ghbridge**  | GitHub Discussions bridge — relay messages between GitHub Discussion threads and the Kata agent team.                        |
+| **ghserver**  | GitHub App key custody and short-lived installation-token minting surface for the hosted control plane.                      |
+| **ghuser**    | GitHub user authentication — per-user OAuth token lifecycle for the Kata Agent User App.                                     |
+| **graph**     | RDF knowledge graph over gRPC — relationship queries without each product standing up its own store.                         |
+| **map**       | Activity reads and writes over gRPC — the agent-facing gateway to Map's activity database.                                   |
+| **mcp**       | Unified MCP server — agents reach backend services as tools without per-service integration.                                 |
+| **msbridge**  | Microsoft Teams bridge onto libbridge — relay messages between Teams conversations and the Kata agent team.                  |
+| **oauth**     | OAuth 2.1 authorization server adapter — protocol-only HTTP front that delegates to a configured provider backend over gRPC. |
+| **pathway**   | Engineering standard queries over gRPC — career paths and agent profiles as derivable data for products.                     |
+| **tenancy**   | Tenant registry — `(channel, channel_tenant_key) → Tenant` lookup for the hosted control plane.                              |
+| **trace**     | OpenTelemetry span ingestion and storage over gRPC — prove whether agent changes improved outcomes.                          |
+| **vector**    | Vector similarity search over gRPC — semantic retrieval without a dedicated database per product.                            |
 
 <!-- END:catalog -->
 

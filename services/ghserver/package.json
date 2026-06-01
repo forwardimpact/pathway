@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/svcghserver",
   "version": "0.1.0",
-  "description": "GitHub App key custody and short-lived installation-token minting for the hosted control plane (proto only — service lands in spec 1270 part 02).",
+  "description": "GitHub App key custody and short-lived installation-token minting surface for the hosted control plane.",
   "keywords": [
     "github",
     "app",

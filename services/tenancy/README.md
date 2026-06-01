@@ -25,8 +25,8 @@ sniffing state first.
 The registry holds **no** credential material. The GitHub App private key
 lives only in `services/ghserver`; the Bot Framework credential lives in
 `services/msbridge`. The callback-verification token model is the
-single-use registry inherited from spec 1230 — `services/tenancy` only
-adds tenant-id binding on top of that token; it does not introduce a new
+single-use registry already owned by `libraries/libbridge` — `services/tenancy`
+only adds tenant-id binding on top of that token; it does not introduce a new
 signature primitive.
 
 Configuration (loaded via `createServiceConfig("tenancy")`):
