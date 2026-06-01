@@ -117,11 +117,14 @@ function makeFhirToolFactory() {
 function makePipeline() {
   const tmpDir = mkdtempSync(join(tmpdir(), "fhir-rdf-"));
   const logger = makeLogger();
+  const runtime = createDefaultRuntime();
   const proseCache = new ProseCache({
+    runtime,
     cachePath: join(tmpDir, "cache.json"),
     logger,
   });
   const proseGenerator = new ProseGenerator({
+    runtime,
     cache: proseCache,
     mode: "no-prose",
     promptLoader: { load: () => "system", render: () => "user" },
@@ -129,7 +132,7 @@ function makePipeline() {
   });
   const deps = {
     dslParser: createDslParser(),
-    entityGenerator: createEntityGenerator(logger),
+    entityGenerator: createEntityGenerator(logger, runtime),
     proseCache,
     proseGenerator,
     pathwayGenerator: new PathwayGenerator(proseGenerator, logger),

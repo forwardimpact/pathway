@@ -90,9 +90,10 @@ export function createPipeline(opts) {
   const templateLoader = new TemplateLoader(templateDir, runtime);
 
   const dslParser = createDslParser();
-  const entityGenerator = createEntityGenerator(logger);
-  const proseCache = new ProseCache({ cachePath, logger });
+  const entityGenerator = createEntityGenerator(logger, runtime);
+  const proseCache = new ProseCache({ cachePath, logger, runtime });
   const proseGenerator = new ProseGenerator({
+    runtime,
     cache: proseCache,
     mode,
     strict: opts.strict,

@@ -184,7 +184,7 @@ export function buildNodes(ctx) {
         if (!hasPathwayStandard || !options.schemaDir) return { files };
 
         logger.info("render", "Rendering pathway");
-        const schemas = loadSchemas(options.schemaDir);
+        const schemas = loadSchemas(options.schemaDir, runtime);
         const pathwayData = await pathwayGenerator.generate({
           standard: entities.standard,
           domain: entities.domain,
