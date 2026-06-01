@@ -3,13 +3,14 @@ import assert from "node:assert";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
+import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 import { renderHTML } from "../src/render/html.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_DIR = join(__dirname, "..", "templates");
 
 function makeTemplates() {
-  return new TemplateLoader(TEMPLATE_DIR);
+  return new TemplateLoader(TEMPLATE_DIR, createDefaultRuntime());
 }
 
 function makeMinimalEntities(overrides = {}) {

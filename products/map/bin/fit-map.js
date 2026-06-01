@@ -314,7 +314,7 @@ async function runExport(dataDir, outputDir) {
 
   const exporter = await createExporter({
     runtime,
-    renderer: createRenderer(),
+    renderer: createRenderer(runtime),
   });
   const result = await exporter.exportAll({ data, outputDir });
 

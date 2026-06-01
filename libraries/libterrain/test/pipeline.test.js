@@ -19,6 +19,7 @@ import {
   PathwayGenerator,
 } from "@forwardimpact/libsyntheticprose";
 import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
+import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 import { Pipeline } from "../src/pipeline.js";
 import { NullProseCacheSink } from "../src/sinks.js";
 
@@ -111,7 +112,10 @@ function makePipelineDeps({
       proseCache,
       proseGenerator,
       pathwayGenerator: new PathwayGenerator(proseGenerator, logger),
-      renderer: new Renderer(new TemplateLoader(TEMPLATE_DIR), logger),
+      renderer: new Renderer(
+        new TemplateLoader(TEMPLATE_DIR, createDefaultRuntime()),
+        logger,
+      ),
       validator: new ContentValidator(logger),
       proseCacheSink: new NullProseCacheSink(),
       toolFactory,

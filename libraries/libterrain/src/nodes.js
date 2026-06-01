@@ -290,7 +290,7 @@ export function buildNodes(ctx) {
             );
             continue;
           }
-          const rendered = renderFhirMicrodataHtml(input, out.config);
+          const rendered = renderFhirMicrodataHtml(input, out.config, runtime);
           for (const [path, content] of rendered) files.set(path, content);
         }
         return { files };

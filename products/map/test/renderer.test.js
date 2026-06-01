@@ -104,7 +104,7 @@ const CTX = {
 };
 
 describe("Renderer", () => {
-  const renderer = createRenderer();
+  const renderer = createRenderer(createDefaultRuntime());
 
   test("renderSkill emits a complete HTML document with fit:Skill quads", async () => {
     const html = renderer.renderSkill(SKILL, CTX);

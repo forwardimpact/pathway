@@ -86,8 +86,8 @@ export function createPipeline(opts) {
     templateDir,
     persistCache,
   } = opts;
-  const promptLoader = new PromptLoader(promptDir);
-  const templateLoader = new TemplateLoader(templateDir);
+  const promptLoader = new PromptLoader(promptDir, runtime);
+  const templateLoader = new TemplateLoader(templateDir, runtime);
 
   const dslParser = createDslParser();
   const entityGenerator = createEntityGenerator(logger);

@@ -127,10 +127,11 @@ export class Renderer {
 /**
  * Creates a Renderer with real dependencies wired.
  * @param {object} logger - Logger instance
+ * @param {import("@forwardimpact/libutil/runtime").Runtime} runtime - Injected runtime bag
  * @returns {Renderer}
  */
-export function createRenderer(logger) {
+export function createRenderer(logger, runtime) {
   const templateDir = join(__dirname, "..", "..", "templates");
-  const templateLoader = new TemplateLoader(templateDir);
+  const templateLoader = new TemplateLoader(templateDir, runtime);
   return new Renderer(templateLoader, logger);
 }
