@@ -50,24 +50,6 @@ function parseEnvLine(line) {
 }
 
 /**
- * Resolve the injected runtime collaborator.
- *
- * Injected — callers pass `{ runtime }` (the bag carries
- *   `{ proc, fs, clock, subprocess }`); a bare bag is also accepted.
- * Absent   — falls back to `createDefaultRuntime()` (a composition-root
- *   convenience; config factories may be called without a runtime).
- *
- * @param {{ runtime: object }|object|undefined} runtimeOption
- * @returns {{ proc: object, fs: object, clock: object }}
- */
-function resolveRuntime(runtimeOption) {
-  if (!runtimeOption) {
-    return createDefaultRuntime();
-  }
-  return runtimeOption.runtime ?? runtimeOption;
-}
-
-/**
  * Centralized configuration management class
  */
 export class Config {
@@ -127,7 +109,11 @@ export class Config {
     runtimeOption = undefined,
     storageFn = createStorage,
   ) {
-    const rt = resolveRuntime(runtimeOption);
+    // Injected `{ runtime }` (or a bare runtime bag); absent → the default
+    // production runtime (a composition-root convenience for config factories).
+    const rt = runtimeOption
+      ? (runtimeOption.runtime ?? runtimeOption)
+      : createDefaultRuntime();
     this.#runtime = rt;
     this.#proc = rt.proc;
     this.#fs = rt.fs;
