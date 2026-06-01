@@ -3,6 +3,7 @@ import "@forwardimpact/libpreflight/node22";
 
 import { readFileSync } from "node:fs";
 import { createCli } from "@forwardimpact/libcli";
+import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createResourceIndex } from "@forwardimpact/libresource";
 import { createStorage } from "@forwardimpact/libstorage";
@@ -37,7 +38,8 @@ const definition = {
   },
 };
 
-const cli = createCli(definition);
+const runtime = createDefaultRuntime();
+const cli = createCli(definition, { runtime });
 const logger = createLogger("resources");
 
 /**

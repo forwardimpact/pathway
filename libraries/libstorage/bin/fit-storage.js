@@ -10,6 +10,7 @@ import {
   formatSuccess,
   formatBullet,
 } from "@forwardimpact/libcli";
+import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createStorage } from "@forwardimpact/libstorage";
 import { Logger } from "@forwardimpact/libtelemetry";
@@ -89,7 +90,8 @@ const definition = {
   ],
 };
 
-const cli = createCli(definition);
+const runtime = createDefaultRuntime();
+const cli = createCli(definition, { runtime });
 const parsed = cli.parse(process.argv.slice(2));
 if (!parsed) process.exit(0);
 

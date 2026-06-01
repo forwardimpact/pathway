@@ -212,7 +212,7 @@ const definition = {
   ],
 };
 
-const cli = createCli(definition);
+const cli = createCli(definition, { runtime });
 
 /**
  * Format validation results for display using libcli helpers.
@@ -254,9 +254,8 @@ async function runValidate(dataDir) {
     formatHeader(`Validating data in: ${dataDir}`) + "\n\n",
   );
 
-  const { createDataLoader, createSchemaValidator } = await import(
-    "../src/index.js"
-  );
+  const { createDataLoader, createSchemaValidator } =
+    await import("../src/index.js");
 
   const loader = createDataLoader(runtime);
   const validator = createSchemaValidator(runtime);
@@ -307,9 +306,8 @@ async function runExport(dataDir, outputDir) {
     formatHeader(`Exporting standard to: ${outputDir}`) + "\n\n",
   );
 
-  const { createDataLoader, createExporter, createRenderer } = await import(
-    "../src/index.js"
-  );
+  const { createDataLoader, createExporter, createRenderer } =
+    await import("../src/index.js");
 
   const loader = createDataLoader(runtime);
   const data = await loader.loadAllData(dataDir);
@@ -413,9 +411,8 @@ async function dispatchPeople(subcommand, rest, values) {
     }
     case "provision": {
       const supabase = await mapClient();
-      const { runProvisionCommand } = await import(
-        "../src/commands/people-provision.js"
-      );
+      const { runProvisionCommand } =
+        await import("../src/commands/people-provision.js");
       await runProvisionCommand({ supabase, runtime });
       return 0;
     }
@@ -486,9 +483,8 @@ async function dispatchAuth(subcommand, _rest, values) {
   switch (subcommand) {
     case "issue": {
       const supabase = await mapClient();
-      const { runAuthIssueCommand } = await import(
-        "../src/commands/auth-issue.js"
-      );
+      const { runAuthIssueCommand } =
+        await import("../src/commands/auth-issue.js");
       await runAuthIssueCommand({
         supabase,
         config,
@@ -539,9 +535,8 @@ async function main() {
       }
       case "validate": {
         if (values.shacl) {
-          const { runValidateShacl } = await import(
-            "../src/commands/validate-shacl.js"
-          );
+          const { runValidateShacl } =
+            await import("../src/commands/validate-shacl.js");
           exitCode = await runValidateShacl(runtime);
         } else {
           const dataDir = await findDataDir(values.data, runtime);

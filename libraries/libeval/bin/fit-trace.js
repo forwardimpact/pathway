@@ -376,6 +376,8 @@ async function main() {
 
 main().catch((error) => {
   logger.exception("main", error);
-  createCli(definition).error(error.message);
+  createCli(definition, { runtime: createDefaultRuntime() }).error(
+    error.message,
+  );
   process.exit(1);
 });

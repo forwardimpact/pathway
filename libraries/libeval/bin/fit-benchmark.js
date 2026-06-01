@@ -187,7 +187,9 @@ async function main() {
 if (import.meta.url === `file://${realpathSync(process.argv[1])}`) {
   main().catch((error) => {
     logger.exception("main", error);
-    createCli(definition).error(error.message);
+    createCli(definition, { runtime: createDefaultRuntime() }).error(
+      error.message,
+    );
     process.exit(1);
   });
 }

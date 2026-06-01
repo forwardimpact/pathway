@@ -140,7 +140,7 @@ const definition = {
   documentation,
 };
 
-const cli = createCli(definition);
+const cli = createCli(definition, { runtime });
 const logger = createLogger("terrain");
 
 /**

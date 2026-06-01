@@ -30,7 +30,8 @@ const definition = {
   },
 };
 
-const cli = createCli(definition);
+const runtime = createDefaultRuntime();
+const cli = createCli(definition, { runtime });
 const logger = createLogger("generated");
 
 /**
@@ -43,11 +44,7 @@ async function main() {
   if (!parsed) process.exit(0);
 
   await createScriptConfig("download-bundle");
-  const downloader = createBundleDownloader(
-    createStorage,
-    logger,
-    createDefaultRuntime(),
-  );
+  const downloader = createBundleDownloader(createStorage, logger, runtime);
   await downloader.download();
 
   // If additional arguments provided, execute them after download

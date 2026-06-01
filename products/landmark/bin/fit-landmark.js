@@ -35,9 +35,8 @@ import { formatResult } from "../src/formatters/index.js";
 // contributors move createProductConfig earlier in this file, the
 // products/landmark/test/lib/commands-verb.test.js runtime test fails.
 if (process.argv[2] === "_commands") {
-  const { SUBCOMMAND_EXPANSIONS, FLAT_SMOKE_OPTIONS } = await import(
-    "../src/lib/commands-manifest.js"
-  );
+  const { SUBCOMMAND_EXPANSIONS, FLAT_SMOKE_OPTIONS } =
+    await import("../src/lib/commands-manifest.js");
   // JSON.stringify drops handler function references — that's intentional:
   // the smoke only needs needsSupabase per entry, which serialises fine.
   process.stdout.write(
@@ -265,7 +264,8 @@ const definition = {
 };
 
 async function main() {
-  const cli = createCli(definition);
+  const runtime = createDefaultRuntime();
+  const cli = createCli(definition, { runtime });
   const parsed = cli.parse(process.argv.slice(2));
   if (!parsed) process.exit(0);
 
@@ -282,8 +282,6 @@ async function main() {
     cli.usageError(`unknown command "${command}"`);
     process.exit(2);
   }
-
-  const runtime = createDefaultRuntime();
 
   try {
     const dataDir = resolveDataDir(values, runtime);

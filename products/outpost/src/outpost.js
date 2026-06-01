@@ -401,7 +401,7 @@ export async function run(runtime, version) {
   }
 
   // --- CLI entry point -------------------------------------------------------
-  const cli = createCli(buildDefinition(version));
+  const cli = createCli(buildDefinition(version), { runtime });
   const parsed = cli.parse(proc.argv.slice(2));
   if (!parsed) return 0;
 

@@ -11,6 +11,7 @@ import protoLoader from "@grpc/proto-loader";
 import mustache from "mustache";
 
 import { createCli, SummaryRenderer } from "@forwardimpact/libcli";
+import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 import { Finder } from "@forwardimpact/libutil";
 import { Logger } from "@forwardimpact/libtelemetry";
 import {
@@ -62,7 +63,8 @@ const definition = {
   ],
 };
 
-const cli = createCli(definition);
+const runtime = createDefaultRuntime();
+const cli = createCli(definition, { runtime });
 
 /**
  * Create tar.gz bundle of all directories inside sourcePath
