@@ -1,9 +1,6 @@
 import path from "node:path";
 import { createStorage } from "@forwardimpact/libstorage";
-import {
-  createDefaultProc,
-  createDefaultRuntime,
-} from "@forwardimpact/libutil/runtime";
+import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 
 /** @typedef {import("@forwardimpact/libstorage").StorageInterface} StorageInterface */
 /** @typedef {import("@forwardimpact/libutil/runtime").Runtime} Runtime */
@@ -53,36 +50,21 @@ function parseEnvLine(line) {
 }
 
 /**
- * Resolve a runtime collaborator from the new or legacy call shapes.
+ * Resolve the injected runtime collaborator.
  *
- * New shape  — callers pass `{ runtime }` as the third positional arg; the
- *   runtime bag carries `{ proc, fs, clock, subprocess }`.
- * Legacy shape — callers pass a bare `process`-like object (with `.env` and
- *   `.cwd()`). This is mapped onto a minimal runtime for one deprecation cycle.
- * Absent      — falls back to `createDefaultRuntime()`.
+ * Injected — callers pass `{ runtime }` (the bag carries
+ *   `{ proc, fs, clock, subprocess }`); a bare bag is also accepted.
+ * Absent   — falls back to `createDefaultRuntime()` (a composition-root
+ *   convenience; config factories may be called without a runtime).
  *
- * @param {object|undefined} runtimeOrProcess
+ * @param {{ runtime: object }|object|undefined} runtimeOption
  * @returns {{ proc: object, fs: object, clock: object }}
  */
-function resolveRuntime(runtimeOrProcess) {
-  if (!runtimeOrProcess) {
+function resolveRuntime(runtimeOption) {
+  if (!runtimeOption) {
     return createDefaultRuntime();
   }
-  // New shape: { runtime: <bag> }
-  if (runtimeOrProcess.runtime) {
-    return runtimeOrProcess.runtime;
-  }
-  // Legacy shape: bare process-like object ({ env, cwd })
-  // Map onto a minimal runtime, preserving the original proc surface.
-  const legacyProc =
-    typeof runtimeOrProcess.cwd === "function"
-      ? runtimeOrProcess
-      : createDefaultProc({ source: runtimeOrProcess });
-  const defaultRt = createDefaultRuntime();
-  return {
-    ...defaultRt,
-    proc: legacyProc,
-  };
+  return runtimeOption.runtime ?? runtimeOption;
 }
 
 /**
@@ -120,34 +102,33 @@ export class Config {
   #clock;
   #storageFn;
   #subprocess;
+  #runtime;
 
   /**
    * Creates a new Config instance.
    *
-   * Preferred call shape (new):
+   * Call shape:
    *   `new Config(namespace, name, defaults, { runtime }, storageFn)`
    *   where `runtime` is a runtime bag from `createDefaultRuntime()` or
-   *   `createTestRuntime()`.
-   *
-   * Legacy call shape (one-cycle deprecation alias — still supported):
-   *   `new Config(namespace, name, defaults, process, storageFn)`
-   *   where `process` is a bare process-like object with `.env` and `.cwd()`.
+   *   `createTestRuntime()`. The runtime arg is optional — when omitted the
+   *   default production runtime is built (a composition-root convenience).
    *
    * @param {string} namespace - Namespace for the configuration
    * @param {string} name - Name of the configuration
    * @param {object} [defaults] - Default configuration values
-   * @param {{ runtime: Runtime }|object} [runtimeOrProcess] - Runtime bag wrapper
-   *   or legacy bare process object
-   * @param {(bucket: string, type?: string, process?: object) => StorageInterface} [storageFn]
+   * @param {{ runtime: Runtime }|Runtime} [runtimeOption] - Runtime bag wrapper
+   *   (or a bare runtime bag)
+   * @param {(bucket: string, type?: string, runtime?: object) => StorageInterface} [storageFn]
    */
   constructor(
     namespace,
     name,
     defaults = {},
-    runtimeOrProcess = undefined,
+    runtimeOption = undefined,
     storageFn = createStorage,
   ) {
-    const rt = resolveRuntime(runtimeOrProcess);
+    const rt = resolveRuntime(runtimeOption);
+    this.#runtime = rt;
     this.#proc = rt.proc;
     this.#fs = rt.fs;
     this.#clock = rt.clock;
@@ -164,7 +145,7 @@ export class Config {
    * @returns {Promise<void>}
    */
   async load() {
-    this.#storage = this.#storageFn("config", null, this.#proc);
+    this.#storage = this.#storageFn("config", null, this.#runtime);
 
     // 1. Load .env — credentials go to #envOverrides, everything else
     //    goes to proc.env (so SERVICE_*_URL etc. are available below)
