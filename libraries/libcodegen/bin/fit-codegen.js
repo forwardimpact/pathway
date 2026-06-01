@@ -371,7 +371,12 @@ async function runCodegen(protoDirs, projectRoot, finder) {
 async function main() {
   try {
     const logger = new Logger("codegen");
-    const finder = new Finder(fsAsync, logger, process);
+    const finder = new Finder({
+      fs: fsAsync,
+      fsSync: fs,
+      proc: process,
+      logger,
+    });
     const projectRoot = finder.findProjectRoot(process.cwd());
 
     const protoDirs = discoverProtoDirs(projectRoot);

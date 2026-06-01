@@ -9,7 +9,6 @@ import { Finder } from "@forwardimpact/libutil";
 import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 import { homedir } from "os";
 import { join } from "path";
-import fs from "fs/promises";
 
 import { PathwayService } from "./index.js";
 
@@ -24,7 +23,10 @@ const tracer = await createTracer("pathway");
 // Resolve the pathway data directory using the same upward-walk + HOME
 // fallback rules as fit-pathway. SERVICE_PATHWAY_DATA_DIR (picked up by
 // libconfig and exposed as config.data_dir) overrides the discovery.
-const finder = new Finder(fs, logger, process);
+// The service entry point is a legitimate construction site for the
+// production runtime; it threads the bag to every collaborator below.
+const runtime = createDefaultRuntime();
+const finder = new Finder({ ...runtime, logger });
 const data_dir = config.data_dir
   ? String(config.data_dir)
   : join(finder.findData("data", homedir()), "pathway");
@@ -33,9 +35,8 @@ const data_dir = config.data_dir
 // loadAllData drops `human` from each skill (loader.js:102-127) while
 // loadSkillsWithAgentData spreads the full raw skill, which is the shape
 // generateAgentProfile walks. Both are required.
-// createDataLoader requires an injected runtime; the service entry point is a
-// legitimate construction site for the production runtime.
-const loader = createDataLoader(createDefaultRuntime());
+// createDataLoader requires an injected runtime; reuse the bag built above.
+const loader = createDataLoader(runtime);
 const data = await loader.loadAllData(data_dir);
 const agentData = await loader.loadAgentData(data_dir);
 const skillsWithAgent = await loader.loadSkillsWithAgentData(data_dir);

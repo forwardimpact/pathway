@@ -9,6 +9,7 @@ import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createStorage } from "@forwardimpact/libstorage";
 import { createLogger } from "@forwardimpact/libtelemetry";
 import { createBundleDownloader, execLine } from "@forwardimpact/libutil";
+import { createDefaultRuntime } from "@forwardimpact/libutil/runtime";
 
 // `bun build --compile` injects FIT_DOWNLOAD_BUNDLE_VERSION via --define,
 // eliminating the readFileSync branch in the compiled binary (which would
@@ -42,7 +43,11 @@ async function main() {
   if (!parsed) process.exit(0);
 
   await createScriptConfig("download-bundle");
-  const downloader = createBundleDownloader(createStorage, logger);
+  const downloader = createBundleDownloader(
+    createStorage,
+    logger,
+    createDefaultRuntime(),
+  );
   await downloader.download();
 
   // If additional arguments provided, execute them after download

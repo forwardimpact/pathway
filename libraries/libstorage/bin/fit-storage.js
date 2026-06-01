@@ -2,7 +2,7 @@
 
 import "@forwardimpact/libpreflight/node22";
 
-import { readFileSync } from "node:fs";
+import nodeFs, { readFileSync } from "node:fs";
 import fs from "node:fs/promises";
 import {
   createCli,
@@ -103,7 +103,7 @@ const [command] = positionals;
  */
 async function discoverLocalPrefixes() {
   const logger = new Logger("storage");
-  const finder = new Finder(fs, logger);
+  const finder = new Finder({ fs, fsSync: nodeFs, proc: process, logger });
   const root = finder.findUpward(process.cwd(), "data");
   if (!root) return [];
 
